@@ -82,7 +82,7 @@ public class OperationSelectActivity extends AppCompatActivity {
                 .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        UpdateUserUtil updateUserUtil=new UpdateUserUtil(myApp.getUserBean());
+                        UpdateUserUtil updateUserUtil=new UpdateUserUtil(myApp.getUserBean(),OperationSelectActivity.this);
                         updateUserUtil.exit();
                         myApp.exit();
                     }

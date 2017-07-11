@@ -96,10 +96,10 @@ public class LoginActivity extends AppCompatActivity {
                         myApp.setCurrentAreaBean(new AreaBean("一号厂区","C01"));
                         Intent intent = new Intent(LoginActivity.this, OperationSelectActivity.class);
                         startActivity(intent);
-                        UpdateUserUtil updateUserUtil = new UpdateUserUtil(myApp.getUserBean());
+                        UpdateUserUtil updateUserUtil = new UpdateUserUtil(myApp.getUserBean(),LoginActivity.this);
                         updateUserUtil.login();
                     }else{
-                        Toast.makeText(LoginActivity.this,"此用户在别的系统上已经登录",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this,"此用户在"+response.body().getAttributes().getUser().getDeviceName()+"上已经登录",Toast.LENGTH_SHORT).show();
                     }
 
                 }else{
