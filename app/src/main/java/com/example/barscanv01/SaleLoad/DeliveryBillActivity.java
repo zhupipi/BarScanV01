@@ -32,6 +32,7 @@ import com.example.barscanv01.Util.CheckOutOrderDetailUtil;
 import com.example.barscanv01.Util.OutOrderDetailSortUtil;
 import com.example.barscanv01.Util.OutOrderScanedUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
+import com.example.barscanv01.Util.WriteBizlogUtil;
 import com.nlscan.android.scan.ScanManager;
 import com.nlscan.android.scan.ScanSettings;
 
@@ -242,16 +243,22 @@ public class DeliveryBillActivity extends AppCompatActivity {
                                 Intent intent=new Intent(DeliveryBillActivity.this,SaleLoadActivity.class);
                                 intent.putExtra("id",position);
                                 startActivity(intent);
+                                WriteBizlogUtil writeBizlogUtil=new WriteBizlogUtil(outdetail,DeliveryBillActivity.this);
+                                writeBizlogUtil.writeLoadStartedLog();
                             }else{
                                 if(outdetail.getCustomerCode().equals(DeliveryBillSingleton.getInstance().getLastCustomerCode())){
                                     Intent intent=new Intent(DeliveryBillActivity.this,SaleLoadActivity.class);
                                     intent.putExtra("id",position);
                                     startActivity(intent);
+                                    WriteBizlogUtil writeBizlogUtil=new WriteBizlogUtil(outdetail,DeliveryBillActivity.this);
+                                    writeBizlogUtil.writeLoadStartedLog();
                                 }else{
                                     if(!checklastCustomerNotLoaded()){
                                         Intent intent=new Intent(DeliveryBillActivity.this,SaleLoadActivity.class);
                                         intent.putExtra("id",position);
                                         startActivity(intent);
+                                        WriteBizlogUtil writeBizlogUtil=new WriteBizlogUtil(outdetail,DeliveryBillActivity.this);
+                                        writeBizlogUtil.writeLoadStartedLog();
                                     }else{
                                         Toast.makeText(DeliveryBillActivity.this,DeliveryBillSingleton.getInstance().getLastCustomerName()+"用户还未装车完成",Toast.LENGTH_SHORT).show();
                                     }
