@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".SaleLoad.SaleLoadActivity">
+
+    <item
+        android:id="@+id/out_order_detial_over"
+        android:title="发货单明细装车完成"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/out_order_over"
+        android:orderInCategory="101"
+        android:title="发货单全部装车完成"
+        app:showAsAction="never" />
+</menu>

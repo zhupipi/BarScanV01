@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--点击时textView背景-->
+    <item android:state_focused="false" android:state_pressed="true"   android:drawable="@drawable/recycler_bg" />
+
+    <item android:drawable="@drawable/recycler_item_shape2"/>
+</selector>

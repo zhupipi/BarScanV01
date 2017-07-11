@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">BarScanV01</string>
+    <string name="app_login_title">友发钢管集团扫码系统</string>
+    <string name="app_login_name">用户名:</string>
+    <string name="app_login_paswd">密   码:</string>
+    <string name="app_lgoin_button_login">登录</string>
+    <string name="app_login_button_reset">重置</string>
+    <string name="app_login_checkbox">保存用户名、密码</string>
+    <string name="title_activity_bill_scan">BillScan</string>
+    <string name="app_bill_scan_button">查询</string>
+    <string name="app_bill_scan_edithint">输入或扫描采购订单号</string>
+    <string name="title_activity_opertaion_select">OpertaionSelectActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+</resources>
