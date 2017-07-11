@@ -73,7 +73,7 @@ public class OutOrderDetailAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 public void onClick(View v) {
                     int postion=holder.getLayoutPosition();
                     mOnItemClickLitener.onItemClick(holder.itemView,position);
-                    mOnItemClickLitener.onItemClick(holder.itemView,position);
+                    //mOnItemClickLitener.onItemClick(holder.itemView,position);
                 }
             });
         }

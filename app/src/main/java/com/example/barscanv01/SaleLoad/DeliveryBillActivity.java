@@ -174,7 +174,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                                         OutOrderDetailSortUtil detailSort = new OutOrderDetailSortUtil(response.body().getAttributes().getOutOrderDetailList(), DeliveryBillActivity.this);
                                         CheckOutOrderDetailUtil checkOutOrderDetail = new CheckOutOrderDetailUtil();
                                         DeliveryBillSingleton.getInstance().setOutOrderDetailBean(detailSort.getFinalOutOrderDetails());
-                                        billNumber.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getOutOrderNo());
+                                        billNumber.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getOutOrderNo()+" ");
                                         showDetail();
                                         OutOrderScanedUtil orderScanedUtil = new OutOrderScanedUtil(response.body().getAttributes().getOutOrder());
                                         orderScanedUtil.updateOutOrderProcess();
@@ -229,7 +229,6 @@ public class DeliveryBillActivity extends AppCompatActivity {
     private void showDetail() {
 
             myAdapter=new OutOrderDetailAdapter(DeliveryBillActivity.this,DeliveryBillSingleton.getInstance().getOutOrderDetailBean(),myApp.getCurrentDepot());
-           // myAdapter=new OutOrderDetailAdapter(DeliveryBillActivity.this,scanResult);
             outOrderDetialView.setAdapter(myAdapter);
             myAdapter.setOnItemClickLitener(new OutOrderDetailAdapter.OnItemClickLitener() {
                 @Override
