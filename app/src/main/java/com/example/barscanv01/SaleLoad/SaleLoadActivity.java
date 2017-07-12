@@ -88,6 +88,7 @@ public class SaleLoadActivity extends AppCompatActivity {
     private PositionBean position;
 
     private AlertDialog alertDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,27 +96,28 @@ public class SaleLoadActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("扫码装车/倒垛");
-       // toolbar.inflateMenu(R.menu.loadover_select);
-        myApp=(MyApp) getApplication();
-        Intent intent=getIntent();
-        int id=intent.getIntExtra("id",-1);
+        // toolbar.inflateMenu(R.menu.loadover_select);
+        myApp = (MyApp) getApplication();
+        Intent intent = getIntent();
+        int id = intent.getIntExtra("id", -1);
         loadData(id);
-        positionList=new ArrayList<PositionBean>();
-        fragmentManager=getSupportFragmentManager();
-        FragmentTransaction transaction=fragmentManager.beginTransaction();
-        LoadOperationSelectFragment  loadOperationSelectFragment=new LoadOperationSelectFragment();
+        positionList = new ArrayList<PositionBean>();
+        getPositionList();
+        fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        LoadOperationSelectFragment loadOperationSelectFragment = new LoadOperationSelectFragment();
         loadOperationSelectFragment.setOnItemClickListener(new LoadOperationSelectFragment.OnItemClickListener() {
             @Override
             public void onItemClick(View view, String tag) {
-                FragmentTransaction transaction1=fragmentManager.beginTransaction();
-                ScanResultFragment scanResultFragment=new ScanResultFragment();
-                transaction1.replace(R.id.customer_load_change_fragment,scanResultFragment,tag);
+                FragmentTransaction transaction1 = fragmentManager.beginTransaction();
+                ScanResultFragment scanResultFragment = new ScanResultFragment();
+                transaction1.replace(R.id.customer_load_change_fragment, scanResultFragment, tag);
                 transaction1.commit();
             }
         });
-        transaction.add(R.id.customer_load_change_fragment,loadOperationSelectFragment,"OPERATION_SELECT");
+        transaction.add(R.id.customer_load_change_fragment, loadOperationSelectFragment, "OPERATION_SELECT");
         transaction.commit();
-        scanManager=ScanManager.getInstance();
+        scanManager = ScanManager.getInstance();
         scanManager.setOutpuMode(ScanSettings.Global.VALUE_OUT_PUT_MODE_BROADCAST);
         confirm.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,18 +128,18 @@ public class SaleLoadActivity extends AppCompatActivity {
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                int id=item.getItemId();
-                if(id==R.id.out_order_detial_over){
+                int id = item.getItemId();
+                if (id == R.id.out_order_detial_over) {
 
-                    AlertDialog.Builder outOrderDetailOverbuilder=new AlertDialog.Builder(SaleLoadActivity.this);
+                    AlertDialog.Builder outOrderDetailOverbuilder = new AlertDialog.Builder(SaleLoadActivity.this);
                     outOrderDetailOverbuilder.setTitle("注意");
                     outOrderDetailOverbuilder.setMessage("您确定该客户该规格所有货品装车完成");
                     outOrderDetailOverbuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            Retrofit retrofit=new RetrofitBuildUtil().retrofit;
-                            OutOrderDetailProcessService outOrderDetailProcessService=retrofit.create(OutOrderDetailProcessService.class);
-                            Call<ResponseBody> call=outOrderDetailProcessService.updateProcess(detial.getId());
+                            Retrofit retrofit = new RetrofitBuildUtil().retrofit;
+                            OutOrderDetailProcessService outOrderDetailProcessService = retrofit.create(OutOrderDetailProcessService.class);
+                            Call<ResponseBody> call = outOrderDetailProcessService.updateProcess(detial.getId());
                             call.enqueue(new Callback<ResponseBody>() {
                                 @Override
                                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -152,16 +154,16 @@ public class SaleLoadActivity extends AppCompatActivity {
                         }
                     });
                     outOrderDetailOverbuilder.show();
-                }else if(id==R.id.out_order_over){
-                    AlertDialog.Builder outOrderOverBuild=new AlertDialog.Builder(SaleLoadActivity.this);
+                } else if (id == R.id.out_order_over) {
+                    AlertDialog.Builder outOrderOverBuild = new AlertDialog.Builder(SaleLoadActivity.this);
                     outOrderOverBuild.setTitle("注意")
                             .setMessage("您确定该发货单装车完成")
                             .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    Retrofit retrofit=new RetrofitBuildUtil().retrofit;
-                                    OutOrderProcessService outOrderProcessService =retrofit.create(OutOrderProcessService.class);
-                                    Call<ResponseBody> call=outOrderProcessService.updateProcess(DeliveryBillSingleton.getInstance().getOutOrderBean().getId(),"5");
+                                    Retrofit retrofit = new RetrofitBuildUtil().retrofit;
+                                    OutOrderProcessService outOrderProcessService = retrofit.create(OutOrderProcessService.class);
+                                    Call<ResponseBody> call = outOrderProcessService.updateProcess(DeliveryBillSingleton.getInstance().getOutOrderBean().getId(), "5");
                                     call.enqueue(new Callback<ResponseBody>() {
                                         @Override
                                         public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -176,30 +178,30 @@ public class SaleLoadActivity extends AppCompatActivity {
                             })
                             .show();
                 }
-                return  true;
+                return true;
             }
         });
     }
 
     private void submitData() {
-        String tag=fragmentManager.findFragmentById(R.id.customer_load_change_fragment).getTag();
-        if(tag.equals("OPERATION_SELECT")){
-            Toast.makeText(this,"请选择装车操作，扫描产品条形码",Toast.LENGTH_SHORT).show();
-        }else{
-            ScanResultFragment fragment= (ScanResultFragment) fragmentManager.findFragmentById(R.id.customer_load_change_fragment);
-            ArrayList<GoodsBarcodeBean> scanResult=new ArrayList<GoodsBarcodeBean>();
-            scanResult=fragment.getScanResultArryList();
-            switch (tag){
+        String tag = fragmentManager.findFragmentById(R.id.customer_load_change_fragment).getTag();
+        if (tag.equals("OPERATION_SELECT")) {
+            Toast.makeText(this, "请选择装车操作，扫描产品条形码", Toast.LENGTH_SHORT).show();
+        } else {
+            ScanResultFragment fragment = (ScanResultFragment) fragmentManager.findFragmentById(R.id.customer_load_change_fragment);
+            ArrayList<GoodsBarcodeBean> scanResult = new ArrayList<GoodsBarcodeBean>();
+            scanResult = fragment.getScanResultArryList();
+            switch (tag) {
                 case "OPERATION_LOAD_CAR":
-                    if(scanResult.size()>0){
-                        double totalweight=0.0;
-                        for(GoodsBarcodeBean good:scanResult){
+                    if (scanResult.size() > 0) {
+                        double totalweight = 0.0;
+                        for (GoodsBarcodeBean good : scanResult) {
                             putGoodLoaded(good);
-                            totalweight=totalweight+Double.valueOf(good.getActWeight());
+                            totalweight = totalweight + Double.valueOf(good.getActWeight());
                         }
-                        Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
-                        PutGoodLoadedService putGoodLoadedService=retrofit.create(PutGoodLoadedService.class);
-                        Call<ResponseBody> call=putGoodLoadedService.updateActCount(detial.getId(),Double.toString(totalweight),Integer.toString(scanResult.size()));
+                        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+                        PutGoodLoadedService putGoodLoadedService = retrofit.create(PutGoodLoadedService.class);
+                        Call<ResponseBody> call = putGoodLoadedService.updateActCount(detial.getId(), Double.toString(totalweight), Integer.toString(scanResult.size()));
                         call.enqueue(new Callback<ResponseBody>() {
                             @Override
                             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -213,38 +215,38 @@ public class SaleLoadActivity extends AppCompatActivity {
                         });
 
                         fragment.cleanData();
-                    }else{
-                        Toast.makeText(this,"没有扫描货品条形码",Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "没有扫描货品条形码", Toast.LENGTH_SHORT).show();
                     }
                     break;
                 case "OPERATION_CHANGE_DEPOT":
-                    Log.d("aaaa","daoduola");
-                    getPositionList();
-                    if(positionList.size()>0){
-                        ArrayList<String> positionNames=new ArrayList<String>();
-                        for(PositionBean position:positionList){
+                    Log.d("aaaa", "daoduola");
+                    if (positionList.size() > 0) {
+                        ArrayList<String> positionNames = new ArrayList<String>();
+                        for (PositionBean position : positionList) {
                             positionNames.add(position.getPositionName());
                         }
-                        ArrayAdapter<String> adpter=new ArrayAdapter<String>(this,android.R.layout.select_dialog_singlechoice,positionNames);
-                        AlertDialog.Builder builder= new AlertDialog.Builder(this);
+                        ArrayAdapter<String> adpter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice, positionNames);
+                        AlertDialog.Builder builder = new AlertDialog.Builder(this);
                         builder.setTitle("请选择倒垛目标库位");
-                        builder.setSingleChoiceItems(adpter,0,new DialogInterface.OnClickListener(){
+                        builder.setSingleChoiceItems(adpter, 0, new DialogInterface.OnClickListener() {
 
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                position=positionList.get(which);
+                                position = positionList.get(which);
                             }
                         });
                         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                            ScanResultFragment sresultfg=(ScanResultFragment)fragmentManager.findFragmentById(R.id.customer_load_change_fragment);
-                            ArrayList<GoodsBarcodeBean> sresult=sresultfg.getScanResultArryList();
+                            ScanResultFragment sresultfg = (ScanResultFragment) fragmentManager.findFragmentById(R.id.customer_load_change_fragment);
+                            ArrayList<GoodsBarcodeBean> sresult = sresultfg.getScanResultArryList();
+
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                if(position!=null){
-                                    Log.d("aaaa",position.getPositionName());
-                                    if(sresult.size()>0){
-                                        for(GoodsBarcodeBean good1:sresult){
-                                            changeDepot(good1,position);
+                                if (position != null) {
+                                    Log.d("aaaa", position.getPositionName());
+                                    if (sresult.size() > 0) {
+                                        for (GoodsBarcodeBean good1 : sresult) {
+                                            changeDepot(good1, position);
                                         }
                                     }
 
@@ -258,7 +260,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                                 alertDialog.dismiss();
                             }
                         });
-                        alertDialog=builder.create();
+                        alertDialog = builder.create();
                         alertDialog.show();
                     }
                     break;
@@ -269,10 +271,10 @@ public class SaleLoadActivity extends AppCompatActivity {
 
     }
 
-    private void changeDepot(GoodsBarcodeBean good1,PositionBean position) {
-        Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
-        UpdatePositionService updatePositionService=  retrofit.create(UpdatePositionService.class);
-        Call<ResponseBody> call=updatePositionService.updatePosition(good1.getId(),position.getPositionNo());
+    private void changeDepot(GoodsBarcodeBean good1, PositionBean position) {
+        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+        UpdatePositionService updatePositionService = retrofit.create(UpdatePositionService.class);
+        Call<ResponseBody> call = updatePositionService.updatePosition(good1.getId(), position.getPositionNo());
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -288,15 +290,15 @@ public class SaleLoadActivity extends AppCompatActivity {
     }
 
     private void getPositionList() {
-        Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
-        GetPositionsByDepotService getPositionsByDepotService=retrofit.create(GetPositionsByDepotService.class);
-        Call<ReceivedPositionInfo> call=getPositionsByDepotService.getPositions(myApp.getCurrentDepot().getId());
-        Log.d("aaaa",myApp.getCurrentDepot().getId());
+        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+        GetPositionsByDepotService getPositionsByDepotService = retrofit.create(GetPositionsByDepotService.class);
+        Call<ReceivedPositionInfo> call = getPositionsByDepotService.getPositions(myApp.getCurrentDepot().getId());
+        Log.d("aaaa", myApp.getCurrentDepot().getId());
         call.enqueue(new Callback<ReceivedPositionInfo>() {
             @Override
             public void onResponse(Call<ReceivedPositionInfo> call, Response<ReceivedPositionInfo> response) {
 
-                positionList=response.body().getAttributes().getPositionList();
+                positionList = response.body().getAttributes().getPositionList();
             }
 
             @Override
@@ -309,15 +311,14 @@ public class SaleLoadActivity extends AppCompatActivity {
     }
 
     private void putGoodLoaded(final GoodsBarcodeBean good) {
-        boolean putGoodLoadedResult=true;
-        Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
-        PutGoodLoadedService putGoodLoadedService=retrofit.create(PutGoodLoadedService.class);
-        Call<ResponseBody> call=putGoodLoadedService.putGoodLoaded(good.getId());
+        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+        PutGoodLoadedService putGoodLoadedService = retrofit.create(PutGoodLoadedService.class);
+        Call<ResponseBody> call = putGoodLoadedService.putGoodLoaded(good.getId());
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if(!response.isSuccessful()){
-                    Toast.makeText(SaleLoadActivity.this,good.getBarcode()+"货品装车失败", Toast.LENGTH_LONG).show();
+                if (!response.isSuccessful()) {
+                    Toast.makeText(SaleLoadActivity.this, good.getBarcode() + "货品装车失败", Toast.LENGTH_LONG).show();
                 }
             }
 
@@ -341,7 +342,7 @@ public class SaleLoadActivity extends AppCompatActivity {
 
             }
         });*/
-        WriteDetailBarcodeUtil writeUtil=new WriteDetailBarcodeUtil(DeliveryBillSingleton.getInstance().getOutOrderBean(),detial,good,SaleLoadActivity.this);
+        WriteDetailBarcodeUtil writeUtil = new WriteDetailBarcodeUtil(DeliveryBillSingleton.getInstance().getOutOrderBean(), detial, good, SaleLoadActivity.this);
         writeUtil.write();
 
     }
@@ -353,29 +354,28 @@ public class SaleLoadActivity extends AppCompatActivity {
     }
 
     private void loadData(int id) {
-        if(id>=0){
-            detial=DeliveryBillSingleton.getInstance().getOutOrderDetailBean().get(id);
+        if (id >= 0) {
+            detial = DeliveryBillSingleton.getInstance().getOutOrderDetailBean().get(id);
             customerName.setText(DeliveryBillSingleton.getInstance().getOutOrderDetailBean().get(id).getCustomerName());
             customerAddress.setText(DeliveryBillSingleton.getInstance().getOutOrderDetailBean().get(id).getAddress());
             goodName.setText(DeliveryBillSingleton.getInstance().getOutOrderDetailBean().get(id).getGoodsName());
             modle.setText(DeliveryBillSingleton.getInstance().getOutOrderDetailBean().get(id).getSpecificationModel());
-            actCount.setText(""+DeliveryBillSingleton.getInstance().getOutOrderDetailBean().get(id).getCount());
-            if(DeliveryBillSingleton.getInstance().getOutOrderDetailBean().get(id).getActCount()==null){
+            actCount.setText("" + DeliveryBillSingleton.getInstance().getOutOrderDetailBean().get(id).getCount());
+            if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean().get(id).getActCount() == null) {
                 trueCount.setText("0");
-            }else{
+            } else {
                 trueCount.setText(DeliveryBillSingleton.getInstance().getOutOrderDetailBean().get(id).getActCount());
             }
 
         }
     }
-    private void registerReceiver()
-    {
-        IntentFilter intFilter=new IntentFilter(ScanManager.ACTION_SEND_SCAN_RESULT);
+
+    private void registerReceiver() {
+        IntentFilter intFilter = new IntentFilter(ScanManager.ACTION_SEND_SCAN_RESULT);
         registerReceiver(mResultReceiver, intFilter);
     }
 
-    private void unRegisterReceiver()
-    {
+    private void unRegisterReceiver() {
         try {
             unregisterReceiver(mResultReceiver);
         } catch (Exception e) {
@@ -383,50 +383,51 @@ public class SaleLoadActivity extends AppCompatActivity {
     }
 
 
-    private BroadcastReceiver mResultReceiver=new BroadcastReceiver() {
+    private BroadcastReceiver mResultReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-        String action=intent.getAction();
-            if(ScanManager.ACTION_SEND_SCAN_RESULT.equals(action)){
-                byte[] bvalue1=intent.getByteArrayExtra(ScanManager.EXTRA_SCAN_RESULT_ONE_BYTES);
-                byte[] bvalue2=intent.getByteArrayExtra(ScanManager.EXTRA_SCAN_RESULT_TWO_BYTES);
-                String svalue1=null;
-                String svalue2=null;
+            String action = intent.getAction();
+            if (ScanManager.ACTION_SEND_SCAN_RESULT.equals(action)) {
+                byte[] bvalue1 = intent.getByteArrayExtra(ScanManager.EXTRA_SCAN_RESULT_ONE_BYTES);
+                byte[] bvalue2 = intent.getByteArrayExtra(ScanManager.EXTRA_SCAN_RESULT_TWO_BYTES);
+                String svalue1 = null;
+                String svalue2 = null;
                 try {
-                    if(bvalue1!=null)
-                        svalue1=new String(bvalue1,"GBK");
-                    if(bvalue2!=null)
-                        svalue2=new String(bvalue1,"GBK");
-                    svalue1=svalue1==null?"":svalue1;
-                    svalue2=svalue2==null?"":svalue2;
-                    String result=svalue1+svalue2;
-                    Log.d("aaaa",result);
-                    getScanResult(result);
+                    if (bvalue1 != null)
+                        svalue1 = new String(bvalue1, "GBK");
+                    if (bvalue2 != null)
+                        svalue2 = new String(bvalue1, "GBK");
+                    svalue1 = svalue1 == null ? "" : svalue1;
+                    svalue2 = svalue2 == null ? "" : svalue2;
+                    String result = svalue1 + svalue2;
+                    if(!fragmentManager.findFragmentById(R.id.customer_load_change_fragment).getTag().equals("OPERATION_SELECT")) {
+                        getScanResult(result);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Toast.makeText(SaleLoadActivity.this,"扫码失败",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SaleLoadActivity.this, "扫码失败", Toast.LENGTH_SHORT).show();
                 }
             }
         }
     };
 
-    public void getScanResult(String barcode){
-        Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
-        ScanBarcodeResultService scanBarcodeResultService=retrofit.create(ScanBarcodeResultService.class);
-        Call<ReceivedGoodsBarcodeInfo> call=scanBarcodeResultService.getGoodsBarcode(barcode);
+    public void getScanResult(String barcode) {
+        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+        ScanBarcodeResultService scanBarcodeResultService = retrofit.create(ScanBarcodeResultService.class);
+        Call<ReceivedGoodsBarcodeInfo> call = scanBarcodeResultService.getGoodsBarcode(barcode);
         call.enqueue(new Callback<ReceivedGoodsBarcodeInfo>() {
             @Override
             public void onResponse(Call<ReceivedGoodsBarcodeInfo> call, Response<ReceivedGoodsBarcodeInfo> response) {
                 GoodsBarcodeBean good;
-                good=response.body().getAttributes().getGoodsBarcode();
-                if(good!=null) {
+                good = response.body().getAttributes().getGoodsBarcode();
+                if (good != null) {
                     Log.d("aaaa", good.getId());
                     ScanResultFragment result = (ScanResultFragment) fragmentManager.findFragmentById(R.id.customer_load_change_fragment);
-                    if(checkGood(good,result.getTag()) ){
+                    if (checkGood(good, result.getTag())) {
                         result.addData(good);
                     }
-                }else {
-                    Toast.makeText(SaleLoadActivity.this,"扫码不存在",Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(SaleLoadActivity.this, "扫码不存在", Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -439,46 +440,46 @@ public class SaleLoadActivity extends AppCompatActivity {
     }
 
     private boolean checkGood(GoodsBarcodeBean good, String tag) {
-        boolean checkresult=true;
-        ScanResultFragment scanResult=(ScanResultFragment) fragmentManager.findFragmentById(R.id.customer_load_change_fragment);
-        final List<GoodsBarcodeBean> result=scanResult.getScanResultArryList();
-        switch (tag){
+        boolean checkresult = true;
+        ScanResultFragment scanResult = (ScanResultFragment) fragmentManager.findFragmentById(R.id.customer_load_change_fragment);
+        List<GoodsBarcodeBean> result = scanResult.getScanResultArryList();
+        switch (tag) {
             case "OPERATION_LOAD_CAR":
-                if(!good.getStatus().equals("0")){
-                    Toast.makeText(this,"该货品已装车",Toast.LENGTH_SHORT).show();
-                    checkresult=false;
+                if (!good.getStatus().equals("0")) {
+                    Toast.makeText(this, "该货品已装车", Toast.LENGTH_SHORT).show();
+                    checkresult = false;
                     break;
-                }else{
-                for(GoodsBarcodeBean re:result){
-                    if(re.getId().equals(good.getId())){
-                        Toast.makeText(this,"该货品已扫",Toast.LENGTH_LONG).show();
-                        checkresult=false;
-                        break;
-                    }
-                }
-            }
-            if(!(good.getSpecificationModel().equals(detial.getSpecificationModel()))){
-                Toast.makeText(this,"该货品规格与此次装车规格不符",Toast.LENGTH_LONG).show();
-                checkresult=false;
-                break;
-            }
-                break;
-            case"OPERATION_CHANGE_DEPOT":
-                if(!good.getStatus().equals("0")){
-                    Toast.makeText(this,"该货品已装车",Toast.LENGTH_SHORT).show();
-                    checkresult=false;
-                    break;
-                }else{
-                    for(GoodsBarcodeBean re:result){
-                        if(re.getId().equals(good.getId())){
-                            Toast.makeText(this,"该货品已扫",Toast.LENGTH_LONG).show();
-                            checkresult=false;
+                } else {
+                    for (GoodsBarcodeBean re : result) {
+                        if (re.getId().equals(good.getId())) {
+                            Toast.makeText(this, "该货品已扫", Toast.LENGTH_LONG).show();
+                            checkresult = false;
                             break;
                         }
                     }
                 }
-                if(good.getSpecificationModel().equals(detial.getSpecificationModel())){
-                    AlertDialog.Builder builder1=new AlertDialog.Builder(this);
+                if (!(good.getSpecificationModel().equals(detial.getSpecificationModel()))) {
+                    Toast.makeText(this, "该货品规格与此次装车规格不符", Toast.LENGTH_LONG).show();
+                    checkresult = false;
+                    break;
+                }
+                break;
+            case "OPERATION_CHANGE_DEPOT":
+                if (!good.getStatus().equals("0")) {
+                    Toast.makeText(this, "该货品已装车", Toast.LENGTH_SHORT).show();
+                    checkresult = false;
+                    break;
+                } else {
+                    for (GoodsBarcodeBean re : result) {
+                        if (re.getId().equals(good.getId())) {
+                            Toast.makeText(this, "该货品已扫", Toast.LENGTH_LONG).show();
+                            checkresult = false;
+                            break;
+                        }
+                    }
+                }
+                if (good.getSpecificationModel().equals(detial.getSpecificationModel())) {
+                    AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
                     builder1.setTitle("注意")
                             .setMessage("此次倒垛扫码的货品规格与装车货品规格相符，您确定将其倒垛")
                             .setPositiveButton("确定", new DialogInterface.OnClickListener() {
@@ -490,7 +491,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                             .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                        //！！！！需要确定如何使其返回false！！！！；
+                                    //！！！！需要确定如何使其返回false！！！！；
                                 }
                             }).show();
                     break;
@@ -508,6 +509,7 @@ public class SaleLoadActivity extends AppCompatActivity {
         super.onPause();
         unRegisterReceiver();
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.loadover_select, menu);
