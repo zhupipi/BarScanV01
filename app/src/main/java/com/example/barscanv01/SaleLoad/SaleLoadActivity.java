@@ -37,6 +37,7 @@ import com.example.barscanv01.ServiceAPI.PutGoodLoadedService;
 import com.example.barscanv01.ServiceAPI.ScanBarcodeResultService;
 import com.example.barscanv01.ServiceAPI.UpdatePositionService;
 import com.example.barscanv01.ServiceAPI.UpdateUserService;
+import com.example.barscanv01.Util.CheckOutOrederDetailFinishedUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
 import com.example.barscanv01.Util.WriteDetailBarcodeUtil;
 import com.nlscan.android.scan.ScanManager;
@@ -213,8 +214,10 @@ public class SaleLoadActivity extends AppCompatActivity {
 
                             }
                         });
-
+                        Toast.makeText(SaleLoadActivity.this,"货物装车提交成功",Toast.LENGTH_SHORT).show();
                         fragment.cleanData();
+                        CheckOutOrederDetailFinishedUtil checkOutOrederDetailFinished=new CheckOutOrederDetailFinishedUtil(detial,SaleLoadActivity.this);
+                        checkOutOrederDetailFinished.checkDetailFinished();
                     } else {
                         Toast.makeText(this, "没有扫描货品条形码", Toast.LENGTH_SHORT).show();
                     }
