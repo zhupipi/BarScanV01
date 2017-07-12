@@ -18,7 +18,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -88,6 +87,7 @@ public class SaleLoadActivity extends AppCompatActivity {
     private PositionBean position;
 
     private AlertDialog alertDialog;
+    String message="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -411,20 +411,52 @@ public class SaleLoadActivity extends AppCompatActivity {
         }
     };
 
-    public void getScanResult(String barcode) {
+    public void getScanResult(final String barcode) {
         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
         ScanBarcodeResultService scanBarcodeResultService = retrofit.create(ScanBarcodeResultService.class);
         Call<ReceivedGoodsBarcodeInfo> call = scanBarcodeResultService.getGoodsBarcode(barcode);
         call.enqueue(new Callback<ReceivedGoodsBarcodeInfo>() {
             @Override
             public void onResponse(Call<ReceivedGoodsBarcodeInfo> call, Response<ReceivedGoodsBarcodeInfo> response) {
-                GoodsBarcodeBean good;
+                final GoodsBarcodeBean good;
                 good = response.body().getAttributes().getGoodsBarcode();
                 if (good != null) {
                     Log.d("aaaa", good.getId());
-                    ScanResultFragment result = (ScanResultFragment) fragmentManager.findFragmentById(R.id.customer_load_change_fragment);
+                    final ScanResultFragment result = (ScanResultFragment) fragmentManager.findFragmentById(R.id.customer_load_change_fragment);
                     if (checkGood(good, result.getTag())) {
-                        result.addData(good);
+                        if(result.getTag().equals("OPERATION_LOAD_CAR")) {
+                            result.addData(good);
+                        }else{
+                            if(good.getSpecificationModel().equals(detial.getSpecificationModel())){
+                                AlertDialog.Builder builder1=new AlertDialog.Builder(SaleLoadActivity.this);
+                                builder1.setTitle("注意")
+                                        .setMessage("该货品可以直接装车，确认是否需要将其倒垛")
+                                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                AlertDialog.Builder builder2=new AlertDialog.Builder(SaleLoadActivity.this);
+                                                builder2.setTitle("注意")
+                                                        .setMessage("确定将其倒垛？")
+                                                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                                            @Override
+                                                            public void onClick(DialogInterface dialog, int which) {
+                                                                AlertDialog.Builder builder3=new AlertDialog.Builder(SaleLoadActivity.this);
+                                                                builder3.setTitle("注意")
+                                                                        .setMessage("再次确定将其倒垛？")
+                                                                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                                                            @Override
+                                                                            public void onClick(DialogInterface dialog, int which) {
+                                                                                result.addData(good);
+                                                                            }
+                                                                        }).show();
+                                                            }
+                                                        }).show();
+                                            }
+                                        }).show();
+                            }else {
+                                result.addData(good);
+                            }
+                        }
                     }
                 } else {
                     Toast.makeText(SaleLoadActivity.this, "扫码不存在", Toast.LENGTH_SHORT).show();
@@ -457,6 +489,9 @@ public class SaleLoadActivity extends AppCompatActivity {
                             break;
                         }
                     }
+                    if(checkresult==false){
+                        break;
+                    }
                 }
                 if (!(good.getSpecificationModel().equals(detial.getSpecificationModel()))) {
                     Toast.makeText(this, "该货品规格与此次装车规格不符", Toast.LENGTH_LONG).show();
@@ -477,24 +512,9 @@ public class SaleLoadActivity extends AppCompatActivity {
                             break;
                         }
                     }
-                }
-                if (good.getSpecificationModel().equals(detial.getSpecificationModel())) {
-                    AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
-                    builder1.setTitle("注意")
-                            .setMessage("此次倒垛扫码的货品规格与装车货品规格相符，您确定将其倒垛")
-                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-
-                                }
-                            })
-                            .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    //！！！！需要确定如何使其返回false！！！！；
-                                }
-                            }).show();
-                    break;
+                    if(checkresult==false){
+                        break;
+                    }
                 }
                 break;
 
