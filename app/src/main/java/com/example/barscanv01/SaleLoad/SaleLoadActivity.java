@@ -206,7 +206,9 @@ public class SaleLoadActivity extends AppCompatActivity {
                         call.enqueue(new Callback<ResponseBody>() {
                             @Override
                             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-
+                                Toast.makeText(SaleLoadActivity.this,"货物装车提交成功",Toast.LENGTH_SHORT).show();
+                                CheckOutOrederDetailFinishedUtil checkOutOrederDetailFinished=new CheckOutOrederDetailFinishedUtil(detial,SaleLoadActivity.this);
+                                checkOutOrederDetailFinished.checkDetailFinished();
                             }
 
                             @Override
@@ -214,10 +216,11 @@ public class SaleLoadActivity extends AppCompatActivity {
 
                             }
                         });
-                        Toast.makeText(SaleLoadActivity.this,"货物装车提交成功",Toast.LENGTH_SHORT).show();
+
                         fragment.cleanData();
-                        CheckOutOrederDetailFinishedUtil checkOutOrederDetailFinished=new CheckOutOrederDetailFinishedUtil(detial,SaleLoadActivity.this);
+                        /*CheckOutOrederDetailFinishedUtil checkOutOrederDetailFinished=new CheckOutOrederDetailFinishedUtil(detial,SaleLoadActivity.this);
                         checkOutOrederDetailFinished.checkDetailFinished();
+                        checkOutOrederDetailFinished.checkOutOrderFinished();*/
                     } else {
                         Toast.makeText(this, "没有扫描货品条形码", Toast.LENGTH_SHORT).show();
                     }

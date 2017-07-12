@@ -95,4 +95,33 @@ public class WriteBizlogUtil {
             }
         });
     }
+    public void writeOutOrderFinishedLog(){
+        Map<String,String> map1=new HashMap<String,String>();
+        map1.put("plateNo",outOrder.getPlateNo());
+        map1.put("orderNo",outOrder.getOutOrderNo());
+        map1.put("location","库位");
+        map1.put("depotName",myApp.getCurrentDepot().getDepotName());
+        map1.put("areaName",myApp.getCurrentAreaBean().getAreaName());
+        map1.put("process","装车完成");
+        map1.put("remark","车牌号为["+outOrder.getPlateNo()+"]的车辆为发货单号为"+outOrder.getOutOrderNo()+"的发货单全部装车");
+
+        Date currentDate=new Date(System.currentTimeMillis());
+        SimpleDateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String time= dateFormat.format(currentDate);
+        Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
+        WriteBizlogService writeBizlogService=retrofit.create(WriteBizlogService.class);
+        Call<ResponseBody> call=writeBizlogService.writeBizlog(map1,time);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
+
+    }
 }
