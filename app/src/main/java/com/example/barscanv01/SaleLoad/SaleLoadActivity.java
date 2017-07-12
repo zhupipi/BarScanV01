@@ -39,6 +39,7 @@ import com.example.barscanv01.ServiceAPI.UpdatePositionService;
 import com.example.barscanv01.ServiceAPI.UpdateUserService;
 import com.example.barscanv01.Util.CheckOutOrederDetailFinishedUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
+import com.example.barscanv01.Util.WriteBizlogUtil;
 import com.example.barscanv01.Util.WriteDetailBarcodeUtil;
 import com.nlscan.android.scan.ScanManager;
 import com.nlscan.android.scan.ScanSettings;
@@ -137,13 +138,15 @@ public class SaleLoadActivity extends AppCompatActivity {
                     outOrderDetailOverbuilder.setMessage("您确定该客户该规格所有货品装车完成");
                     outOrderDetailOverbuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                        public void onClick(final DialogInterface dialog, int which) {
                             Retrofit retrofit = new RetrofitBuildUtil().retrofit;
                             OutOrderDetailProcessService outOrderDetailProcessService = retrofit.create(OutOrderDetailProcessService.class);
                             Call<ResponseBody> call = outOrderDetailProcessService.updateProcess(detial.getId());
                             call.enqueue(new Callback<ResponseBody>() {
                                 @Override
                                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                        CheckOutOrederDetailFinishedUtil checkOutOrederDetailFinishedUtil=new CheckOutOrederDetailFinishedUtil(detial,SaleLoadActivity.this);
+                                        checkOutOrederDetailFinishedUtil.checkOutOrderFinished();
 
                                 }
 
@@ -152,6 +155,8 @@ public class SaleLoadActivity extends AppCompatActivity {
 
                                 }
                             });
+                            WriteBizlogUtil writeBizlogUtil=new WriteBizlogUtil(detial,SaleLoadActivity.this);
+                            writeBizlogUtil.writeLoadFinishLog();
                         }
                     });
                     outOrderDetailOverbuilder.show();
@@ -175,6 +180,8 @@ public class SaleLoadActivity extends AppCompatActivity {
 
                                         }
                                     });
+                                    WriteBizlogUtil writeBizlogUtil=new WriteBizlogUtil(detial,SaleLoadActivity.this);
+                                    writeBizlogUtil.writeOutOrderFinishedLog();
                                 }
                             })
                             .show();
