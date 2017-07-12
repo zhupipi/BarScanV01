@@ -87,7 +87,7 @@ public class SaleLoadActivity extends AppCompatActivity {
     private PositionBean position;
 
     private AlertDialog alertDialog;
-    String message="";
+    String message = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -327,21 +327,6 @@ public class SaleLoadActivity extends AppCompatActivity {
 
             }
         });
-
-/*        Call<ResponseBody> call1=putGoodLoadedService.updateActCount(detial.getId(),good.getActWeight());
-        call1.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if(!response.isSuccessful()){
-                    Toast.makeText(SaleLoadActivity.this,"货品数目更新失败",Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-            }
-        });*/
         WriteDetailBarcodeUtil writeUtil = new WriteDetailBarcodeUtil(DeliveryBillSingleton.getInstance().getOutOrderBean(), detial, good, SaleLoadActivity.this);
         writeUtil.write();
 
@@ -400,7 +385,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                     svalue1 = svalue1 == null ? "" : svalue1;
                     svalue2 = svalue2 == null ? "" : svalue2;
                     String result = svalue1 + svalue2;
-                    if(!fragmentManager.findFragmentById(R.id.customer_load_change_fragment).getTag().equals("OPERATION_SELECT")) {
+                    if (!fragmentManager.findFragmentById(R.id.customer_load_change_fragment).getTag().equals("OPERATION_SELECT")) {
                         getScanResult(result);
                     }
                 } catch (Exception e) {
@@ -424,23 +409,23 @@ public class SaleLoadActivity extends AppCompatActivity {
                     Log.d("aaaa", good.getId());
                     final ScanResultFragment result = (ScanResultFragment) fragmentManager.findFragmentById(R.id.customer_load_change_fragment);
                     if (checkGood(good, result.getTag())) {
-                        if(result.getTag().equals("OPERATION_LOAD_CAR")) {
+                        if (result.getTag().equals("OPERATION_LOAD_CAR")) {
                             result.addData(good);
-                        }else{
-                            if(good.getSpecificationModel().equals(detial.getSpecificationModel())){
-                                AlertDialog.Builder builder1=new AlertDialog.Builder(SaleLoadActivity.this);
+                        } else {
+                            if (good.getSpecificationModel().equals(detial.getSpecificationModel())) {
+                                AlertDialog.Builder builder1 = new AlertDialog.Builder(SaleLoadActivity.this);
                                 builder1.setTitle("注意")
                                         .setMessage("该货品可以直接装车，确认是否需要将其倒垛")
                                         .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
-                                                AlertDialog.Builder builder2=new AlertDialog.Builder(SaleLoadActivity.this);
+                                                AlertDialog.Builder builder2 = new AlertDialog.Builder(SaleLoadActivity.this);
                                                 builder2.setTitle("注意")
                                                         .setMessage("确定将其倒垛？")
                                                         .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                                                             @Override
                                                             public void onClick(DialogInterface dialog, int which) {
-                                                                AlertDialog.Builder builder3=new AlertDialog.Builder(SaleLoadActivity.this);
+                                                                AlertDialog.Builder builder3 = new AlertDialog.Builder(SaleLoadActivity.this);
                                                                 builder3.setTitle("注意")
                                                                         .setMessage("再次确定将其倒垛？")
                                                                         .setPositiveButton("确定", new DialogInterface.OnClickListener() {
@@ -453,7 +438,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                                                         }).show();
                                             }
                                         }).show();
-                            }else {
+                            } else {
                                 result.addData(good);
                             }
                         }
@@ -489,7 +474,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                             break;
                         }
                     }
-                    if(checkresult==false){
+                    if (checkresult == false) {
                         break;
                     }
                 }
@@ -498,7 +483,13 @@ public class SaleLoadActivity extends AppCompatActivity {
                     checkresult = false;
                     break;
                 }
+                if((Float.valueOf(detial.getActCount())+result.size()+1)>detial.getCount()){
+                    Toast.makeText(this,"已经超过额定装车数量",Toast.LENGTH_SHORT).show();
+                    checkresult=false;
+                    break;
+                }
                 break;
+
             case "OPERATION_CHANGE_DEPOT":
                 if (!good.getStatus().equals("0")) {
                     Toast.makeText(this, "该货品已装车", Toast.LENGTH_SHORT).show();
@@ -512,7 +503,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                             break;
                         }
                     }
-                    if(checkresult==false){
+                    if (checkresult == false) {
                         break;
                     }
                 }
