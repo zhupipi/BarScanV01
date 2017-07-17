@@ -18,9 +18,9 @@ import retrofit2.Retrofit;
  * Created by zhupipi on 2017/7/10.
  */
 
-public class CheckOutOrderDetailUtil {
+public class CheckOutOrderLastCustomerUtil {
 
-    public CheckOutOrderDetailUtil() {
+    public CheckOutOrderLastCustomerUtil() {
 
         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
         LastCustomerCodefromDetailBarcodeService lastCustomerCodefromDetailBarcodeService = retrofit.create(LastCustomerCodefromDetailBarcodeService.class);
@@ -28,9 +28,10 @@ public class CheckOutOrderDetailUtil {
         call.enqueue(new Callback<ReceivedLastCustomerCodeInfo>() {
             @Override
             public void onResponse(Call<ReceivedLastCustomerCodeInfo> call, Response<ReceivedLastCustomerCodeInfo> response) {
-
-                DeliveryBillSingleton.getInstance().setLastCustomerName(response.body().getAttributes().getLastCustomerName());
-                DeliveryBillSingleton.getInstance().setLastCustomerCode(response.body().getAttributes().getLastCustomerCode());
+                if(response.body().getAttributes().getLastCustomerCode()!=null) {
+                    DeliveryBillSingleton.getInstance().setLastCustomerName(response.body().getAttributes().getLastCustomerName());
+                    DeliveryBillSingleton.getInstance().setLastCustomerCode(response.body().getAttributes().getLastCustomerCode());
+                }
             }
 
             @Override

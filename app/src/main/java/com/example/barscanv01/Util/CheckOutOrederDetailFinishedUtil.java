@@ -7,6 +7,7 @@ import com.example.barscanv01.Bean.OutOrderBean;
 import com.example.barscanv01.Bean.OutOrderDetailBean;
 import com.example.barscanv01.Bean.ReceivedCheckOutOrderFinishedInfo;
 import com.example.barscanv01.Bean.ReceivedOutOrderDetailInfo;
+import com.example.barscanv01.SaleLoad.DeliveryBillSingleton;
 import com.example.barscanv01.ServiceAPI.CheckOutOrderFinishedService;
 import com.example.barscanv01.ServiceAPI.GetOutOrderDetailByIdService;
 import com.example.barscanv01.ServiceAPI.OutOrderDetailProcessService;
@@ -100,6 +101,7 @@ public class CheckOutOrederDetailFinishedUtil {
         });
         WriteBizlogUtil writeBizlogUtil=new WriteBizlogUtil(detail,activity);
         writeBizlogUtil.writeOutOrderFinishedLog();
-    }
+        AreaInOutUpdateUtil areaInOutUpdate=new AreaInOutUpdateUtil(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo(),"6");
 
+    }
 }

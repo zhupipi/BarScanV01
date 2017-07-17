@@ -156,7 +156,7 @@
     <FrameLayout
         android:id="@+id/customer_load_change_fragment"
         android:layout_width="match_parent"
-        android:layout_height="290dp"
+        android:layout_height="262dp"
         />
 
     <LinearLayout

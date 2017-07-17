@@ -30,6 +30,7 @@ import com.example.barscanv01.Fragment.LoadOperationSelectFragment;
 import com.example.barscanv01.Fragment.ScanResultFragment;
 import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
+import com.example.barscanv01.ServiceAPI.AreaInOutUpdateService;
 import com.example.barscanv01.ServiceAPI.GetPositionsByDepotService;
 import com.example.barscanv01.ServiceAPI.OutOrderDetailProcessService;
 import com.example.barscanv01.ServiceAPI.OutOrderProcessService;
@@ -37,6 +38,7 @@ import com.example.barscanv01.ServiceAPI.PutGoodLoadedService;
 import com.example.barscanv01.ServiceAPI.ScanBarcodeResultService;
 import com.example.barscanv01.ServiceAPI.UpdatePositionService;
 import com.example.barscanv01.ServiceAPI.UpdateUserService;
+import com.example.barscanv01.Util.AreaInOutUpdateUtil;
 import com.example.barscanv01.Util.CheckOutOrederDetailFinishedUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
 import com.example.barscanv01.Util.WriteBizlogUtil;
@@ -147,7 +149,6 @@ public class SaleLoadActivity extends AppCompatActivity {
                                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                                         CheckOutOrederDetailFinishedUtil checkOutOrederDetailFinishedUtil=new CheckOutOrederDetailFinishedUtil(detial,SaleLoadActivity.this);
                                         checkOutOrederDetailFinishedUtil.checkOutOrderFinished();
-
                                 }
 
                                 @Override
@@ -173,6 +174,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                                     call.enqueue(new Callback<ResponseBody>() {
                                         @Override
                                         public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                            Toast.makeText(SaleLoadActivity.this,"该发货单已手工置为全部装车完成",Toast.LENGTH_SHORT).show();
                                         }
 
                                         @Override
@@ -182,6 +184,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                                     });
                                     WriteBizlogUtil writeBizlogUtil=new WriteBizlogUtil(detial,SaleLoadActivity.this);
                                     writeBizlogUtil.writeOutOrderFinishedLog();
+                                    AreaInOutUpdateUtil areaInOutUpdate=new AreaInOutUpdateUtil(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo(),"6");
                                 }
                             })
                             .show();
@@ -223,11 +226,8 @@ public class SaleLoadActivity extends AppCompatActivity {
 
                             }
                         });
-
                         fragment.cleanData();
-                        /*CheckOutOrederDetailFinishedUtil checkOutOrederDetailFinished=new CheckOutOrederDetailFinishedUtil(detial,SaleLoadActivity.this);
-                        checkOutOrederDetailFinished.checkDetailFinished();
-                        checkOutOrederDetailFinished.checkOutOrderFinished();*/
+
                     } else {
                         Toast.makeText(this, "没有扫描货品条形码", Toast.LENGTH_SHORT).show();
                     }
@@ -319,8 +319,6 @@ public class SaleLoadActivity extends AppCompatActivity {
 
             }
         });
-
-
     }
 
     private void putGoodLoaded(final GoodsBarcodeBean good) {
@@ -496,10 +494,18 @@ public class SaleLoadActivity extends AppCompatActivity {
                     checkresult = false;
                     break;
                 }
-                if((Float.valueOf(detial.getActCount())+result.size()+1)>detial.getCount()){
-                    Toast.makeText(this,"已经超过额定装车数量",Toast.LENGTH_SHORT).show();
-                    checkresult=false;
-                    break;
+                if(detial.getActCount()==null){
+                    if((result.size()+1)>detial.getCount()){
+                        Toast.makeText(this, "已经超过额定装车数量", Toast.LENGTH_SHORT).show();
+                        checkresult = false;
+                        break;
+                    }
+                }else {
+                    if ((Float.valueOf(detial.getActCount()) + result.size() + 1) > detial.getCount()) {
+                        Toast.makeText(this, "已经超过额定装车数量", Toast.LENGTH_SHORT).show();
+                        checkresult = false;
+                        break;
+                    }
                 }
                 break;
 
