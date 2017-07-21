@@ -158,6 +158,8 @@ public class SaleLoadActivity extends AppCompatActivity {
                             });
                             WriteBizlogUtil writeBizlogUtil=new WriteBizlogUtil(detial,SaleLoadActivity.this);
                             writeBizlogUtil.writeLoadFinishLog();
+                            setResult(1);
+                            finish();
                         }
                     });
                     outOrderDetailOverbuilder.show();
@@ -185,6 +187,8 @@ public class SaleLoadActivity extends AppCompatActivity {
                                     WriteBizlogUtil writeBizlogUtil=new WriteBizlogUtil(detial,SaleLoadActivity.this);
                                     writeBizlogUtil.writeOutOrderFinishedLog();
                                     AreaInOutUpdateUtil areaInOutUpdate=new AreaInOutUpdateUtil(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo(),"6");
+                                    setResult(1);
+                                    finish();
                                 }
                             })
                             .show();
@@ -227,6 +231,8 @@ public class SaleLoadActivity extends AppCompatActivity {
                             }
                         });
                         fragment.cleanData();
+                        setResult(1);
+                        finish();
 
                     } else {
                         Toast.makeText(this, "没有扫描货品条形码", Toast.LENGTH_SHORT).show();
@@ -265,6 +271,7 @@ public class SaleLoadActivity extends AppCompatActivity {
 
                                 }
                                 sresultfg.cleanData();
+                                finish();
                             }
                         });
                         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -546,4 +553,9 @@ public class SaleLoadActivity extends AppCompatActivity {
         return true;
     }
 
+    @Override
+    public void onBackPressed() {
+        setResult(1);
+        super.onBackPressed();
+    }
 }

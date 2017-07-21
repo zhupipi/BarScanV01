@@ -249,7 +249,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                         if(outdetail.getDepotNo().equals(myApp.getCurrentDepot().getDepotNo())){
                             Intent intent=new Intent(DeliveryBillActivity.this,SaleLoadActivity.class);
                             intent.putExtra("id",position);
-                            startActivity(intent);
+                            startActivityForResult(intent,0);
                             WriteBizlogUtil writeBizlogUtil=new WriteBizlogUtil(outdetail,DeliveryBillActivity.this);
                             writeBizlogUtil.writeLoadStartedLog();
 
@@ -321,7 +321,28 @@ public class DeliveryBillActivity extends AppCompatActivity {
         }
         Weight.setText(totalWeight+"");
         ActWeight.setText(totalActWeight+"");
-
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode==1){
+            String id=DeliveryBillSingleton.getInstance().getOutOrderBean().getId();;
+            Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
+            DeliveryBillById deliveryBillByBillNoService = retrofit.create(DeliveryBillById.class);
+            Call<ReceivedDelivieryBillInfo> call = deliveryBillByBillNoService.getDeliveryBillById(id);
+            call.enqueue(new Callback<ReceivedDelivieryBillInfo>() {
+                @Override
+                public void onResponse(Call<ReceivedDelivieryBillInfo> call, Response<ReceivedDelivieryBillInfo> response) {
+                    manageOutOrder(response.body().getAttributes().getOutOrder(), response.body().getAttributes().getOutOrderDetailList());
+                    showDetail();
+                    showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean());
+                }
+
+                @Override
+                public void onFailure(Call<ReceivedDelivieryBillInfo> call, Throwable t) {
+                }
+            });
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }
