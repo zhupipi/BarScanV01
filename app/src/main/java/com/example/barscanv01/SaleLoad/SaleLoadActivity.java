@@ -40,6 +40,7 @@ import com.example.barscanv01.ServiceAPI.UpdatePositionService;
 import com.example.barscanv01.ServiceAPI.UpdateUserService;
 import com.example.barscanv01.Util.AreaInOutUpdateUtil;
 import com.example.barscanv01.Util.CheckOutOrederDetailFinishedUtil;
+import com.example.barscanv01.Util.GoodsManageUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
 import com.example.barscanv01.Util.WriteBizlogUtil;
 import com.example.barscanv01.Util.WriteDetailBarcodeUtil;
@@ -170,6 +171,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                             .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
+
                                     Retrofit retrofit = new RetrofitBuildUtil().retrofit;
                                     OutOrderProcessService outOrderProcessService = retrofit.create(OutOrderProcessService.class);
                                     Call<ResponseBody> call = outOrderProcessService.updateProcess(DeliveryBillSingleton.getInstance().getOutOrderBean().getId(), "5");
@@ -187,8 +189,9 @@ public class SaleLoadActivity extends AppCompatActivity {
                                     WriteBizlogUtil writeBizlogUtil=new WriteBizlogUtil(detial,SaleLoadActivity.this);
                                     writeBizlogUtil.writeOutOrderFinishedLog();
                                     AreaInOutUpdateUtil areaInOutUpdate=new AreaInOutUpdateUtil(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo(),"6");
-                                    setResult(1);
-                                    finish();
+                                    /*setResult(1);
+                                    finish();*/
+                                    GoodsManageUtil goodsManageUtil=new GoodsManageUtil(SaleLoadActivity.this);
                                 }
                             })
                             .show();

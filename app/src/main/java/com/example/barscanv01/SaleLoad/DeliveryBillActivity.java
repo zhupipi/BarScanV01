@@ -324,7 +324,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(final int requestCode, int resultCode, Intent data) {
         if(resultCode==1){
             String id=DeliveryBillSingleton.getInstance().getOutOrderBean().getId();;
             Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
@@ -334,8 +334,12 @@ public class DeliveryBillActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<ReceivedDelivieryBillInfo> call, Response<ReceivedDelivieryBillInfo> response) {
                     manageOutOrder(response.body().getAttributes().getOutOrder(), response.body().getAttributes().getOutOrderDetailList());
-                    showDetail();
-                    showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean());
+                    if (response.body().getAttributes().getOutOrder().getProcess().equals("4")) {
+                        showDetail();
+                        showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean());
+                    }else{
+                        finish();
+                    }
                 }
 
                 @Override

@@ -14,4 +14,8 @@ public interface OutOrderDetailProcessService{
     @FormUrlEncoded
     @POST("outOrderController.do?updateDetailProcessforPDA")
     Call<ResponseBody> updateProcess(@Field("id") String id);
+
+    @FormUrlEncoded
+    @POST("outOrderController.do?recallDetailProcessforPDA")
+    Call<ResponseBody> recallProcess(@Field("id") String id);
 }
