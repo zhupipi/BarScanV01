@@ -41,7 +41,7 @@ public class OutOrderDetailBean {
         private String depotNo;
         private String goodsName;
         private String goodsCode;
-        private int weight;
+        private float weight;
         private String actWeight;
         private String finishStatus;
 
@@ -141,11 +141,11 @@ public class OutOrderDetailBean {
             this.goodsCode = goodsCode;
         }
 
-        public int getWeight() {
+        public float getWeight() {
             return weight;
         }
 
-        public void setWeight(int weight) {
+        public void setWeight(float weight) {
             this.weight = weight;
         }
 

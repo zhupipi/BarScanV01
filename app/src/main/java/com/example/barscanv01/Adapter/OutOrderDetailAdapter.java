@@ -54,6 +54,7 @@ public class OutOrderDetailAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         ((MyViewHolder)holder).customerName.setText(datas.get(position).getCustomerName());
         if(datas.get(position).getActCount()==null){
             ((MyViewHolder)holder).actcount.setText("0");
+            datas.get(position).setActCount("0");
         }else{
             ((MyViewHolder)holder).actcount.setText(datas.get(position).getActCount());
         }
@@ -64,6 +65,13 @@ public class OutOrderDetailAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             ((MyViewHolder)holder).count.setTextColor(Color.RED);
             ((MyViewHolder)holder).customerName.setTextColor(Color.RED);
             ((MyViewHolder)holder).actcount.setTextColor(Color.RED);
+        }
+        if(datas.get(position).getDepotNo().equals(depot.getDepotNo())&&datas.get(position).getFinishStatus().equals("1")&&((float)datas.get(position).getCount()>Float.valueOf(datas.get(position).getActCount()))){
+            ((MyViewHolder)holder).good.setTextColor(Color.BLUE);
+            ((MyViewHolder)holder).modle.setTextColor(Color.BLUE);
+            ((MyViewHolder)holder).count.setTextColor(Color.BLUE);
+            ((MyViewHolder)holder).customerName.setTextColor(Color.BLUE);
+            ((MyViewHolder)holder).actcount.setTextColor(Color.BLUE);
         }
 
         if (mOnItemClickLitener != null){

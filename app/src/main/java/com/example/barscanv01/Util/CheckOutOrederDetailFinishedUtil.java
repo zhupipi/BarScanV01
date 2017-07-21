@@ -39,6 +39,9 @@ public class CheckOutOrederDetailFinishedUtil {
             @Override
             public void onResponse(Call<ReceivedOutOrderDetailInfo> call, Response<ReceivedOutOrderDetailInfo> response) {
                 OutOrderDetailBean detailGetted=response.body().getAttributes().getOutOrderDetail();
+                if(detailGetted.getActCount()==null){
+                    detailGetted.setActCount("0");
+                }
                 if((float)detailGetted.getCount()==Float.valueOf(detailGetted.getActCount())){
                     Toast.makeText(activity,detailGetted.getCustomerName()+"的"+detailGetted.getSpecificationModel()+"规格货品已经装车完成",Toast.LENGTH_SHORT).show();
                     Retrofit retrofit = new RetrofitBuildUtil().retrofit;

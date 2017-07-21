@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.barscanv01.Adapter.DividerItemDecoration;
@@ -60,7 +61,10 @@ public class DeliveryBillActivity extends AppCompatActivity {
     Toolbar toolbar;
     @BindView(R.id.out_order_swipe_refresh)
     SwipeRefreshLayout mySwipe;
-
+    @BindView(R.id.delivery_bill_weight)
+    TextView Weight;
+    @BindView(R.id.delivery_bill_act_weight)
+    TextView ActWeight;
 
     ArrayList<OutOrderDetailBean> scanResult;
     CarPlateUtil carPlateUtil;
@@ -118,6 +122,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                                             carPlate.setText(carPlateUtil.getplateNum(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo()));
                                             carPlateProvince.setSelection(carPlateUtil.getId(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo()));
                                             showDetail();
+                                            showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean());
                                             OutOrderScanedUtil orderScanedUtil = new OutOrderScanedUtil(response.body().getAttributes().getOutOrder());
                                             orderScanedUtil.updateOutOrderProcess();
                                             orderScanedUtil.updateAreaInOut();
@@ -176,6 +181,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                                             manageOutOrder(response.body().getAttributes().getOutOrder(),response.body().getAttributes().getOutOrderDetailList());
                                             billNumber.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getOutOrderNo() + " ");
                                             showDetail();
+                                            showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean());
                                             OutOrderScanedUtil orderScanedUtil = new OutOrderScanedUtil(response.body().getAttributes().getOutOrder());
                                             orderScanedUtil.updateOutOrderProcess();
                                             orderScanedUtil.updateAreaInOut();
@@ -214,6 +220,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                     public void onResponse(Call<ReceivedDelivieryBillInfo> call, Response<ReceivedDelivieryBillInfo> response) {
                         manageOutOrder(response.body().getAttributes().getOutOrder(), response.body().getAttributes().getOutOrderDetailList());
                         showDetail();
+                        showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean());
                     }
 
                     @Override
@@ -261,21 +268,6 @@ public class DeliveryBillActivity extends AppCompatActivity {
             });
     }
 
-    private boolean checklastCustomerNotLoaded() {
-        boolean result = false;
-        if (DeliveryBillSingleton.getInstance().getLastCustomerCode() != null) {
-            for (OutOrderDetailBean outOrderDetailBean : DeliveryBillSingleton.getInstance().getOutOrderDetailBean()) {
-                if(outOrderDetailBean.getCustomerCode().equals(DeliveryBillSingleton.getInstance().getLastCustomerCode())){
-                    if(outOrderDetailBean.getFinishStatus().equals("0")){
-                        result=true;
-                        break;
-                    }
-                }
-            }
-        }
-        return  result;
-    }
-
     public boolean checkOutOrderProcess(OutOrderBean outOrder){
         boolean result=false;
         if(outOrder.getProcess().equals("3")||outOrder.getProcess().equals("4")){
@@ -315,7 +307,20 @@ public class DeliveryBillActivity extends AppCompatActivity {
         DeliveryBillSingleton.getInstance().setOutOrderBean(outOrderBean);
         OutOrderDetailSortUtil sort=new OutOrderDetailSortUtil(outOrderDetailList,DeliveryBillActivity.this);
         DeliveryBillSingleton.getInstance().setOutOrderDetailBean(sort.getFinalOutOrderDetails());
-
+    }
+    public void showOutOrderWeight(List<OutOrderDetailBean> outOrderDetailList){
+        float totalWeight=0;
+        float totalActWeight=0;
+        for(OutOrderDetailBean detail:outOrderDetailList){
+            totalWeight=totalWeight+detail.getWeight();
+            if(detail.getActWeight()==null){
+                totalActWeight=totalActWeight+0;
+            }else {
+                totalActWeight=totalActWeight+Float.valueOf(detail.getActWeight());
+            }
+        }
+        Weight.setText(totalWeight+"");
+        ActWeight.setText(totalActWeight+"");
 
     }
 
