@@ -37,6 +37,7 @@ import com.nlscan.android.scan.ScanManager;
 import com.nlscan.android.scan.ScanSettings;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -112,21 +113,20 @@ public class DeliveryBillActivity extends AppCompatActivity {
                             try {
                                 if (response.body().getAttributes().getOutOrder() != null) {
                                     if (checkOutOrderProcess(response.body().getAttributes().getOutOrder())) {
-                                        DeliveryBillSingleton.getInstance().setOutOrderBean(response.body().getAttributes().getOutOrder());
-                                        OutOrderDetailSortUtil detailSort = new OutOrderDetailSortUtil(response.body().getAttributes().getOutOrderDetailList(), DeliveryBillActivity.this);
-                                        CheckOutOrderLastCustomerUtil checkOutOrderDetail = new CheckOutOrderLastCustomerUtil();
-                                        DeliveryBillSingleton.getInstance().setOutOrderDetailBean(detailSort.getFinalOutOrderDetails());
-                                   /* Log.d("aaaa", "" + DeliveryBillSingleton.getInstance().getOutOrderDetailBean().size());
-                                    Log.d("aaaa", carPlateUtil.getplateNum(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo()));*/
-                                        carPlate.setText(carPlateUtil.getplateNum(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo()));
-                                        carPlateProvince.setSelection(carPlateUtil.getId(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo()));
-                                        showDetail();
-                                        OutOrderScanedUtil orderScanedUtil = new OutOrderScanedUtil(response.body().getAttributes().getOutOrder());
-                                        orderScanedUtil.updateOutOrderProcess();
-                                        orderScanedUtil.updateAreaInOut();
+                                        if (response.body().getAttributes().getOutOrderDetailList() != null) {
+                                           manageOutOrder(response.body().getAttributes().getOutOrder(),response.body().getAttributes().getOutOrderDetailList());
+                                            carPlate.setText(carPlateUtil.getplateNum(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo()));
+                                            carPlateProvince.setSelection(carPlateUtil.getId(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo()));
+                                            showDetail();
+                                            OutOrderScanedUtil orderScanedUtil = new OutOrderScanedUtil(response.body().getAttributes().getOutOrder());
+                                            orderScanedUtil.updateOutOrderProcess();
+                                            orderScanedUtil.updateAreaInOut();
+                                        } else {
+                                            startNoDetailActity(response.body().getAttributes().getOutOrder());
+                                        }
                                     }
-                                }else{
-                                    Toast.makeText(DeliveryBillActivity.this,"发货单不存在",Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(DeliveryBillActivity.this, "发货单不存在", Toast.LENGTH_SHORT).show();
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -171,17 +171,19 @@ public class DeliveryBillActivity extends AppCompatActivity {
                             @Override
                             public void onResponse(Call<ReceivedDelivieryBillInfo> call, Response<ReceivedDelivieryBillInfo> response) {
                                 if (response.body().getAttributes().getOutOrder()!= null) {
-                                  if (checkOutOrderProcess(response.body().getAttributes().getOutOrder())) {
-                                        DeliveryBillSingleton.getInstance().setOutOrderBean(response.body().getAttributes().getOutOrder());
-                                        OutOrderDetailSortUtil detailSort = new OutOrderDetailSortUtil(response.body().getAttributes().getOutOrderDetailList(), DeliveryBillActivity.this);
-                                        CheckOutOrderLastCustomerUtil checkOutOrderDetail = new CheckOutOrderLastCustomerUtil();
-                                        DeliveryBillSingleton.getInstance().setOutOrderDetailBean(detailSort.getFinalOutOrderDetails());
-                                        billNumber.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getOutOrderNo()+" ");
-                                        showDetail();
-                                        OutOrderScanedUtil orderScanedUtil = new OutOrderScanedUtil(response.body().getAttributes().getOutOrder());
-                                        orderScanedUtil.updateOutOrderProcess();
-                                        orderScanedUtil.updateAreaInOut();
-                                   }
+                                    if(response.body().getAttributes().getOutOrderDetailList()!=null) {
+                                        if (checkOutOrderProcess(response.body().getAttributes().getOutOrder())) {
+                                            manageOutOrder(response.body().getAttributes().getOutOrder(),response.body().getAttributes().getOutOrderDetailList());
+                                            billNumber.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getOutOrderNo() + " ");
+                                            showDetail();
+                                            OutOrderScanedUtil orderScanedUtil = new OutOrderScanedUtil(response.body().getAttributes().getOutOrder());
+                                            orderScanedUtil.updateOutOrderProcess();
+                                            orderScanedUtil.updateAreaInOut();
+                                        }
+                                    }else{
+                                        Log.d("aaaa","无发货单明细");
+                                        startNoDetailActity(response.body().getAttributes().getOutOrder());
+                                    }
                                 }else{
                                     Toast.makeText(DeliveryBillActivity.this,"发货单不存在",Toast.LENGTH_SHORT).show();
                                 }
@@ -210,13 +212,8 @@ public class DeliveryBillActivity extends AppCompatActivity {
                 call.enqueue(new Callback<ReceivedDelivieryBillInfo>() {
                     @Override
                     public void onResponse(Call<ReceivedDelivieryBillInfo> call, Response<ReceivedDelivieryBillInfo> response) {
-                       // if (checkOutOrderProcess(response.body().getAttributes().getOutOrder())) {
-                            DeliveryBillSingleton.getInstance().setOutOrderBean(response.body().getAttributes().getOutOrder());
-                            OutOrderDetailSortUtil detailSort=new OutOrderDetailSortUtil(response.body().getAttributes().getOutOrderDetailList(),DeliveryBillActivity.this);
-                            CheckOutOrderLastCustomerUtil checkOutOrderDetail=new CheckOutOrderLastCustomerUtil();
-                            DeliveryBillSingleton.getInstance().setOutOrderDetailBean(detailSort.getFinalOutOrderDetails());
-                            showDetail();
-                        //}
+                        manageOutOrder(response.body().getAttributes().getOutOrder(), response.body().getAttributes().getOutOrderDetailList());
+                        showDetail();
                     }
 
                     @Override
@@ -238,34 +235,16 @@ public class DeliveryBillActivity extends AppCompatActivity {
                 public void onItemClick(View view, int position) {
                     Log.d("aaaa",""+position);
                     OutOrderDetailBean outdetail=DeliveryBillSingleton.getInstance().getOutOrderDetailBean().get(position);
-                    if(outdetail.getFinishStatus().equals("0")){
+                    if(outdetail.getActCount()==null){
+                        outdetail.setActCount("0");
+                    }
+                    if(outdetail.getFinishStatus().equals("0")||(float)(outdetail.getCount())!=Float.valueOf(outdetail.getActCount())){
                         if(outdetail.getDepotNo().equals(myApp.getCurrentDepot().getDepotNo())){
-                            CheckOutOrderLastCustomerUtil checkOutOrderDetail=new CheckOutOrderLastCustomerUtil();
-                            if(DeliveryBillSingleton.getInstance().getLastCustomerCode()==null){
-                                Intent intent=new Intent(DeliveryBillActivity.this,SaleLoadActivity.class);
-                                intent.putExtra("id",position);
-                                startActivity(intent);
-                                WriteBizlogUtil writeBizlogUtil=new WriteBizlogUtil(outdetail,DeliveryBillActivity.this);
-                                writeBizlogUtil.writeLoadStartedLog();
-                            }else{
-                                if(outdetail.getCustomerCode().equals(DeliveryBillSingleton.getInstance().getLastCustomerCode())){
-                                    Intent intent=new Intent(DeliveryBillActivity.this,SaleLoadActivity.class);
-                                    intent.putExtra("id",position);
-                                    startActivity(intent);
-                                    WriteBizlogUtil writeBizlogUtil=new WriteBizlogUtil(outdetail,DeliveryBillActivity.this);
-                                    writeBizlogUtil.writeLoadStartedLog();
-                                }else{
-                                    if(!checklastCustomerNotLoaded()){
-                                        Intent intent=new Intent(DeliveryBillActivity.this,SaleLoadActivity.class);
-                                        intent.putExtra("id",position);
-                                        startActivity(intent);
-                                        WriteBizlogUtil writeBizlogUtil=new WriteBizlogUtil(outdetail,DeliveryBillActivity.this);
-                                        writeBizlogUtil.writeLoadStartedLog();
-                                    }else{
-                                        Toast.makeText(DeliveryBillActivity.this,DeliveryBillSingleton.getInstance().getLastCustomerName()+"用户还未装车完成",Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            }
+                            Intent intent=new Intent(DeliveryBillActivity.this,SaleLoadActivity.class);
+                            intent.putExtra("id",position);
+                            startActivity(intent);
+                            WriteBizlogUtil writeBizlogUtil=new WriteBizlogUtil(outdetail,DeliveryBillActivity.this);
+                            writeBizlogUtil.writeLoadStartedLog();
 
                         }else {
                             Toast.makeText(DeliveryBillActivity.this,"该发货货品不在用户管理的库区",Toast.LENGTH_SHORT).show();
@@ -324,4 +303,20 @@ public class DeliveryBillActivity extends AppCompatActivity {
         }
        return  result;
     }
+    public void startNoDetailActity(OutOrderBean outOrder){
+        DeliveryBillSingleton.getInstance().setOutOrderBean(outOrder);
+        DeliveryBillSingleton.getInstance().setOutOrderDetailBean(null);
+        DeliveryBillSingleton.getInstance().setLastCustomerCode(null);
+        DeliveryBillSingleton.getInstance().setLastCustomerName(null);
+        Intent intent=new Intent(DeliveryBillActivity.this,DeliveryBillNoDetailActivity.class);
+        startActivity(intent);
+    }
+    public void manageOutOrder(OutOrderBean outOrderBean, List<OutOrderDetailBean> outOrderDetailList){
+        DeliveryBillSingleton.getInstance().setOutOrderBean(outOrderBean);
+        OutOrderDetailSortUtil sort=new OutOrderDetailSortUtil(outOrderDetailList,DeliveryBillActivity.this);
+        DeliveryBillSingleton.getInstance().setOutOrderDetailBean(sort.getFinalOutOrderDetails());
+
+
+    }
+
 }

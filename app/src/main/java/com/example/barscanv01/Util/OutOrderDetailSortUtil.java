@@ -9,6 +9,9 @@ import com.example.barscanv01.Bean.OutOrderDetailBean;
 import com.example.barscanv01.MyApp;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -50,6 +53,7 @@ public class OutOrderDetailSortUtil {
                 }
             }
             finalOutOrderDetails=temp;
+            Collections.sort(finalOutOrderDetails,new OutOrderDetailComparator());
             if(initalOutOrderDetails.size()>0) {
                 finalOutOrderDetails.addAll(initalOutOrderDetails);
             }

@@ -12,9 +12,9 @@ public class RetrofitBuildUtil {
     public Retrofit retrofit;
     public RetrofitBuildUtil(){
         retrofit=new Retrofit.Builder()
-                .baseUrl("http://192.168.4.203:8080/jeecg/")
+               // .baseUrl("http://192.168.4.203:8080/jeecg/")
                 //.baseUrl("http://192.168.5.235:8088/scan/")
-                //.baseUrl("http://sc.yfgg.com/scan/")
+                .baseUrl("http://sc.yfgg.com/scan/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
