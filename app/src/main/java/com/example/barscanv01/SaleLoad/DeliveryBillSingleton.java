@@ -11,25 +11,6 @@ import java.util.List;
  */
 
 public class DeliveryBillSingleton {
-    public String lastCustomerCode;
-    public String lastCustomerName;
-
-    public String getLastCustomerCode() {
-        return lastCustomerCode;
-    }
-
-    public void setLastCustomerCode(String lastCustomerCode) {
-        this.lastCustomerCode = lastCustomerCode;
-    }
-
-    public String getLastCustomerName() {
-        return lastCustomerName;
-    }
-
-    public void setLastCustomerName(String lastCustomerName) {
-        this.lastCustomerName = lastCustomerName;
-    }
-
     public OutOrderBean outOrderBean;
 
     public OutOrderBean getOutOrderBean() {
@@ -56,8 +37,6 @@ public class DeliveryBillSingleton {
     private DeliveryBillSingleton(){
         outOrderBean=new OutOrderBean();
         outOrderDetailBean=new ArrayList<OutOrderDetailBean>();
-        lastCustomerCode=null;
-        lastCustomerName=null;
     }
 
     public static DeliveryBillSingleton getInstance() {

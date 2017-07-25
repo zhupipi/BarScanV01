@@ -195,7 +195,7 @@
     <android.support.v4.widget.SwipeRefreshLayout
     android:id="@+id/out_order_swipe_refresh"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="250dp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     >
         <android.support.v7.widget.RecyclerView
@@ -211,14 +211,14 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/button3"
+            android:id="@+id/delivery_bill_confirm_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="确认" />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/delivery_bill_cancel_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
