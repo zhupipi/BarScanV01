@@ -21,7 +21,9 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.barscanv01.Bean.DepotBean;
 import com.example.barscanv01.Bean.GoodsBarcodeBean;
+import com.example.barscanv01.Bean.OutOrderBean;
 import com.example.barscanv01.Bean.OutOrderDetailBean;
 import com.example.barscanv01.Bean.PositionBean;
 import com.example.barscanv01.Bean.ReceivedGoodsBarcodeInfo;
@@ -32,6 +34,8 @@ import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
 import com.example.barscanv01.ServiceAPI.AreaInOutUpdateService;
 import com.example.barscanv01.ServiceAPI.GetPositionsByDepotService;
+import com.example.barscanv01.ServiceAPI.LoadOverByDepotService;
+import com.example.barscanv01.ServiceAPI.LoadOverService;
 import com.example.barscanv01.ServiceAPI.OutOrderDetailProcessService;
 import com.example.barscanv01.ServiceAPI.OutOrderProcessService;
 import com.example.barscanv01.ServiceAPI.PutGoodLoadedService;
@@ -61,16 +65,14 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class SaleLoadActivity extends AppCompatActivity {
-    @BindView(R.id.customer_load_name)
-    TextView customerName;
-    @BindView(R.id.customer_load_address)
-    TextView customerAddress;
-    @BindView(R.id.customer_load_act_count)
-    TextView actCount;
-    @BindView(R.id.customer_load_specification_modle)
-    TextView modle;
-    @BindView(R.id.customer_load_good_name)
-    TextView goodName;
+    @BindView(R.id.load_outOrder_No)
+    TextView outOrderNo;
+    @BindView(R.id.load_car_plate)
+    TextView carPlate;
+    @BindView(R.id.load_weight)
+    TextView weight;
+    @BindView(R.id.load_act_weight)
+    TextView actWeight;
     @BindView(R.id.customer_load_toolbar)
     Toolbar toolbar;
     @BindView(R.id.customer_load_change_fragment)
@@ -79,8 +81,6 @@ public class SaleLoadActivity extends AppCompatActivity {
     Button confirm;
     @BindView(R.id.customer_load_cancel)
     Button cancel;
-    @BindView(R.id.customer_load_act_act_count)
-    TextView trueCount;
 
 
     private FragmentManager fragmentManager;
@@ -92,7 +92,9 @@ public class SaleLoadActivity extends AppCompatActivity {
     private PositionBean position;
 
     private AlertDialog alertDialog;
-    String message = "";
+    private OutOrderBean outOrder;
+    private DepotBean currentDepot;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,11 +103,8 @@ public class SaleLoadActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("扫码装车/倒垛");
-        // toolbar.inflateMenu(R.menu.loadover_select);
         myApp = (MyApp) getApplication();
-        Intent intent = getIntent();
-        int id = intent.getIntExtra("id", -1);
-        loadData(id);
+        intitalData();
         positionList = new ArrayList<PositionBean>();
         getPositionList();
         fragmentManager = getSupportFragmentManager();
@@ -134,22 +133,24 @@ public class SaleLoadActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 int id = item.getItemId();
-                if (id == R.id.out_order_detial_over) {
-
+                if (id == R.id.out_order_depot_over) {
                     AlertDialog.Builder outOrderDetailOverbuilder = new AlertDialog.Builder(SaleLoadActivity.this);
                     outOrderDetailOverbuilder.setTitle("注意");
-                    outOrderDetailOverbuilder.setMessage("您确定该客户该规格所有货品装车完成");
+                    outOrderDetailOverbuilder.setMessage("您确定该车辆在此库位所有货品装车完成");
                     outOrderDetailOverbuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(final DialogInterface dialog, int which) {
                             Retrofit retrofit = new RetrofitBuildUtil().retrofit;
-                            OutOrderDetailProcessService outOrderDetailProcessService = retrofit.create(OutOrderDetailProcessService.class);
-                            Call<ResponseBody> call = outOrderDetailProcessService.updateProcess(detial.getId());
+                            LoadOverByDepotService loadOverByDepotService = retrofit.create(LoadOverByDepotService.class);
+                            Call<ResponseBody> call = loadOverByDepotService.loadedByDepot(outOrder.getId(), currentDepot.getDepotNo());
                             call.enqueue(new Callback<ResponseBody>() {
                                 @Override
                                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                        CheckOutOrederDetailFinishedUtil checkOutOrederDetailFinishedUtil=new CheckOutOrederDetailFinishedUtil(detial,SaleLoadActivity.this);
-                                        checkOutOrederDetailFinishedUtil.checkOutOrderFinished();
+                                    CheckOutOrederDetailFinishedUtil checkFinishedUtil = new CheckOutOrederDetailFinishedUtil(outOrder, SaleLoadActivity.this);
+                                    checkFinishedUtil.checkOutOrderFinished();
+                                    Toast.makeText(SaleLoadActivity.this, "该车辆在该库区装车完成", Toast.LENGTH_SHORT).show();
+                                    setResult(1);
+                                    finish();
                                 }
 
                                 @Override
@@ -157,14 +158,13 @@ public class SaleLoadActivity extends AppCompatActivity {
 
                                 }
                             });
-                            WriteBizlogUtil writeBizlogUtil=new WriteBizlogUtil(detial,SaleLoadActivity.this);
-                            writeBizlogUtil.writeLoadFinishLog();
-                            setResult(1);
-                            finish();
+                            WriteBizlogUtil wirteBizlog = new WriteBizlogUtil(SaleLoadActivity.this);
+                            wirteBizlog.writeDepotLoadFinishedLog();
+
                         }
                     });
                     outOrderDetailOverbuilder.show();
-                } else if (id == R.id.out_order_over) {
+                } else if (id == R.id.out_order_total_over) {
                     AlertDialog.Builder outOrderOverBuild = new AlertDialog.Builder(SaleLoadActivity.this);
                     outOrderOverBuild.setTitle("注意")
                             .setMessage("您确定该发货单装车完成")
@@ -173,12 +173,13 @@ public class SaleLoadActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialog, int which) {
 
                                     Retrofit retrofit = new RetrofitBuildUtil().retrofit;
-                                    OutOrderProcessService outOrderProcessService = retrofit.create(OutOrderProcessService.class);
-                                    Call<ResponseBody> call = outOrderProcessService.updateProcess(DeliveryBillSingleton.getInstance().getOutOrderBean().getId(), "5");
+                                    LoadOverService loadOverService = retrofit.create(LoadOverService.class);
+                                    Call<ResponseBody> call = loadOverService.loadOver(outOrder.getId());
                                     call.enqueue(new Callback<ResponseBody>() {
                                         @Override
                                         public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                            Toast.makeText(SaleLoadActivity.this,"该发货单已手工置为全部装车完成",Toast.LENGTH_SHORT).show();
+                                            CheckOutOrederDetailFinishedUtil checkFinished = new CheckOutOrederDetailFinishedUtil(outOrder, SaleLoadActivity.this);
+                                            checkFinished.outOrderFinised();
                                         }
 
                                         @Override
@@ -186,12 +187,7 @@ public class SaleLoadActivity extends AppCompatActivity {
 
                                         }
                                     });
-                                    WriteBizlogUtil writeBizlogUtil=new WriteBizlogUtil(detial,SaleLoadActivity.this);
-                                    writeBizlogUtil.writeOutOrderFinishedLog();
-                                    AreaInOutUpdateUtil areaInOutUpdate=new AreaInOutUpdateUtil(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo(),"6");
-                                    /*setResult(1);
-                                    finish();*/
-                                    GoodsManageUtil goodsManageUtil=new GoodsManageUtil(SaleLoadActivity.this);
+                                    GoodsManageUtil goodsManageUtil = new GoodsManageUtil(SaleLoadActivity.this);
                                 }
                             })
                             .show();
@@ -199,6 +195,29 @@ public class SaleLoadActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    private void intitalData() {
+        outOrderNo.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getOutOrderNo());
+        carPlate.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo());
+        showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean());
+        outOrder=DeliveryBillSingleton.getInstance().getOutOrderBean();
+        currentDepot=myApp.getCurrentDepot();
+    }
+
+    private void showOutOrderWeight(List<OutOrderDetailBean> outOrderDetailBeanList) {
+        float totalWeight=0;
+        float totalActWeight=0;
+        for(OutOrderDetailBean detail:outOrderDetailBeanList){
+            totalWeight=totalWeight+detail.getWeight();
+            if(detail.getActWeight()==null){
+                totalActWeight=totalActWeight+0;
+            }else {
+                totalActWeight=totalActWeight+Float.valueOf(detail.getActWeight());
+            }
+        }
+        weight.setText(String.valueOf(totalWeight));
+        actWeight.setText(String.valueOf(totalActWeight));
     }
 
     private void submitData() {
@@ -224,8 +243,8 @@ public class SaleLoadActivity extends AppCompatActivity {
                             @Override
                             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                                 Toast.makeText(SaleLoadActivity.this,"货物装车提交成功",Toast.LENGTH_SHORT).show();
-                                CheckOutOrederDetailFinishedUtil checkOutOrederDetailFinished=new CheckOutOrederDetailFinishedUtil(detial,SaleLoadActivity.this);
-                                checkOutOrederDetailFinished.checkDetailFinished();
+
+
                             }
 
                             @Override
@@ -359,22 +378,7 @@ public class SaleLoadActivity extends AppCompatActivity {
         registerReceiver();
     }
 
-    private void loadData(int id) {
-        if (id >= 0) {
-            detial = DeliveryBillSingleton.getInstance().getOutOrderDetailBean().get(id);
-            customerName.setText(DeliveryBillSingleton.getInstance().getOutOrderDetailBean().get(id).getCustomerName());
-            customerAddress.setText(DeliveryBillSingleton.getInstance().getOutOrderDetailBean().get(id).getAddress());
-            goodName.setText(DeliveryBillSingleton.getInstance().getOutOrderDetailBean().get(id).getGoodsName());
-            modle.setText(DeliveryBillSingleton.getInstance().getOutOrderDetailBean().get(id).getSpecificationModel());
-            actCount.setText("" + DeliveryBillSingleton.getInstance().getOutOrderDetailBean().get(id).getCount());
-            if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean().get(id).getActCount() == null) {
-                trueCount.setText("0");
-            } else {
-                trueCount.setText(DeliveryBillSingleton.getInstance().getOutOrderDetailBean().get(id).getActCount());
-            }
 
-        }
-    }
 
     private void registerReceiver() {
         IntentFilter intFilter = new IntentFilter(ScanManager.ACTION_SEND_SCAN_RESULT);

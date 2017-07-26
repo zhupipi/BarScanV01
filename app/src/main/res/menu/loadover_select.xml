@@ -5,13 +5,13 @@
     tools:context=".SaleLoad.SaleLoadActivity">
 
     <item
-        android:id="@+id/out_order_detial_over"
-        android:title="发货单明细装车完成"
+        android:id="@+id/out_order_depot_over"
+        android:title="该库位全部装车完成"
         android:orderInCategory="100"
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/out_order_over"
+        android:id="@+id/out_order_total_over"
         android:orderInCategory="101"
         android:title="发货单全部装车完成"
         app:showAsAction="never" />

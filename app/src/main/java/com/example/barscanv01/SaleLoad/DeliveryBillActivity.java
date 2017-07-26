@@ -325,9 +325,11 @@ public class DeliveryBillActivity extends AppCompatActivity {
     public boolean checkDepotFinished(List<OutOrderDetailBean> outOrderDetailList){
         boolean result=true;
         for(OutOrderDetailBean detail:outOrderDetailList){
-            if(detail.getFinishStatus().equals("0")){
-                result=false;
-                break;
+            if(detail.getDepotNo().equals(myApp.getCurrentDepot().getDepotNo())) {
+                if (detail.getFinishStatus().equals("0")) {
+                    result = false;
+                    break;
+                }
             }
         }
         return  result;

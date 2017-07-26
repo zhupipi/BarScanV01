@@ -13,6 +13,7 @@ import com.example.barscanv01.ServiceAPI.WriteBizlogService;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.ResponseBody;
@@ -26,17 +27,16 @@ import retrofit2.Retrofit;
  */
 
 public class WriteBizlogUtil {
-    private OutOrderDetailBean detail;
+
     private Activity activity;
     private MyApp myApp;
     private OutOrderBean outOrder;
-    public WriteBizlogUtil(OutOrderDetailBean detail, Activity activity){
-        this.detail=detail;
+    public WriteBizlogUtil( Activity activity){
         this.activity=activity;
         myApp=(MyApp)activity.getApplication();
         outOrder= DeliveryBillSingleton.getInstance().getOutOrderBean();
     }
-    public void writeLoadStartedLog(){
+    /*public void writeLoadStartedLog(){
         Map<String,String> map1=new HashMap<String,String>();
         map1.put("plateNo",outOrder.getPlateNo());
         map1.put("orderNo",outOrder.getOutOrderNo());
@@ -65,8 +65,16 @@ public class WriteBizlogUtil {
             }
         });
 
+    }*/
+    public void writeDepotLoadFinishedLog(){
+        List<OutOrderDetailBean> detailList=DeliveryBillSingleton.getInstance().getOutOrderDetailBean();
+        for(OutOrderDetailBean detail:detailList){
+            if(detail.getDepotNo().equals(myApp.getCurrentDepot().getDepotNo())){
+                writeLoadFinishLog(detail);
+            }
+        }
     }
-    public void writeLoadFinishLog(){
+    public void writeLoadFinishLog(OutOrderDetailBean detail){
         Map<String,String> map1=new HashMap<String,String>();
         map1.put("plateNo",outOrder.getPlateNo());
         map1.put("orderNo",outOrder.getOutOrderNo());
