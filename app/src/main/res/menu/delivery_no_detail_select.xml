@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".SaleLoad.DeliveryBillNoDetailActivity">
+    <item
+        android:id="@+id/delivery_bill_nodetail_loadover"
+        android:title="发货单全部装车完成"
+        android:orderInCategory="100"
+        app:showAsAction="never"
+        />
+
+</menu>

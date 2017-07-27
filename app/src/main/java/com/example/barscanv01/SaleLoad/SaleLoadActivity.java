@@ -167,7 +167,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                 } else if (id == R.id.out_order_total_over) {
                     AlertDialog.Builder outOrderOverBuild = new AlertDialog.Builder(SaleLoadActivity.this);
                     outOrderOverBuild.setTitle("注意")
-                            .setMessage("您确定该发货单装车完成")
+                            .setMessage("您确定该发货单全部装车完成")
                             .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
