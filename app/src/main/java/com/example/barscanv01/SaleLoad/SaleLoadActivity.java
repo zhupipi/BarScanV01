@@ -44,6 +44,7 @@ import com.example.barscanv01.ServiceAPI.UpdatePositionService;
 import com.example.barscanv01.ServiceAPI.UpdateUserService;
 import com.example.barscanv01.Util.AreaInOutUpdateUtil;
 import com.example.barscanv01.Util.CheckOutOrederDetailFinishedUtil;
+import com.example.barscanv01.Util.GetCountUtil;
 import com.example.barscanv01.Util.GoodsManageUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
 import com.example.barscanv01.Util.WriteBizlogUtil;
@@ -93,6 +94,7 @@ public class SaleLoadActivity extends AppCompatActivity {
 
     private AlertDialog alertDialog;
     private OutOrderBean outOrder;
+    private List<OutOrderDetailBean> detailList;
     private DepotBean currentDepot;
 
 
@@ -202,6 +204,7 @@ public class SaleLoadActivity extends AppCompatActivity {
         carPlate.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo());
         showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean());
         outOrder=DeliveryBillSingleton.getInstance().getOutOrderBean();
+        detailList=DeliveryBillSingleton.getInstance().getOutOrderDetailBean();
         currentDepot=myApp.getCurrentDepot();
     }
 
@@ -412,6 +415,8 @@ public class SaleLoadActivity extends AppCompatActivity {
                     String result = svalue1 + svalue2;
                     if (!fragmentManager.findFragmentById(R.id.customer_load_change_fragment).getTag().equals("OPERATION_SELECT")) {
                         getScanResult(result);
+                    }else{
+                        Toast.makeText(SaleLoadActivity.this,"请选择装车或扫码操作",Toast.LENGTH_SHORT).show();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -436,8 +441,10 @@ public class SaleLoadActivity extends AppCompatActivity {
                     if (checkGood(good, result.getTag())) {
                         if (result.getTag().equals("OPERATION_LOAD_CAR")) {
                             result.addData(good);
+                            float act_weight=Float.valueOf(actWeight.getText().toString().trim())+Float.valueOf(good.getActWeight());
+                            actWeight.setText(String.valueOf(act_weight));
                         } else {
-                            if (good.getSpecificationModel().equals(detial.getSpecificationModel())) {
+                            if (checkGoodSpecialMode(good)) {
                                 AlertDialog.Builder builder1 = new AlertDialog.Builder(SaleLoadActivity.this);
                                 builder1.setTitle("注意")
                                         .setMessage("该货品可以直接装车，确认是否需要将其倒垛")
@@ -503,23 +510,16 @@ public class SaleLoadActivity extends AppCompatActivity {
                         break;
                     }
                 }
-                if (!(good.getSpecificationModel().equals(detial.getSpecificationModel()))) {
+                if (!checkGoodSpecialMode(good)) {
                     Toast.makeText(this, "该货品规格与此次装车规格不符", Toast.LENGTH_LONG).show();
                     checkresult = false;
                     break;
                 }
-                if(detial.getActCount()==null){
-                    if((result.size()+1)>detial.getCount()){
-                        Toast.makeText(this, "已经超过额定装车数量", Toast.LENGTH_SHORT).show();
-                        checkresult = false;
-                        break;
-                    }
-                }else {
-                    if ((Float.valueOf(detial.getActCount()) + result.size() + 1) > detial.getCount()) {
-                        Toast.makeText(this, "已经超过额定装车数量", Toast.LENGTH_SHORT).show();
-                        checkresult = false;
-                        break;
-                    }
+                GetCountUtil getCountUtil=new GetCountUtil(detailList,good);
+                if(getCountUtil.getActCount()+getCountUtil.getResultCount(result)+1>getCountUtil.getCount()){
+                    Toast.makeText(this,"该规格货品扫码数目已经超过发货单规定装车数目",Toast.LENGTH_SHORT).show();
+                    checkresult=false;
+                    break;
                 }
                 break;
 
@@ -546,6 +546,17 @@ public class SaleLoadActivity extends AppCompatActivity {
                 break;
         }
         return checkresult;
+    }
+
+    private boolean checkGoodSpecialMode(GoodsBarcodeBean good) {
+        boolean result=false;
+        for(OutOrderDetailBean detail:detailList){
+            if(detail.getSpecificationModel().equals(good.getSpecificationModel())){
+                result=true;
+                break;
+            }
+        }
+        return result;
     }
 
     @Override
