@@ -32,17 +32,13 @@ import com.example.barscanv01.Fragment.LoadOperationSelectFragment;
 import com.example.barscanv01.Fragment.ScanResultFragment;
 import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
-import com.example.barscanv01.ServiceAPI.AreaInOutUpdateService;
 import com.example.barscanv01.ServiceAPI.GetPositionsByDepotService;
 import com.example.barscanv01.ServiceAPI.LoadOverByDepotService;
 import com.example.barscanv01.ServiceAPI.LoadOverService;
-import com.example.barscanv01.ServiceAPI.OutOrderDetailProcessService;
-import com.example.barscanv01.ServiceAPI.OutOrderProcessService;
 import com.example.barscanv01.ServiceAPI.PutGoodLoadedService;
+import com.example.barscanv01.ServiceAPI.PutGoodLoadedforPDAService;
 import com.example.barscanv01.ServiceAPI.ScanBarcodeResultService;
 import com.example.barscanv01.ServiceAPI.UpdatePositionService;
-import com.example.barscanv01.ServiceAPI.UpdateUserService;
-import com.example.barscanv01.Util.AreaInOutUpdateUtil;
 import com.example.barscanv01.Util.CheckOutOrederDetailFinishedUtil;
 import com.example.barscanv01.Util.GetCountUtil;
 import com.example.barscanv01.Util.GoodsManageUtil;
@@ -62,8 +58,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class SaleLoadActivity extends AppCompatActivity {
     @BindView(R.id.load_outOrder_No)
@@ -234,20 +228,21 @@ public class SaleLoadActivity extends AppCompatActivity {
             switch (tag) {
                 case "OPERATION_LOAD_CAR":
                     if (scanResult.size() > 0) {
-                        double totalweight = 0.0;
+                        String Ids="";
                         for (GoodsBarcodeBean good : scanResult) {
-                            putGoodLoaded(good);
-                            totalweight = totalweight + Double.valueOf(good.getActWeight());
+                            Ids=Ids+good.getId()+",";
                         }
                         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
-                        PutGoodLoadedService putGoodLoadedService = retrofit.create(PutGoodLoadedService.class);
-                        Call<ResponseBody> call = putGoodLoadedService.updateActCount(detial.getId(), Double.toString(totalweight), Integer.toString(scanResult.size()));
+                        PutGoodLoadedforPDAService goodLoadedforPDAService = retrofit.create(PutGoodLoadedforPDAService.class);
+                        Call<ResponseBody> call=goodLoadedforPDAService.putGoodsLoaded(outOrder.getId(),Ids,myApp.getCurrentAreaBean().getAreaNo(),myApp.getUserBean().getUserName());
                         call.enqueue(new Callback<ResponseBody>() {
                             @Override
                             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                Toast.makeText(SaleLoadActivity.this,"货物装车提交成功",Toast.LENGTH_SHORT).show();
-
-
+                                Toast.makeText(SaleLoadActivity.this,"货品装车成功！",Toast.LENGTH_SHORT).show();
+                                ScanResultFragment fragment = (ScanResultFragment) fragmentManager.findFragmentById(R.id.customer_load_change_fragment);
+                                fragment.cleanData();
+                                setResult(1);
+                                finish();
                             }
 
                             @Override
@@ -255,16 +250,13 @@ public class SaleLoadActivity extends AppCompatActivity {
 
                             }
                         });
-                        fragment.cleanData();
-                        setResult(1);
-                        finish();
+
 
                     } else {
                         Toast.makeText(this, "没有扫描货品条形码", Toast.LENGTH_SHORT).show();
                     }
                     break;
                 case "OPERATION_CHANGE_DEPOT":
-                    Log.d("aaaa", "daoduola");
                     if (positionList.size() > 0) {
                         ArrayList<String> positionNames = new ArrayList<String>();
                         for (PositionBean position : positionList) {
@@ -360,6 +352,8 @@ public class SaleLoadActivity extends AppCompatActivity {
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                WriteDetailBarcodeUtil writeUtil = new WriteDetailBarcodeUtil(outOrder, good, SaleLoadActivity.this);
+                writeUtil.write();
                 if (!response.isSuccessful()) {
                     Toast.makeText(SaleLoadActivity.this, good.getBarcode() + "货品装车失败", Toast.LENGTH_LONG).show();
                 }
@@ -370,8 +364,7 @@ public class SaleLoadActivity extends AppCompatActivity {
 
             }
         });
-        WriteDetailBarcodeUtil writeUtil = new WriteDetailBarcodeUtil(DeliveryBillSingleton.getInstance().getOutOrderBean(), detial, good, SaleLoadActivity.this);
-        writeUtil.write();
+
 
     }
 

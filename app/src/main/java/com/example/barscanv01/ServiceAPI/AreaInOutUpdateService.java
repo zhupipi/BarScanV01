@@ -1,5 +1,7 @@
 package com.example.barscanv01.ServiceAPI;
 
+import java.util.ArrayList;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Field;
@@ -13,5 +15,5 @@ import retrofit2.http.POST;
 public interface AreaInOutUpdateService {
     @FormUrlEncoded
     @POST("areInController.do?doUpdatebyPDA")
-    Call<ResponseBody> updateService(@Field("plateNo") String plateNo,@Field("status") String status);
+    Call<ResponseBody> updateService(@Field("plateNo") String plateNo, @Field("status") String status);
 }

@@ -32,34 +32,29 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class WriteDetailBarcodeUtil {
-    public DetailBarcodeEntity detailBarcode;
-    public OutOrderDetailBean detail;
+
     public OutOrderBean outOrder;
     public GoodsBarcodeBean good;
     public MyApp myApp;
     public Map<String,String> map;
-   // public UserBean user;
-    public WriteDetailBarcodeUtil(OutOrderBean outOrderBean, OutOrderDetailBean outOrderDetailBean, GoodsBarcodeBean goodsBarcodeBean, Activity activity){
-        detailBarcode=new DetailBarcodeEntity();
+
+
+    public WriteDetailBarcodeUtil(OutOrderBean outOrderBean, GoodsBarcodeBean goodsBarcodeBean, Activity activity){
         myApp=(MyApp) activity.getApplication();
         this.outOrder=outOrderBean;
-        this.detail=outOrderDetailBean;
         this.good=goodsBarcodeBean;
         map=new HashMap<String, String>();
     }
     public void write(){
-        detailBarcode.setAreaNo(detail.getAreaNo());
         map.put("goodsId",good.getGoodsId());
         map.put("orderId",outOrder.getId());
-        map.put("orderDetailId",detail.getId());
-        map.put("areaNo",detail.getAreaNo());
-        map.put("depotNo",detail.getDepotNo());
+        map.put("areaNo",myApp.getCurrentAreaBean().getAreaNo());
+        map.put("depotNo",good.getDepotNo());
         map.put("batchNumber",good.getBatchNo());
         map.put("barcode",good.getBarcode());
         map.put("flag","0");
         map.put("scanUserName",myApp.getUserBean().getUserName());
-        map.put("customerCode",detail.getCustomerCode());
-        map.put("customerName",detail.getCustomerName());
+
 
         Date currentDate=new Date(System.currentTimeMillis());
         SimpleDateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
