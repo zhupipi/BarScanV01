@@ -159,7 +159,6 @@ public class SaleLoadActivity extends AppCompatActivity {
 
                         }
                     });
-                    outOrderDetailOverbuilder.show();
                 } else if (id == R.id.out_order_total_over) {
                     AlertDialog.Builder outOrderOverBuild = new AlertDialog.Builder(SaleLoadActivity.this);
                     outOrderOverBuild.setTitle("注意")
@@ -238,13 +237,14 @@ public class SaleLoadActivity extends AppCompatActivity {
                         call.enqueue(new Callback<ResponseBody>() {
                             @Override
                             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                CheckOutOrederDetailFinishedUtil checkFinishedUtil = new CheckOutOrederDetailFinishedUtil(outOrder, SaleLoadActivity.this);
+                                checkFinishedUtil.checkOutOrderFinished();
                                 Toast.makeText(SaleLoadActivity.this,"货品装车成功！",Toast.LENGTH_SHORT).show();
                                 ScanResultFragment fragment = (ScanResultFragment) fragmentManager.findFragmentById(R.id.customer_load_change_fragment);
                                 fragment.cleanData();
                                 setResult(1);
                                 finish();
                             }
-
                             @Override
                             public void onFailure(Call<ResponseBody> call, Throwable t) {
 
@@ -265,8 +265,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                         ArrayAdapter<String> adpter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice, positionNames);
                         AlertDialog.Builder builder = new AlertDialog.Builder(this);
                         builder.setTitle("请选择倒垛目标库位");
-                        builder.setSingleChoiceItems(adpter, 0, new DialogInterface.OnClickListener() {
-
+                        builder.setSingleChoiceItems(adpter, -1, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 position = positionList.get(which);
@@ -279,13 +278,11 @@ public class SaleLoadActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 if (position != null) {
-                                    Log.d("aaaa", position.getPositionName());
                                     if (sresult.size() > 0) {
                                         for (GoodsBarcodeBean good1 : sresult) {
                                             changeDepot(good1, position);
                                         }
                                     }
-
                                 }
                                 sresultfg.cleanData();
                                 finish();
@@ -345,36 +342,12 @@ public class SaleLoadActivity extends AppCompatActivity {
         });
     }
 
-    private void putGoodLoaded(final GoodsBarcodeBean good) {
-        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
-        PutGoodLoadedService putGoodLoadedService = retrofit.create(PutGoodLoadedService.class);
-        Call<ResponseBody> call = putGoodLoadedService.putGoodLoaded(good.getId());
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                WriteDetailBarcodeUtil writeUtil = new WriteDetailBarcodeUtil(outOrder, good, SaleLoadActivity.this);
-                writeUtil.write();
-                if (!response.isSuccessful()) {
-                    Toast.makeText(SaleLoadActivity.this, good.getBarcode() + "货品装车失败", Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-            }
-        });
-
-
-    }
 
     @Override
     protected void onResume() {
         super.onResume();
         registerReceiver();
     }
-
-
 
     private void registerReceiver() {
         IntentFilter intFilter = new IntentFilter(ScanManager.ACTION_SEND_SCAN_RESULT);
