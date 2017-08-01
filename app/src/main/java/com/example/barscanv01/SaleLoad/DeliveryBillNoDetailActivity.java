@@ -1,31 +1,43 @@
 package com.example.barscanv01.SaleLoad;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.barscanv01.Bean.DepotBean;
+import com.example.barscanv01.Bean.GoodsBarcodeBean;
 import com.example.barscanv01.Bean.OutOrderBean;
 import com.example.barscanv01.Bean.ReceivedDetailTotalWeightBean;
+import com.example.barscanv01.Bean.ReceivedGoodsBarcodeInfo;
 import com.example.barscanv01.Fragment.LoadOperationSelectFragment;
 import com.example.barscanv01.Fragment.ScanResultFragment;
 import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
 import com.example.barscanv01.ServiceAPI.GetOrderDetailWeightService;
 import com.example.barscanv01.ServiceAPI.LoadOverService;
+import com.example.barscanv01.ServiceAPI.ScanBarcodeResultService;
 import com.example.barscanv01.Util.CheckOutOrederDetailFinishedUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
 import com.nlscan.android.scan.ScanManager;
 import com.nlscan.android.scan.ScanSettings;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -51,6 +63,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
     private MyApp myApp;
     private ScanManager scanManager;
     private OutOrderBean outOrder;
+    private DepotBean userDepot;
 
     // private float totalWeight;
     @Override
@@ -61,6 +74,8 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("扫码装车/倒垛");
         myApp = (MyApp) getApplication();
+        scanManager = ScanManager.getInstance();
+        scanManager.setOutpuMode(ScanSettings.Global.VALUE_OUT_PUT_MODE_BROADCAST);
         initalData();
         fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -113,8 +128,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
         outOrder = DeliveryBillSingleton.getInstance().getOutOrderBean();
         billNo.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getOutOrderNo());
         plateNo.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo());
-        scanManager = ScanManager.getInstance();
-        scanManager.setOutpuMode(ScanSettings.Global.VALUE_OUT_PUT_MODE_BROADCAST);
+        userDepot=myApp.getCurrentDepot();
         showWeight();
     }
 
@@ -136,6 +150,110 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
             }
         });
     }
+    private void registerReceiver() {
+        IntentFilter intFilter = new IntentFilter(ScanManager.ACTION_SEND_SCAN_RESULT);
+        registerReceiver(mResultReceiver, intFilter);
+    }
+
+    private void unRegisterReceiver() {
+        try {
+            unregisterReceiver(mResultReceiver);
+        } catch (Exception e) {
+        }
+    }
+
+    private BroadcastReceiver mResultReceiver=new BroadcastReceiver(){
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (ScanManager.ACTION_SEND_SCAN_RESULT.equals(action)) {
+                byte[] bvalue1 = intent.getByteArrayExtra(ScanManager.EXTRA_SCAN_RESULT_ONE_BYTES);
+                byte[] bvalue2 = intent.getByteArrayExtra(ScanManager.EXTRA_SCAN_RESULT_TWO_BYTES);
+                String svalue1 = null;
+                String svalue2 = null;
+                try {
+                    if (bvalue1 != null)
+                        svalue1 = new String(bvalue1, "GBK");
+                    if (bvalue2 != null)
+                        svalue2 = new String(bvalue1, "GBK");
+                    svalue1 = svalue1 == null ? "" : svalue1;
+                    svalue2 = svalue2 == null ? "" : svalue2;
+                    String result = svalue1 + svalue2;
+                    if (!fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change).getTag().equals("OPERATION_SELECT")) {
+                       getScanResult(result);
+                    }else{
+                        Toast.makeText(DeliveryBillNoDetailActivity.this,"请选择装车或扫码操作",Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(DeliveryBillNoDetailActivity.this, "扫码失败", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+
+        }
+    };
+
+    private void getScanResult(String result) {
+        Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
+        ScanBarcodeResultService scanResultService=retrofit.create(ScanBarcodeResultService.class);
+        Call<ReceivedGoodsBarcodeInfo> call=scanResultService.getGoodsBarcode(result);
+        call.enqueue(new Callback<ReceivedGoodsBarcodeInfo>() {
+            @Override
+            public void onResponse(Call<ReceivedGoodsBarcodeInfo> call, Response<ReceivedGoodsBarcodeInfo> response) {
+                GoodsBarcodeBean good=response.body().getAttributes().getGoodsBarcode();
+                if(good!=null){
+                    ScanResultFragment result= (ScanResultFragment) fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change);
+                    if(checkResult(good)){
+                        result.addData(good);
+                        if(result.getTag().equals("OPERATION_LOAD_CAR")){
+                            float act_weight=Float.valueOf(actWeight.getText().toString().trim())+Float.valueOf(good.getActWeight());
+                            actWeight.setText(String.valueOf(act_weight));
+                        }
+                    }
+                }else{
+                    Toast.makeText(DeliveryBillNoDetailActivity.this,"该条码不存在对应的货品",Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReceivedGoodsBarcodeInfo> call, Throwable t) {
+
+            }
+        });
+
+    }
+
+    private boolean checkResult(GoodsBarcodeBean good) {
+        boolean result = true;
+        ScanResultFragment result1 = (ScanResultFragment) fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change);
+        List<GoodsBarcodeBean> scanResult = result1.getScanResultArryList();
+        if (!good.getDepotNo().equals(userDepot.getDepotNo())) {
+            Toast.makeText(DeliveryBillNoDetailActivity.this, "该货品不在用户管理库区", Toast.LENGTH_SHORT).show();
+            result = false;
+        } else if (!good.getStatus().equals("0")) {
+            Toast.makeText(DeliveryBillNoDetailActivity.this, "该货品已经装车", Toast.LENGTH_SHORT).show();
+            result = false;
+
+        } else {
+            for (GoodsBarcodeBean re : scanResult) {
+                if (re.getId().equals(good.getId())) {
+                    Toast.makeText(this, "该货品已扫", Toast.LENGTH_LONG).show();
+                    result = false;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -143,4 +261,9 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unRegisterReceiver();
+    }
 }

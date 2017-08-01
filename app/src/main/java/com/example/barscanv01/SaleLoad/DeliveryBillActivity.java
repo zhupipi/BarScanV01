@@ -35,6 +35,7 @@ import com.example.barscanv01.Util.CarPlateUtil;
 import com.example.barscanv01.Util.OutOrderDetailSortUtil;
 import com.example.barscanv01.Util.OutOrderScanedUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
+import com.example.barscanv01.Util.WriteBizlogUtil;
 import com.nlscan.android.scan.ScanManager;
 import com.nlscan.android.scan.ScanSettings;
 
@@ -130,6 +131,8 @@ public class DeliveryBillActivity extends AppCompatActivity {
                                             OutOrderScanedUtil orderScanedUtil = new OutOrderScanedUtil(response.body().getAttributes().getOutOrder());
                                             orderScanedUtil.updateOutOrderProcess();
                                             orderScanedUtil.updateAreaInOut();
+                                            WriteBizlogUtil writeBizlog=new WriteBizlogUtil(DeliveryBillActivity.this);
+                                            writeBizlog.writeLoadStartedLog();
                                             if(DeliveryBillSingleton.getInstance().getOutOrderDetailBean().size()==0){
                                                 showNoDetail();
                                             }
@@ -188,8 +191,9 @@ public class DeliveryBillActivity extends AppCompatActivity {
                                         OutOrderScanedUtil orderScanedUtil = new OutOrderScanedUtil(response.body().getAttributes().getOutOrder());
                                         orderScanedUtil.updateOutOrderProcess();
                                         orderScanedUtil.updateAreaInOut();
+                                        WriteBizlogUtil writeBizlog=new WriteBizlogUtil(DeliveryBillActivity.this);
+                                        writeBizlog.writeLoadStartedLog();
                                         if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean().size() == 0) {
-                                            Log.d("bbbbbb","sdfsfsdfsfsfsfsfsf");
                                             showNoDetail();
                                         }
                                     }

@@ -35,7 +35,6 @@ import com.example.barscanv01.R;
 import com.example.barscanv01.ServiceAPI.GetPositionsByDepotService;
 import com.example.barscanv01.ServiceAPI.LoadOverByDepotService;
 import com.example.barscanv01.ServiceAPI.LoadOverService;
-import com.example.barscanv01.ServiceAPI.PutGoodLoadedService;
 import com.example.barscanv01.ServiceAPI.PutGoodLoadedforPDAService;
 import com.example.barscanv01.ServiceAPI.ScanBarcodeResultService;
 import com.example.barscanv01.ServiceAPI.UpdatePositionService;
@@ -79,8 +78,6 @@ public class SaleLoadActivity extends AppCompatActivity {
 
 
     private FragmentManager fragmentManager;
-    private OutOrderDetailBean detial;
-
     private MyApp myApp;
     private ScanManager scanManager;
     private List<PositionBean> positionList;
@@ -182,7 +179,7 @@ public class SaleLoadActivity extends AppCompatActivity {
 
                                         }
                                     });
-                                    GoodsManageUtil goodsManageUtil = new GoodsManageUtil(SaleLoadActivity.this);
+                                    //GoodsManageUtil goodsManageUtil = new GoodsManageUtil(SaleLoadActivity.this);
                                 }
                             })
                             .show();
@@ -302,7 +299,6 @@ public class SaleLoadActivity extends AppCompatActivity {
                     break;
             }
         }
-
     }
 
     private void changeDepot(GoodsBarcodeBean good1, PositionBean position) {
