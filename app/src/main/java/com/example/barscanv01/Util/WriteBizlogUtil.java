@@ -2,6 +2,7 @@ package com.example.barscanv01.Util;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 
 import com.example.barscanv01.Bean.OutOrderBean;
 import com.example.barscanv01.Bean.OutOrderDetailBean;

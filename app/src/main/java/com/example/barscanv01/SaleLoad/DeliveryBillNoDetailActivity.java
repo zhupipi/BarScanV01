@@ -200,6 +200,8 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
                             Toast.makeText(DeliveryBillNoDetailActivity.this, "货品装车成功！", Toast.LENGTH_SHORT).show();
                             ScanResultFragment fragment = (ScanResultFragment) fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change);
                             fragment.cleanData();
+                            setResult(2);
+                            finish();
                         }
 
                         @Override
@@ -239,6 +241,8 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
                                     }
                                 }
                             }
+                            scanResult.cleanData();
+                            finish();
                         }
                     }).show();
                 }
@@ -255,10 +259,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                Toast.makeText(DeliveryBillNoDetailActivity.this,"货品库位移库成功",Toast.LENGTH_SHORT).show();
-                ScanResultFragment scanResultFragment= (ScanResultFragment) fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change);
-                scanResultFragment.cleanData();
-                finish();
+
             }
 
             @Override

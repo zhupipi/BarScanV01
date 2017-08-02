@@ -13,7 +13,11 @@ import retrofit2.http.POST;
  */
 
 public interface AreaInOutUpdateService {
+    //需要增加库位
     @FormUrlEncoded
-    @POST("areInController.do?doUpdatebyPDA")
+    @POST("areaInController.do?doUpdatebyPDA")
     Call<ResponseBody> updateService(@Field("plateNo") String plateNo, @Field("status") String status);
+    @FormUrlEncoded
+    @POST("areaInController.do?doUpdatebyPDA")
+    Call<ResponseBody> scanedUpdateService(@Field("plateNo") String plateNo, @Field("status") String status,@Field(("depotNo")) String depotNo,@Field("areaNo") String areaNo);
 }

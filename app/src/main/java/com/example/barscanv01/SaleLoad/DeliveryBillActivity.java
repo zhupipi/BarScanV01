@@ -22,15 +22,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.barscanv01.Adapter.DividerItemDecoration;
+import com.example.barscanv01.Adapter.LoadedResultAdapter;
 import com.example.barscanv01.Adapter.OutOrderDetailAdapter;
+import com.example.barscanv01.Bean.GoodsBarcodeBean;
 import com.example.barscanv01.Bean.OutOrderBean;
 import com.example.barscanv01.Bean.OutOrderDetailBean;
 import com.example.barscanv01.Bean.ReceivedDelivieryBillInfo;
+import com.example.barscanv01.Bean.ReceivedLoadGoodsBarcodeInfo;
 import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
 import com.example.barscanv01.ServiceAPI.DeliveryBillByBillNoService;
 import com.example.barscanv01.ServiceAPI.DeliveryBillById;
 import com.example.barscanv01.ServiceAPI.DeliveryBillByPlateService;
+import com.example.barscanv01.ServiceAPI.GetLoadGoodsBarcodeService;
 import com.example.barscanv01.Util.CarPlateUtil;
 import com.example.barscanv01.Util.OutOrderDetailSortUtil;
 import com.example.barscanv01.Util.OutOrderScanedUtil;
@@ -75,7 +79,10 @@ public class DeliveryBillActivity extends AppCompatActivity {
     CarPlateUtil carPlateUtil;
     ScanManager scanManager;
     OutOrderDetailAdapter myAdapter;
+    LoadedResultAdapter loadedResultAdapter;
     MyApp myApp;
+
+    private  List<GoodsBarcodeBean> loadGoodsResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +92,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
         myApp=(MyApp)getApplication();
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("发货通知单信息");
+        List<GoodsBarcodeBean> loadGoodsResult=new ArrayList<GoodsBarcodeBean>();
         scanManager=ScanManager.getInstance();
         scanManager.setOutpuMode(ScanSettings.Global.VALUE_OUT_PUT_MODE_FILLING);
         scanManager.enableBeep();
@@ -128,7 +136,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                                             carPlateProvince.setSelection(carPlateUtil.getId(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo()));
                                             showDetail();
                                             showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean());
-                                            OutOrderScanedUtil orderScanedUtil = new OutOrderScanedUtil(response.body().getAttributes().getOutOrder());
+                                            OutOrderScanedUtil orderScanedUtil = new OutOrderScanedUtil(response.body().getAttributes().getOutOrder(),DeliveryBillActivity.this);
                                             orderScanedUtil.updateOutOrderProcess();
                                             orderScanedUtil.updateAreaInOut();
                                             WriteBizlogUtil writeBizlog=new WriteBizlogUtil(DeliveryBillActivity.this);
@@ -188,7 +196,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                                         billNumber.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getOutOrderNo() + " ");
                                         showDetail();
                                         showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean());
-                                        OutOrderScanedUtil orderScanedUtil = new OutOrderScanedUtil(response.body().getAttributes().getOutOrder());
+                                        OutOrderScanedUtil orderScanedUtil = new OutOrderScanedUtil(response.body().getAttributes().getOutOrder(),DeliveryBillActivity.this);
                                         orderScanedUtil.updateOutOrderProcess();
                                         orderScanedUtil.updateAreaInOut();
                                         WriteBizlogUtil writeBizlog=new WriteBizlogUtil(DeliveryBillActivity.this);
@@ -346,7 +354,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Intent intent=new Intent(DeliveryBillActivity.this,DeliveryBillNoDetailActivity.class);
-                        startActivity(intent);
+                        startActivityForResult(intent,2);
                     }
                 }).show();
     }
@@ -369,8 +377,41 @@ public class DeliveryBillActivity extends AppCompatActivity {
                 public void onFailure(Call<ReceivedDelivieryBillInfo> call, Throwable t) {
                 }
             });
+        }else if(resultCode==2){
+            Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
+            GetLoadGoodsBarcodeService getLoadGoodsBarcodeService=retrofit.create(GetLoadGoodsBarcodeService.class);
+            Call<ReceivedLoadGoodsBarcodeInfo> call=getLoadGoodsBarcodeService.getLoadedGoods(DeliveryBillSingleton.getInstance().getOutOrderBean().getId());
+            call.enqueue(new Callback<ReceivedLoadGoodsBarcodeInfo>() {
+                @Override
+                public void onResponse(Call<ReceivedLoadGoodsBarcodeInfo> call, Response<ReceivedLoadGoodsBarcodeInfo> response) {
+                    loadGoodsResult=response.body().getAttributes().getGoodsBarcodeEndtityList();
+                    Log.d("ffff",response.toString());
+                    if(loadGoodsResult.size()>0){
+                        showLoadedGoods(loadGoodsResult);
+                        showLoadedGoodsWeight(loadGoodsResult);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ReceivedLoadGoodsBarcodeInfo> call, Throwable t) {
+
+                }
+            });
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void showLoadedGoodsWeight(List<GoodsBarcodeBean> loadGoodsResult) {
+        float totalActWeight=0;
+        for(GoodsBarcodeBean good:loadGoodsResult){
+            totalActWeight=totalActWeight+Float.valueOf(good.getActWeight());
+        }
+        ActWeight.setText(String.valueOf(totalActWeight));
+    }
+
+    private void showLoadedGoods(List<GoodsBarcodeBean> loadGoodsResult) {
+            loadedResultAdapter=new LoadedResultAdapter(DeliveryBillActivity.this,loadGoodsResult);
+            outOrderDetialView.setAdapter(loadedResultAdapter);
     }
 
 

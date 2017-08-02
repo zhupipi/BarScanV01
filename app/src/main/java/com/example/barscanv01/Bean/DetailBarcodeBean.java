@@ -6,7 +6,7 @@ import java.util.Date;
  * Created by zhupipi on 2017/7/5.
  */
 
-public class DetailBarcodeEntity {
+public class DetailBarcodeBean {
     private java.lang.String id;
     //产品ID
     private java.lang.String goodsId;

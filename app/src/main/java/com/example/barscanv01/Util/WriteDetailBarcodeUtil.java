@@ -3,17 +3,13 @@ package com.example.barscanv01.Util;
 import android.app.Activity;
 import android.util.Log;
 
-import com.example.barscanv01.Bean.DetailBarcodeEntity;
 import com.example.barscanv01.Bean.GoodsBarcodeBean;
 import com.example.barscanv01.Bean.OutOrderBean;
-import com.example.barscanv01.Bean.OutOrderDetailBean;
 import com.example.barscanv01.MyApp;
 import com.example.barscanv01.ServiceAPI.WriteBarcodeDetailService;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,8 +20,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by zhupipi on 2017/7/5.

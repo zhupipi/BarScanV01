@@ -1,6 +1,9 @@
 package com.example.barscanv01.Util;
 
+import android.app.Activity;
+
 import com.example.barscanv01.Bean.OutOrderBean;
+import com.example.barscanv01.MyApp;
 import com.example.barscanv01.ServiceAPI.AreaInOutUpdateService;
 import com.example.barscanv01.ServiceAPI.OutOrderProcessService;
 
@@ -15,9 +18,13 @@ import retrofit2.Retrofit;
  */
 
 public class OutOrderScanedUtil {
+    private Activity activity;
+    private MyApp myApp;
     public OutOrderBean outOrder;
-    public OutOrderScanedUtil(OutOrderBean outOrder){
+    public OutOrderScanedUtil(OutOrderBean outOrder,Activity activity){
         this.outOrder=outOrder;
+        this.activity=activity;
+        myApp= (MyApp) activity.getApplication();
     }
     public void updateOutOrderProcess(){
         Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
@@ -38,7 +45,7 @@ public class OutOrderScanedUtil {
     public void updateAreaInOut(){
         Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
         AreaInOutUpdateService areaInOutUpdateService=retrofit.create(AreaInOutUpdateService.class);
-        Call<ResponseBody>call=areaInOutUpdateService.updateService(outOrder.getPlateNo(),"5");
+        Call<ResponseBody>call=areaInOutUpdateService.scanedUpdateService(outOrder.getPlateNo(),"5",myApp.getCurrentDepot().getDepotNo(),myApp.getCurrentAreaBean().getAreaNo());
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {

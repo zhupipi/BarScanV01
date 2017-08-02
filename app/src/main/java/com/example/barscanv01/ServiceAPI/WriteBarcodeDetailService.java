@@ -1,14 +1,10 @@
 package com.example.barscanv01.ServiceAPI;
 
-import com.example.barscanv01.Bean.DetailBarcodeEntity;
-
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.Map;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
-import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
