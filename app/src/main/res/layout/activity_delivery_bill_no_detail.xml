@@ -82,10 +82,30 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         app:srcCompat="@drawable/divider" />
+
     <FrameLayout
         android:id="@+id/delivery_bill_nodetail_frag_change"
-        android:layout_height="match_parent"
         android:layout_width="match_parent"
-        />
+        android:layout_height="320dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/delivery_bill_nodetail_confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="确认" />
+
+        <Button
+            android:id="@+id/delivery_bill_nodetail_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="取消" />
+    </LinearLayout>
 
 </LinearLayout>

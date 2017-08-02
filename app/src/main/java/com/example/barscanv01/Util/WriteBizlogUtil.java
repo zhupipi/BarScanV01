@@ -44,7 +44,7 @@ public class WriteBizlogUtil {
         map1.put("depotName",myApp.getCurrentDepot().getDepotName());
         map1.put("areaName",myApp.getCurrentAreaBean().getAreaName());
         map1.put("process","开始装车");
-        map1.put("remark","车牌号为["+outOrder.getPlateNo()+"]的车辆正在为订单号为"+"“"+outOrder.getOutOrderNo()+"”的订单装车");
+        map1.put("remark","车牌号为["+outOrder.getPlateNo()+"]的车辆正在为订单号为"+"“"+outOrder.getOutOrderNo()+"”的订单在库位"+myApp.getCurrentDepot().getDepotName()+"装车");
 
         Date currentDate=new Date(System.currentTimeMillis());
         SimpleDateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
