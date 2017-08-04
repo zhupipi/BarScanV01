@@ -1,5 +1,6 @@
 package com.example.barscanv01.Unload;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -9,6 +10,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -67,6 +69,7 @@ public class InOrderBillActivity extends AppCompatActivity {
     private CarPlateUtil carPlateUtil;
     private ScanManager scanManager;
     private InOrderDetailAdapter detailAdapter;
+    final static int HAVE_INORDER_DETAIL=3;
 
 
     @Override
@@ -188,6 +191,21 @@ public class InOrderBillActivity extends AppCompatActivity {
 
             }
         });
+        confirmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(InOrderBillActivity.this,UnLoadActivity.class);
+                intent.putExtra("weight",weight.getText().toString().trim());
+                intent.putExtra("actWeight",actWeight.getText().toString().trim());
+                startActivityForResult(intent,HAVE_INORDER_DETAIL);
+            }
+        });
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     private void showDetailData() {
@@ -229,5 +247,11 @@ public class InOrderBillActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
 }

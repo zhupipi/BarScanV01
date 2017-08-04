@@ -162,7 +162,7 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="0.5"
             android:gravity="center"
-            android:text="应装"
+            android:text="应卸"
             android:background="#F4F4F4"/>
 
         <TextView
@@ -171,7 +171,7 @@
             android:layout_weight="0.5"
             android:layout_gravity="center_vertical"
             android:gravity="center"
-            android:text="实装"
+            android:text="实卸"
             android:background="#F0FFF0"
             />
         <TextView
