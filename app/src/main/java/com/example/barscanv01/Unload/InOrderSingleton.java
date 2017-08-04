@@ -1,5 +1,6 @@
 package com.example.barscanv01.Unload;
 
+import com.example.barscanv01.Bean.DetailBarcodeBean;
 import com.example.barscanv01.Bean.InOrderBean;
 import com.example.barscanv01.Bean.InOrderDetailBean;
 
@@ -13,12 +14,14 @@ import java.util.List;
 public class InOrderSingleton {
     public InOrderBean inOrder;
     public List<InOrderDetailBean> inOrderDetailList;
+    public List<DetailBarcodeBean> detailBarcodeList;
 
     private static InOrderSingleton instance = null;
 
     private InOrderSingleton() {
         inOrder=new InOrderBean();
         inOrderDetailList=new ArrayList<InOrderDetailBean>();
+        detailBarcodeList=new ArrayList<DetailBarcodeBean>();
     }
 
     public static InOrderSingleton getInstance() {

@@ -25,6 +25,7 @@ import com.example.barscanv01.Bean.ReceivedInOrderInfo;
 import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
 import com.example.barscanv01.ServiceAPI.GetCarResonService;
+import com.example.barscanv01.ServiceAPI.GetInOrderByOrderNoService;
 import com.example.barscanv01.ServiceAPI.GetInOrderforPDAbyPlateService;
 import com.example.barscanv01.Util.CarPlateUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
@@ -65,6 +66,7 @@ public class InOrderBillActivity extends AppCompatActivity {
     private ScanManager scanManager;
     private InOrderDetailAdapter detailAdapter;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,6 +103,28 @@ public class InOrderBillActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 if(s.length()==10){
                     String inOrderNo=s.toString().trim();
+                    Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
+                    GetInOrderByOrderNoService getInOrderByOrderNoService=retrofit.create(GetInOrderByOrderNoService.class);
+                    Call<ReceivedInOrderInfo> call=getInOrderByOrderNoService.getInOrderbyNo(inOrderNo);
+                    call.enqueue(new Callback<ReceivedInOrderInfo>() {
+                        @Override
+                        public void onResponse(Call<ReceivedInOrderInfo> call, Response<ReceivedInOrderInfo> response) {
+                            if(response.body().getAttributes().getInOrder()!=null){
+                                manageInOrder(response.body().getAttributes().getInOrder(),response.body().getAttributes().getInOrderDetailList());
+                                carPlate.setText(carPlateUtil.getplateNum(InOrderSingleton.getInstance().getInOrder().getPlateNo()));
+                                carPlateSpinner.setSelection(carPlateUtil.getId(InOrderSingleton.getInstance().getInOrder().getPlateNo()));
+                                showDetailData();
+                            }else {
+                                Toast.makeText(InOrderBillActivity.this,"改车牌无对应退货单",Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ReceivedInOrderInfo> call, Throwable t) {
+
+                        }
+                    });
+
                 }
             }
         });

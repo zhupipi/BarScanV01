@@ -129,6 +129,66 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:srcCompat="@drawable/divider" />
+    <LinearLayout
+        android:id="@+id/inorder_name_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:divider="@drawable/divider"
+        android:showDividers="end">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:text="产品名"
+            android:background="#F4F4F4"/>
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:text="规格"
+            android:background="#F0FFF0"
+            />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="0.5"
+            android:gravity="center"
+            android:text="应装"
+            android:background="#F4F4F4"/>
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="0.5"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:text="实装"
+            android:background="#F0FFF0"
+            />
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1.5"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:text="客户名"
+            android:background="#F4F4F4"
+            />
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/divider" />
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/inorder_swipe_refresh"
