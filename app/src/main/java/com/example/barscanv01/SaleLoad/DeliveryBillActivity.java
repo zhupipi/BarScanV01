@@ -250,7 +250,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (DeliveryBillSingleton.getInstance().getOutOrderBean()!= null&&DeliveryBillSingleton.getInstance().getOutOrderBean().getId()!=null) {
-                    if(DeliveryBillSingleton.getInstance().getOutOrderBean().getProcess().equals("4")) {
+                    if(DeliveryBillSingleton.getInstance().getOutOrderBean().getProcess().equals("4")||DeliveryBillSingleton.getInstance().getOutOrderBean().getProcess().equals("3")) {
                         if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean().size() > 0) {
                             if (!checkDepotFinished(DeliveryBillSingleton.getInstance().getOutOrderDetailBean())) {
                                 Intent intent = new Intent(DeliveryBillActivity.this, SaleLoadActivity.class);

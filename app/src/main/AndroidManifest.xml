@@ -23,7 +23,9 @@
         <activity android:name=".Operation.OperationSelectActivity" />
         <activity android:name=".SaleLoad.DeliveryBillActivity" />
         <activity android:name=".SaleLoad.SaleLoadActivity" />
-        <activity android:name=".SaleLoad.DeliveryBillNoDetailActivity"></activity>
+        <activity android:name=".SaleLoad.DeliveryBillNoDetailActivity" />
+        <activity android:name=".Unload.InOrderBillActivity" />
+        <activity android:name=".Unload.UnLoadActivity"></activity>
     </application>
 
 </manifest>

@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
 import com.example.barscanv01.SaleLoad.DeliveryBillActivity;
+import com.example.barscanv01.Unload.InOrderBillActivity;
 
 import butterknife.BindView;
 
@@ -48,6 +49,13 @@ public class OperationSelectFragment extends Fragment {
         });
         depotTransferImage=(ImageView)getView().findViewById(R.id.depot_transfer_image);
         platterImage=(ImageView)getView().findViewById(R.id.platter_image);
+        platterImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(getActivity(), InOrderBillActivity.class);
+                startActivity(intent);
+            }
+        });
 
     }
 }
