@@ -7,6 +7,7 @@ import java.util.Date;
  */
 
 public class DetailBarcodeBean {
+
     private java.lang.String id;
     //产品ID
     private java.lang.String goodsId;

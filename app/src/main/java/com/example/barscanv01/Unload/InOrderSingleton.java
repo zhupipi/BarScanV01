@@ -48,4 +48,12 @@ public class InOrderSingleton {
     public void setInOrderDetailList(List<InOrderDetailBean> inOrderDetailList) {
         this.inOrderDetailList = inOrderDetailList;
     }
+
+    public List<DetailBarcodeBean> getDetailBarcodeList() {
+        return detailBarcodeList;
+    }
+
+    public void setDetailBarcodeList(List<DetailBarcodeBean> detailBarcodeList) {
+        this.detailBarcodeList = detailBarcodeList;
+    }
 }

@@ -21,10 +21,12 @@ import com.example.barscanv01.Adapter.InOrderDetailAdapter;
 import com.example.barscanv01.Bean.InOrderBean;
 import com.example.barscanv01.Bean.InOrderDetailBean;
 import com.example.barscanv01.Bean.ReceivedCarResonInfo;
+import com.example.barscanv01.Bean.ReceivedDetailBarcodeInfo;
 import com.example.barscanv01.Bean.ReceivedInOrderInfo;
 import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
 import com.example.barscanv01.ServiceAPI.GetCarResonService;
+import com.example.barscanv01.ServiceAPI.GetDetailBarcodeService;
 import com.example.barscanv01.ServiceAPI.GetInOrderByOrderNoService;
 import com.example.barscanv01.ServiceAPI.GetInOrderforPDAbyPlateService;
 import com.example.barscanv01.Util.CarPlateUtil;
@@ -74,15 +76,15 @@ public class InOrderBillActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("卸车信息获取");
-        myApp=(MyApp)getApplication();
-        scanManager=ScanManager.getInstance();
+        myApp = (MyApp) getApplication();
+        scanManager = ScanManager.getInstance();
         scanManager.setOutpuMode(ScanSettings.Global.VALUE_OUT_PUT_MODE_FILLING);
         scanManager.enableBeep();
-        carPlateUtil=new CarPlateUtil();
-        ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,carPlateUtil.getProvinces());
+        carPlateUtil = new CarPlateUtil();
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, carPlateUtil.getProvinces());
         carPlateSpinner.setAdapter(adapter);
         detailView.setLayoutManager(new LinearLayoutManager(this));
-        detailView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL_LIST));
+        detailView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         detailView.setItemAnimator(new DefaultItemAnimator());
         setLinstener();
     }
@@ -101,21 +103,22 @@ public class InOrderBillActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if(s.length()==10){
-                    String inOrderNo=s.toString().trim();
-                    Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
-                    GetInOrderByOrderNoService getInOrderByOrderNoService=retrofit.create(GetInOrderByOrderNoService.class);
-                    Call<ReceivedInOrderInfo> call=getInOrderByOrderNoService.getInOrderbyNo(inOrderNo);
+                if (s.length() == 10) {
+                    String inOrderNo = s.toString().trim();
+                    Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+                    GetInOrderByOrderNoService getInOrderByOrderNoService = retrofit.create(GetInOrderByOrderNoService.class);
+                    Call<ReceivedInOrderInfo> call = getInOrderByOrderNoService.getInOrderbyNo(inOrderNo);
                     call.enqueue(new Callback<ReceivedInOrderInfo>() {
                         @Override
                         public void onResponse(Call<ReceivedInOrderInfo> call, Response<ReceivedInOrderInfo> response) {
-                            if(response.body().getAttributes().getInOrder()!=null){
-                                manageInOrder(response.body().getAttributes().getInOrder(),response.body().getAttributes().getInOrderDetailList());
+                            if (response.body().getAttributes().getInOrder() != null) {
+                                manageInOrder(response.body().getAttributes().getInOrder(), response.body().getAttributes().getInOrderDetailList());
                                 carPlate.setText(carPlateUtil.getplateNum(InOrderSingleton.getInstance().getInOrder().getPlateNo()));
                                 carPlateSpinner.setSelection(carPlateUtil.getId(InOrderSingleton.getInstance().getInOrder().getPlateNo()));
                                 showDetailData();
-                            }else {
-                                Toast.makeText(InOrderBillActivity.this,"改车牌无对应退货单",Toast.LENGTH_SHORT).show();
+                                showWeight();
+                            } else {
+                                Toast.makeText(InOrderBillActivity.this, "改车牌无对应退货单", Toast.LENGTH_SHORT).show();
                             }
                         }
 
@@ -142,28 +145,32 @@ public class InOrderBillActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if(s.length()==8){
-                    try{
+                /**需要注意：车牌省份已经修改。若后面需要动态修改省份，则我们也需要做动态
+                 *
+                 */
+                if (s.length() == 8) {
+                    try {
                         String plate = s.toString();
                         String province = plate.substring(0, 2);
                         int id = Integer.parseInt(province);
                         carPlateSpinner.setSelection(id - 1);
                         s = s.delete(0, 2);
-                        String finalPlate=((String) carPlateSpinner.getSelectedItem())+s;
+                        String finalPlate = ((String) carPlateSpinner.getSelectedItem()) + s;
                         finalPlate.trim();
-                        Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
-                        GetInOrderforPDAbyPlateService getInOrderforPDAbyPlateService=retrofit.create(GetInOrderforPDAbyPlateService.class);
-                        Call<ReceivedInOrderInfo> call=getInOrderforPDAbyPlateService.getInOrder(finalPlate);
+                        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+                        GetInOrderforPDAbyPlateService getInOrderforPDAbyPlateService = retrofit.create(GetInOrderforPDAbyPlateService.class);
+                        Call<ReceivedInOrderInfo> call = getInOrderforPDAbyPlateService.getInOrder(finalPlate);
                         call.enqueue(new Callback<ReceivedInOrderInfo>() {
                             @Override
                             public void onResponse(Call<ReceivedInOrderInfo> call, Response<ReceivedInOrderInfo> response) {
-                                if(response.body().getAttributes().getInOrder()!=null){
-                                    manageInOrder(response.body().getAttributes().getInOrder(),response.body().getAttributes().getInOrderDetailList());
-                                    billNo.setText(InOrderSingleton.getInstance().getInOrder().getInOrderNo()+" ");
+                                if (response.body().getAttributes().getInOrder() != null) {
+                                    manageInOrder(response.body().getAttributes().getInOrder(), response.body().getAttributes().getInOrderDetailList());
+                                    billNo.setText(InOrderSingleton.getInstance().getInOrder().getInOrderNo() + " ");
                                     showDetailData();
+                                    showWeight();
 
-                                }else{
-                                    Toast.makeText(InOrderBillActivity.this,"改车牌无对应退货单",Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(InOrderBillActivity.this, "改车牌无对应退货单", Toast.LENGTH_SHORT).show();
                                 }
                             }
 
@@ -173,9 +180,9 @@ public class InOrderBillActivity extends AppCompatActivity {
                             }
                         });
 
-                    }catch(Exception e){
-                        Toast.makeText(InOrderBillActivity.this,"请扫描正确的车牌号",Toast.LENGTH_SHORT).show();
-                        Log.d("eeee",e.getMessage());
+                    } catch (Exception e) {
+                        Toast.makeText(InOrderBillActivity.this, "请扫描正确的车牌号", Toast.LENGTH_SHORT).show();
+                        Log.d("eeee", e.getMessage());
                     }
                 }
 
@@ -184,12 +191,43 @@ public class InOrderBillActivity extends AppCompatActivity {
     }
 
     private void showDetailData() {
-        detailAdapter=new InOrderDetailAdapter(InOrderBillActivity.this,InOrderSingleton.getInstance().getInOrderDetailList());
+        detailAdapter = new InOrderDetailAdapter(InOrderBillActivity.this, InOrderSingleton.getInstance().getInOrderDetailList());
         detailView.setAdapter(detailAdapter);
     }
 
     private void manageInOrder(InOrderBean inOrder, List<InOrderDetailBean> inOrderDetailList) {
         InOrderSingleton.getInstance().setInOrder(inOrder);
         InOrderSingleton.getInstance().setInOrderDetailList(inOrderDetailList);
+    }
+
+    private void showWeight() {
+        getDetailBarcode();
+        double totalWeight=0;
+        double detailActWeight=0;
+        for(InOrderDetailBean detail:InOrderSingleton.getInstance().getInOrderDetailList()){
+            totalWeight=totalWeight+detail.getWeight();
+            detailActWeight=detailActWeight+detail.getActWeight();
+        }
+        weight.setText(totalWeight+"");
+        actWeight.setText(detailActWeight+"");
+    }
+
+    private void getDetailBarcode() {
+        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+        GetDetailBarcodeService getDetailBarcodeService = retrofit.create(GetDetailBarcodeService.class);
+        Call<ReceivedDetailBarcodeInfo> call = getDetailBarcodeService.getDetailBarcodes(InOrderSingleton.getInstance().getInOrder().getOutOrderNo());
+        call.enqueue(new Callback<ReceivedDetailBarcodeInfo>() {
+            @Override
+            public void onResponse(Call<ReceivedDetailBarcodeInfo> call, Response<ReceivedDetailBarcodeInfo> response) {
+                if (response.body().getAttributes().getDetailBarcodeEntityList().size() > 0) {
+                    InOrderSingleton.getInstance().setDetailBarcodeList(response.body().getAttributes().getDetailBarcodeEntityList());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReceivedDetailBarcodeInfo> call, Throwable t) {
+
+            }
+        });
     }
 }
