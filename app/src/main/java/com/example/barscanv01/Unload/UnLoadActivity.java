@@ -143,6 +143,8 @@ public class UnLoadActivity extends AppCompatActivity {
                     GoodsBarcodeBean good = response.body().getAttributes().getGoodsBarcode();
                     if (checkGood(good)) {
                         showScanRsult(good);
+                        double act_weight=Double.valueOf(actWeight.getText().toString().trim())+Double.valueOf(good.getActWeight());
+                        actWeight.setText(act_weight+"");
                     }
                 } else {
                     Toast.makeText(UnLoadActivity.this, "该条码无对应货品信息", Toast.LENGTH_SHORT).show();
