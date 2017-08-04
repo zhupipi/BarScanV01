@@ -11,6 +11,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,10 +20,13 @@ import com.example.barscanv01.Adapter.DividerItemDecoration;
 import com.example.barscanv01.Adapter.InOrderScanResultAdapter;
 import com.example.barscanv01.Bean.DetailBarcodeBean;
 import com.example.barscanv01.Bean.GoodsBarcodeBean;
+import com.example.barscanv01.Bean.InOrderBean;
 import com.example.barscanv01.Bean.InOrderDetailBean;
 import com.example.barscanv01.Bean.ReceivedGoodsBarcodeInfo;
 import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
+import com.example.barscanv01.ServiceAPI.PutGoodLoadedforPDAService;
+import com.example.barscanv01.ServiceAPI.PutGoodsUnLoadService;
 import com.example.barscanv01.ServiceAPI.ScanBarcodeResultService;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
 import com.nlscan.android.scan.ScanManager;
@@ -33,6 +37,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -60,6 +65,7 @@ public class UnLoadActivity extends AppCompatActivity {
     private ScanManager scanManager;
     private List<GoodsBarcodeBean> resultList;
     private InOrderScanResultAdapter scanAdapter;
+    private InOrderBean inOrder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +81,7 @@ public class UnLoadActivity extends AppCompatActivity {
         resultView.setLayoutManager(new LinearLayoutManager(this));
         resultView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         resultView.setItemAnimator(new DefaultItemAnimator());
+        setListener();
     }
 
     private void intialData() {
@@ -86,6 +93,36 @@ public class UnLoadActivity extends AppCompatActivity {
         billNo.setText(InOrderSingleton.getInstance().getInOrder().getInOrderNo());
         carPlate.setText(InOrderSingleton.getInstance().getInOrder().getPlateNo());
         resultList = new ArrayList<GoodsBarcodeBean>();
+        inOrder=InOrderSingleton.getInstance().getInOrder();
+    }
+    private void setListener() {
+        confirmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(resultList.size()>0){
+                    String ids="";
+                    for(GoodsBarcodeBean good:resultList){
+                        ids=ids+good.getId()+",";
+                    }
+                    Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
+                    PutGoodsUnLoadService putGoodsUnLoadService=retrofit.create(PutGoodsUnLoadService.class);
+                    Call<ResponseBody> call=putGoodsUnLoadService.putGoodsUnload(inOrder.getId(),inOrder.getOutOrderNo(),ids,myApp.getUserBean().getUserName());
+                    call.enqueue(new Callback<ResponseBody>() {
+                        @Override
+                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                            Toast.makeText(UnLoadActivity.this,"卸货货品提交成功",Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                        }
+                    });
+                }else{
+                    Toast.makeText(UnLoadActivity.this,"请扫描需要卸车的货品",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     @Override
