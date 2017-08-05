@@ -92,14 +92,14 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:text="应卸重量："
-                    android:textSize="18sp" />
+                    android:textSize="15sp" />
 
                 <TextView
                     android:id="@+id/un_load_weight"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:textSize="18sp" />
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -113,14 +113,14 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:text="实卸重量:"
-                    android:textSize="18sp" />
+                    android:textSize="15sp" />
 
                 <TextView
                     android:id="@+id/un_load_act_weight"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:textSize="18sp" />
+                    android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

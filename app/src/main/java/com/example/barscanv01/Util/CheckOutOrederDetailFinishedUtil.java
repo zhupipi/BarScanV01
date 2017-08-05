@@ -4,13 +4,9 @@ import android.app.Activity;
 import android.widget.Toast;
 
 import com.example.barscanv01.Bean.OutOrderBean;
-import com.example.barscanv01.Bean.OutOrderDetailBean;
 import com.example.barscanv01.Bean.ReceivedCheckOutOrderFinishedInfo;
-import com.example.barscanv01.Bean.ReceivedOutOrderDetailInfo;
 import com.example.barscanv01.SaleLoad.DeliveryBillSingleton;
-import com.example.barscanv01.ServiceAPI.CheckOutOrderFinishedService;
-import com.example.barscanv01.ServiceAPI.GetOutOrderDetailByIdService;
-import com.example.barscanv01.ServiceAPI.OutOrderDetailProcessService;
+import com.example.barscanv01.ServiceAPI.CheckOrderFinishedService;
 import com.example.barscanv01.ServiceAPI.OutOrderProcessService;
 
 import okhttp3.ResponseBody;
@@ -33,7 +29,7 @@ public class CheckOutOrederDetailFinishedUtil {
     }
     public void checkOutOrderFinished(){
         Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
-        CheckOutOrderFinishedService checkOutOrderFinishedService=retrofit.create(CheckOutOrderFinishedService.class);
+        CheckOrderFinishedService checkOutOrderFinishedService=retrofit.create(CheckOrderFinishedService.class);
         Call<ReceivedCheckOutOrderFinishedInfo> call2=checkOutOrderFinishedService.checkOutOrderFinished(outOrder.getId());
         call2.enqueue(new Callback<ReceivedCheckOutOrderFinishedInfo>() {
             @Override

@@ -28,6 +28,7 @@ import com.example.barscanv01.R;
 import com.example.barscanv01.ServiceAPI.PutGoodLoadedforPDAService;
 import com.example.barscanv01.ServiceAPI.PutGoodsUnLoadService;
 import com.example.barscanv01.ServiceAPI.ScanBarcodeResultService;
+import com.example.barscanv01.Util.CheckInOrderDetailFinishedUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
 import com.nlscan.android.scan.ScanManager;
 import com.nlscan.android.scan.ScanSettings;
@@ -111,6 +112,8 @@ public class UnLoadActivity extends AppCompatActivity {
                         @Override
                         public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                             Toast.makeText(UnLoadActivity.this,"卸货货品提交成功",Toast.LENGTH_SHORT).show();
+                            CheckInOrderDetailFinishedUtil checkfinishedUtil=new CheckInOrderDetailFinishedUtil(inOrder,UnLoadActivity.this);
+                            checkfinishedUtil.checkOrderFinished();
                             finish();
                         }
 
