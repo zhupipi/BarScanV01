@@ -29,6 +29,7 @@ import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
 import com.example.barscanv01.ServiceAPI.GetCarResonService;
 import com.example.barscanv01.ServiceAPI.GetDetailBarcodeService;
+import com.example.barscanv01.ServiceAPI.GetInOrdeByIdService;
 import com.example.barscanv01.ServiceAPI.GetInOrderByOrderNoService;
 import com.example.barscanv01.ServiceAPI.GetInOrderforPDAbyPlateService;
 import com.example.barscanv01.Util.CarPlateUtil;
@@ -69,6 +70,7 @@ public class InOrderBillActivity extends AppCompatActivity {
     private CarPlateUtil carPlateUtil;
     private ScanManager scanManager;
     private InOrderDetailAdapter detailAdapter;
+
     final static int HAVE_INORDER_DETAIL=3;
 
 
@@ -247,6 +249,28 @@ public class InOrderBillActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode==HAVE_INORDER_DETAIL){
+            Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
+            GetInOrdeByIdService getInOrdeByIdService=retrofit.create(GetInOrdeByIdService.class);
+            Call<ReceivedInOrderInfo> call=getInOrdeByIdService.getInOrderbyId(InOrderSingleton.getInstance().getInOrder().getId());
+            call.enqueue(new Callback<ReceivedInOrderInfo>() {
+                @Override
+                public void onResponse(Call<ReceivedInOrderInfo> call, Response<ReceivedInOrderInfo> response) {
+                    manageInOrder(response.body().getAttributes().getInOrder(), response.body().getAttributes().getInOrderDetailList());
+                    showDetailData();
+                    showWeight();
+                }
+
+                @Override
+                public void onFailure(Call<ReceivedInOrderInfo> call, Throwable t) {
+
+                }
+            });
+        }
     }
 
     @Override

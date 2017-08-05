@@ -111,6 +111,7 @@ public class UnLoadActivity extends AppCompatActivity {
                         @Override
                         public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                             Toast.makeText(UnLoadActivity.this,"卸货货品提交成功",Toast.LENGTH_SHORT).show();
+                            finish();
                         }
 
                         @Override
@@ -198,15 +199,18 @@ public class UnLoadActivity extends AppCompatActivity {
 
     private boolean checkGood(GoodsBarcodeBean good) {
         boolean result = true;
-        if (!(good.getStatus().equals("1") && checkGoodEixted(good))) {
+        if (!checkGoodEixted(good)) {
             result = false;
-            Toast.makeText(UnLoadActivity.this, "该条码不在发货单“" + InOrderSingleton.getInstance().getInOrder().getOutOrderNo() + "”的装车明细中", Toast.LENGTH_SHORT).show();
+            Toast.makeText(UnLoadActivity.this, "该货品不在发货单“" + InOrderSingleton.getInstance().getInOrder().getOutOrderNo() + "”的装车明细中", Toast.LENGTH_SHORT).show();
+        } else if (!good.getStatus().equals("1")) {
+            result = false;
+            Toast.makeText(UnLoadActivity.this, "该货品已卸车", Toast.LENGTH_SHORT).show();
         } else if (!checkDetailGood(good)) {
             result = false;
-            Toast.makeText(UnLoadActivity.this, "改条码不不符合卸货单明细要求", Toast.LENGTH_SHORT).show();
-        }else if(getScanNum(good)+getDetailModleActNum(good)+1>getDetailModleNum(good)){
-            result=false;
-            Toast.makeText(UnLoadActivity.this,"该货品已超出退货明细规定退货数目",Toast.LENGTH_SHORT).show();
+            Toast.makeText(UnLoadActivity.this, "该货品不不符合卸货单明细要求", Toast.LENGTH_SHORT).show();
+        } else if (getScanNum(good) + getDetailModleActNum(good) + 1 > getDetailModleNum(good)) {
+            result = false;
+            Toast.makeText(UnLoadActivity.this, "该货品已超出退货明细规定退货数目", Toast.LENGTH_SHORT).show();
         }
         return result;
     }
