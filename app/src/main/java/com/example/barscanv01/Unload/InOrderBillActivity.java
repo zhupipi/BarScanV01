@@ -71,7 +71,7 @@ public class InOrderBillActivity extends AppCompatActivity {
     private ScanManager scanManager;
     private InOrderDetailAdapter detailAdapter;
 
-    final static int HAVE_INORDER_DETAIL=3;
+    final static int HAVE_INORDER_DETAIL = 3;
 
 
     @Override
@@ -117,11 +117,13 @@ public class InOrderBillActivity extends AppCompatActivity {
                         @Override
                         public void onResponse(Call<ReceivedInOrderInfo> call, Response<ReceivedInOrderInfo> response) {
                             if (response.body().getAttributes().getInOrder() != null) {
-                                manageInOrder(response.body().getAttributes().getInOrder(), response.body().getAttributes().getInOrderDetailList());
-                                carPlate.setText(carPlateUtil.getplateNum(InOrderSingleton.getInstance().getInOrder().getPlateNo()));
-                                carPlateSpinner.setSelection(carPlateUtil.getId(InOrderSingleton.getInstance().getInOrder().getPlateNo()));
-                                showDetailData();
-                                showWeight();
+                                if (checkInOrderProcess(response.body().getAttributes().getInOrder())) {
+                                    manageInOrder(response.body().getAttributes().getInOrder(), response.body().getAttributes().getInOrderDetailList());
+                                    carPlate.setText(carPlateUtil.getplateNum(InOrderSingleton.getInstance().getInOrder().getPlateNo()));
+                                    carPlateSpinner.setSelection(carPlateUtil.getId(InOrderSingleton.getInstance().getInOrder().getPlateNo()));
+                                    showDetailData();
+                                    showWeight();
+                                }
                             } else {
                                 Toast.makeText(InOrderBillActivity.this, "改车牌无对应退货单", Toast.LENGTH_SHORT).show();
                             }
@@ -169,11 +171,12 @@ public class InOrderBillActivity extends AppCompatActivity {
                             @Override
                             public void onResponse(Call<ReceivedInOrderInfo> call, Response<ReceivedInOrderInfo> response) {
                                 if (response.body().getAttributes().getInOrder() != null) {
-                                    manageInOrder(response.body().getAttributes().getInOrder(), response.body().getAttributes().getInOrderDetailList());
-                                    billNo.setText(InOrderSingleton.getInstance().getInOrder().getInOrderNo() + " ");
-                                    showDetailData();
-                                    showWeight();
-
+                                    if (checkInOrderProcess(response.body().getAttributes().getInOrder())) {
+                                        manageInOrder(response.body().getAttributes().getInOrder(), response.body().getAttributes().getInOrderDetailList());
+                                        billNo.setText(InOrderSingleton.getInstance().getInOrder().getInOrderNo() + " ");
+                                        showDetailData();
+                                        showWeight();
+                                    }
                                 } else {
                                     Toast.makeText(InOrderBillActivity.this, "改车牌无对应退货单", Toast.LENGTH_SHORT).show();
                                 }
@@ -196,10 +199,14 @@ public class InOrderBillActivity extends AppCompatActivity {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(InOrderBillActivity.this,UnLoadActivity.class);
-                intent.putExtra("weight",weight.getText().toString().trim());
-                intent.putExtra("actWeight",actWeight.getText().toString().trim());
-                startActivityForResult(intent,HAVE_INORDER_DETAIL);
+                if(!InOrderSingleton.getInstance().getInOrder().getProcess().equals("5")) {
+                    Intent intent = new Intent(InOrderBillActivity.this, UnLoadActivity.class);
+                    intent.putExtra("weight", weight.getText().toString().trim());
+                    intent.putExtra("actWeight", actWeight.getText().toString().trim());
+                    startActivityForResult(intent, HAVE_INORDER_DETAIL);
+                }else{
+                    Toast.makeText(InOrderBillActivity.this,"该退货单已卸货完成",Toast.LENGTH_SHORT).show();
+                }
             }
         });
         cancelButton.setOnClickListener(new View.OnClickListener() {
@@ -222,14 +229,14 @@ public class InOrderBillActivity extends AppCompatActivity {
 
     private void showWeight() {
         getDetailBarcode();
-        double totalWeight=0;
-        double detailActWeight=0;
-        for(InOrderDetailBean detail:InOrderSingleton.getInstance().getInOrderDetailList()){
-            totalWeight=totalWeight+detail.getWeight();
-            detailActWeight=detailActWeight+detail.getActWeight();
+        double totalWeight = 0;
+        double detailActWeight = 0;
+        for (InOrderDetailBean detail : InOrderSingleton.getInstance().getInOrderDetailList()) {
+            totalWeight = totalWeight + detail.getWeight();
+            detailActWeight = detailActWeight + detail.getActWeight();
         }
-        weight.setText(totalWeight+"");
-        actWeight.setText(detailActWeight+"");
+        weight.setText(totalWeight + "");
+        actWeight.setText(detailActWeight + "");
     }
 
     private void getDetailBarcode() {
@@ -253,10 +260,10 @@ public class InOrderBillActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode==HAVE_INORDER_DETAIL){
-            Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
-            GetInOrdeByIdService getInOrdeByIdService=retrofit.create(GetInOrdeByIdService.class);
-            Call<ReceivedInOrderInfo> call=getInOrdeByIdService.getInOrderbyId(InOrderSingleton.getInstance().getInOrder().getId());
+        if (requestCode == HAVE_INORDER_DETAIL) {
+            Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+            GetInOrdeByIdService getInOrdeByIdService = retrofit.create(GetInOrdeByIdService.class);
+            Call<ReceivedInOrderInfo> call = getInOrdeByIdService.getInOrderbyId(InOrderSingleton.getInstance().getInOrder().getId());
             call.enqueue(new Callback<ReceivedInOrderInfo>() {
                 @Override
                 public void onResponse(Call<ReceivedInOrderInfo> call, Response<ReceivedInOrderInfo> response) {
@@ -271,6 +278,31 @@ public class InOrderBillActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    public boolean checkInOrderProcess(InOrderBean inOrder) {
+        boolean result = false;
+        if (inOrder.getProcess().equals("3") || inOrder.getProcess().equals("4") || inOrder.getProcess().equals("5")) {
+            result = true;
+        } else {
+            switch (inOrder.getProcess()) {
+                case "1":
+                    Toast.makeText(InOrderBillActivity.this, "该退货单车辆未进场", Toast.LENGTH_SHORT).show();
+                    break;
+                case "0":
+                    Toast.makeText(InOrderBillActivity.this,"该退货单未打印",Toast.LENGTH_SHORT).show();
+                    break;
+                case "6":
+                    Toast.makeText(InOrderBillActivity.this, "该发货单的已过负重", Toast.LENGTH_SHORT).show();
+                    break;
+                case "7":
+                    Toast.makeText(InOrderBillActivity.this, "该发货单的车辆已出厂", Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    break;
+            }
+        }
+        return result;
     }
 
     @Override

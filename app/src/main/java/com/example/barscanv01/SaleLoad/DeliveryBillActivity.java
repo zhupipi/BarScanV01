@@ -302,7 +302,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                     Toast.makeText(DeliveryBillActivity.this, "该发货单的车辆未进厂", Toast.LENGTH_SHORT).show();
                     break;
                 case "6":
-                    Toast.makeText(DeliveryBillActivity.this, "该发货单的已过毛重", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DeliveryBillActivity.this, "该发货单的已过负重", Toast.LENGTH_SHORT).show();
                     break;
                 case "7":
                     Toast.makeText(DeliveryBillActivity.this, "该发货单的车辆已出厂", Toast.LENGTH_SHORT).show();
