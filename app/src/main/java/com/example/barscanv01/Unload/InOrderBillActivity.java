@@ -33,6 +33,7 @@ import com.example.barscanv01.ServiceAPI.GetInOrdeByIdService;
 import com.example.barscanv01.ServiceAPI.GetInOrderByOrderNoService;
 import com.example.barscanv01.ServiceAPI.GetInOrderforPDAbyPlateService;
 import com.example.barscanv01.Util.CarPlateUtil;
+import com.example.barscanv01.Util.InOrderScanedUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
 import com.nlscan.android.scan.ScanManager;
 import com.nlscan.android.scan.ScanSettings;
@@ -123,6 +124,8 @@ public class InOrderBillActivity extends AppCompatActivity {
                                     carPlateSpinner.setSelection(carPlateUtil.getId(InOrderSingleton.getInstance().getInOrder().getPlateNo()));
                                     showDetailData();
                                     showWeight();
+                                    InOrderScanedUtil scanedUtil=new InOrderScanedUtil(InOrderSingleton.getInstance().getInOrder());
+                                    scanedUtil.upDateInOrder();
                                 }
                             } else {
                                 Toast.makeText(InOrderBillActivity.this, "改车牌无对应退货单", Toast.LENGTH_SHORT).show();
@@ -176,6 +179,8 @@ public class InOrderBillActivity extends AppCompatActivity {
                                         billNo.setText(InOrderSingleton.getInstance().getInOrder().getInOrderNo() + " ");
                                         showDetailData();
                                         showWeight();
+                                        InOrderScanedUtil scanedUtil=new InOrderScanedUtil(InOrderSingleton.getInstance().getInOrder());
+                                        scanedUtil.upDateInOrder();
                                     }
                                 } else {
                                     Toast.makeText(InOrderBillActivity.this, "改车牌无对应退货单", Toast.LENGTH_SHORT).show();
