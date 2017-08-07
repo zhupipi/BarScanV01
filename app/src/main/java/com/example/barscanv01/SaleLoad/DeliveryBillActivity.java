@@ -186,7 +186,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                         Log.d("aaaa",finalPlate);
                         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
                         DeliveryBillByPlateService deliveryBillByPlateService = retrofit.create(DeliveryBillByPlateService.class);
-                        Call<ReceivedDelivieryBillInfo> call = deliveryBillByPlateService.getDeliveryBillByPlate(finalPlate);
+                        Call<ReceivedDelivieryBillInfo> call = deliveryBillByPlateService.getDeliveryBillByPlate(finalPlate,myApp.getCurrentAreaBean().getAreaNo());
                         call.enqueue(new Callback<ReceivedDelivieryBillInfo>() {
                             @Override
                             public void onResponse(Call<ReceivedDelivieryBillInfo> call, Response<ReceivedDelivieryBillInfo> response) {

@@ -15,5 +15,5 @@ import retrofit2.http.POST;
 public interface GetInOrderforPDAbyPlateService {
     @FormUrlEncoded
     @POST("inOrderController.do?getInOrderforPDAbyPlate")
-    Call<ReceivedInOrderInfo> getInOrder(@Field("plateNo") String plateNo);
+    Call<ReceivedInOrderInfo> getInOrder(@Field("plateNo") String plateNo,@Field("areaNo") String areaNo);
 }

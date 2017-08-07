@@ -169,7 +169,7 @@ public class InOrderBillActivity extends AppCompatActivity {
                         finalPlate.trim();
                         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
                         GetInOrderforPDAbyPlateService getInOrderforPDAbyPlateService = retrofit.create(GetInOrderforPDAbyPlateService.class);
-                        Call<ReceivedInOrderInfo> call = getInOrderforPDAbyPlateService.getInOrder(finalPlate);
+                        Call<ReceivedInOrderInfo> call = getInOrderforPDAbyPlateService.getInOrder(finalPlate,myApp.getCurrentAreaBean().getAreaNo());
                         call.enqueue(new Callback<ReceivedInOrderInfo>() {
                             @Override
                             public void onResponse(Call<ReceivedInOrderInfo> call, Response<ReceivedInOrderInfo> response) {

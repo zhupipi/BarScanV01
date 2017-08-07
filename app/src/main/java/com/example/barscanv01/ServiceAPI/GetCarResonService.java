@@ -17,5 +17,5 @@ public interface GetCarResonService {
      */
     @FormUrlEncoded
     @POST("areaInController.do?checkResonbyPDA")
-    Call<ReceivedCarResonInfo> getReson(@Field("plateNo") String plateNo);
+    Call<ReceivedCarResonInfo> getReson(@Field("plateNo") String plateNo, @Field("areaNo") String areaNo);
 }
