@@ -1,6 +1,7 @@
 package com.example.barscanv01.Util;
 
 import android.app.Activity;
+import android.widget.Toast;
 
 import com.example.barscanv01.Bean.OutOrderBean;
 import com.example.barscanv01.MyApp;
@@ -27,35 +28,56 @@ public class OutOrderScanedUtil {
         myApp= (MyApp) activity.getApplication();
     }
     public void updateOutOrderProcess(){
-        Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
-        OutOrderProcessService outOrderProcessService=retrofit.create(OutOrderProcessService.class);
-        Call<ResponseBody> call=outOrderProcessService.updateProcess(outOrder.getId(),"4");
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+        if(!outOrder.getProcess().equals(5)) {
+            Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+            OutOrderProcessService outOrderProcessService = retrofit.create(OutOrderProcessService.class);
+            Call<ResponseBody> call = outOrderProcessService.updateProcess(outOrder.getId(), "4");
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 
-            }
+                }
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
 
-            }
-        });
+                }
+            });
+        }else {
+            Toast.makeText(activity,"该发货单已经装车完成",Toast.LENGTH_SHORT).show();
+        }
     }
     public void updateAreaInOut(){
-        Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
-        AreaInOutUpdateService areaInOutUpdateService=retrofit.create(AreaInOutUpdateService.class);
-        Call<ResponseBody>call=areaInOutUpdateService.scanedUpdateService(outOrder.getPlateNo(),"5",myApp.getCurrentDepot().getDepotNo(),myApp.getCurrentAreaBean().getAreaNo());
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+        if(!outOrder.getProcess().equals("5")) {
+            Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+            AreaInOutUpdateService areaInOutUpdateService = retrofit.create(AreaInOutUpdateService.class);
+            Call<ResponseBody> call = areaInOutUpdateService.scanedUpdateService(outOrder.getPlateNo(), "5", myApp.getCurrentDepot().getDepotNo(), myApp.getCurrentAreaBean().getAreaNo());
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 
-            }
+                }
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
 
-            }
-        });
+                }
+            });
+        }else{
+            Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+            AreaInOutUpdateService areaInOutUpdateService = retrofit.create(AreaInOutUpdateService.class);
+            Call<ResponseBody> call = areaInOutUpdateService.scanedUpdateService(outOrder.getPlateNo(), "6", myApp.getCurrentDepot().getDepotNo(), myApp.getCurrentAreaBean().getAreaNo());
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                }
+            });
+        }
     }
 }

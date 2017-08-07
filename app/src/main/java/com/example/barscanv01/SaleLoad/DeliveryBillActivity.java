@@ -139,8 +139,10 @@ public class DeliveryBillActivity extends AppCompatActivity {
                                             OutOrderScanedUtil orderScanedUtil = new OutOrderScanedUtil(response.body().getAttributes().getOutOrder(),DeliveryBillActivity.this);
                                             orderScanedUtil.updateOutOrderProcess();
                                             orderScanedUtil.updateAreaInOut();
-                                            WriteBizlogUtil writeBizlog=new WriteBizlogUtil(DeliveryBillActivity.this);
-                                            writeBizlog.writeLoadStartedLog();
+                                            if(!response.body().getAttributes().getOutOrder().getProcess().equals("5")) {
+                                                WriteBizlogUtil writeBizlog = new WriteBizlogUtil(DeliveryBillActivity.this);
+                                                writeBizlog.writeLoadStartedLog();
+                                            }
                                             if(DeliveryBillSingleton.getInstance().getOutOrderDetailBean().size()==0){
                                                 showNoDetail();
                                             }
@@ -199,8 +201,10 @@ public class DeliveryBillActivity extends AppCompatActivity {
                                         OutOrderScanedUtil orderScanedUtil = new OutOrderScanedUtil(response.body().getAttributes().getOutOrder(),DeliveryBillActivity.this);
                                         orderScanedUtil.updateOutOrderProcess();
                                         orderScanedUtil.updateAreaInOut();
-                                        WriteBizlogUtil writeBizlog=new WriteBizlogUtil(DeliveryBillActivity.this);
-                                        writeBizlog.writeLoadStartedLog();
+                                        if(!response.body().getAttributes().getOutOrder().getProcess().equals("5")) {
+                                            WriteBizlogUtil writeBizlog = new WriteBizlogUtil(DeliveryBillActivity.this);
+                                            writeBizlog.writeLoadStartedLog();
+                                        }
                                         if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean().size() == 0) {
                                             showNoDetail();
                                         }
@@ -288,16 +292,16 @@ public class DeliveryBillActivity extends AppCompatActivity {
 
     public boolean checkOutOrderProcess(OutOrderBean outOrder){
         boolean result=false;
-        if(outOrder.getProcess().equals("3")||outOrder.getProcess().equals("4")){
+        if(outOrder.getProcess().equals("3")||outOrder.getProcess().equals("4")||outOrder.getProcess().equals("5")){
             result=true;
         }else{
             switch (outOrder.getProcess()) {
                 case "2":
                     Toast.makeText(DeliveryBillActivity.this, "该发货单未过皮重", Toast.LENGTH_SHORT).show();
                     break;
-                case "5":
+                /*case "5":
                     Toast.makeText(DeliveryBillActivity.this, "该发货单已装车完毕", Toast.LENGTH_SHORT).show();
-                    break;
+                    break;*/
                 case "1":
                     Toast.makeText(DeliveryBillActivity.this, "该发货单的车辆未进厂", Toast.LENGTH_SHORT).show();
                     break;
