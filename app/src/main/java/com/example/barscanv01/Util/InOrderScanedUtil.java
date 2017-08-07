@@ -1,5 +1,7 @@
 package com.example.barscanv01.Util;
 
+import android.widget.Toast;
+
 import com.example.barscanv01.Bean.InOrderBean;
 import com.example.barscanv01.ServiceAPI.UpdateInOrderProcessService;
 
@@ -18,21 +20,23 @@ public class InOrderScanedUtil {
     public InOrderScanedUtil(InOrderBean inOrder){
         this.inOrder=inOrder;
     }
-    public void upDateInOrder(){
-        String id=inOrder.getId();
-        Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
-        UpdateInOrderProcessService updateInOrderProcessService=retrofit.create(UpdateInOrderProcessService.class);
-        Call<ResponseBody> call=updateInOrderProcessService.updateInOrderProcess(id,"4");
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+    public void upDateInOrder() {
+        if (!inOrder.getProcess().equals("5")) {
+            String id = inOrder.getId();
+            Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+            UpdateInOrderProcessService updateInOrderProcessService = retrofit.create(UpdateInOrderProcessService.class);
+            Call<ResponseBody> call = updateInOrderProcessService.updateInOrderProcess(id, "4");
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 
-            }
+                }
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
 
-            }
-        });
+                }
+            });
+        }
     }
 }
