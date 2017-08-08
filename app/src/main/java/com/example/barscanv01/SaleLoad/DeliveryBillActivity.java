@@ -1,7 +1,10 @@
 package com.example.barscanv01.SaleLoad;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +20,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -75,6 +79,8 @@ public class DeliveryBillActivity extends AppCompatActivity {
     Button confirmButton;
     @BindView(R.id.delivery_bill_cancel_button)
     Button cancelButton;
+    @BindView(R.id.delivery_bill_result_show)
+    LinearLayout resultShowLayout;
 
     CarPlateUtil carPlateUtil;
     ScanManager scanManager;
@@ -83,6 +89,9 @@ public class DeliveryBillActivity extends AppCompatActivity {
     MyApp myApp;
 
     private  List<GoodsBarcodeBean> loadGoodsResult;
+    /*销邦设置*/
+    public static final String SCN_CUST_ACTION_SCODE = "com.android.server.scannerservice.broadcast";
+    public static final String SCN_CUST_EX_SCODE = "scannerdata";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,10 +101,8 @@ public class DeliveryBillActivity extends AppCompatActivity {
         myApp=(MyApp)getApplication();
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("发货通知单信息");
+        initalScanSetting();
         List<GoodsBarcodeBean> loadGoodsResult=new ArrayList<GoodsBarcodeBean>();
-        scanManager=ScanManager.getInstance();
-        scanManager.setOutpuMode(ScanSettings.Global.VALUE_OUT_PUT_MODE_FILLING);
-        scanManager.enableBeep();
         carPlateUtil=new CarPlateUtil();
         ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,carPlateUtil.getProvinces());
         carPlateProvince.setAdapter(adapter);
@@ -103,7 +110,18 @@ public class DeliveryBillActivity extends AppCompatActivity {
         outOrderDetialView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL_LIST));
         outOrderDetialView.setItemAnimator(new DefaultItemAnimator());
         setListener();
+    }
 
+    public void initalScanSetting() {
+        if (myApp.getDeviceBrand().equals("NEWLAND")) {
+            scanManager = ScanManager.getInstance();
+            scanManager.setOutpuMode(ScanSettings.Global.VALUE_OUT_PUT_MODE_FILLING);
+            scanManager.enableBeep();
+        } else if (myApp.getDeviceBrand().equals("SUPOIN")) {
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) resultShowLayout.getLayoutParams();
+            params.height = 200;
+            resultShowLayout.setLayoutParams(params);
+        }
     }
 
     private void setListener() {
@@ -417,7 +435,45 @@ public class DeliveryBillActivity extends AppCompatActivity {
             loadedResultAdapter=new LoadedResultAdapter(DeliveryBillActivity.this,loadGoodsResult);
             outOrderDetialView.setAdapter(loadedResultAdapter);
     }
+   /* private BroadcastReceiver mSamDataReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(SCN_CUST_ACTION_SCODE)) {
+                String message;
+                try {
+                    message = intent.getStringExtra(SCN_CUST_EX_SCODE).toString().trim();
+                    if(message.length()==8){
+                        carPlate.setText(message);
+                    }else {
+                        billNumber.setText(message);
+                    }
 
+                } catch (Exception e) {
+                    // TODO: handle exception
+                    e.printStackTrace();
+                    Log.e("in", e.toString());
+                    Toast.makeText(DeliveryBillActivity.this,"扫码失败",Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    };*/
+
+/*    @Override
+    protected void onResume() {
+        super.onResume();
+        if(myApp.getDeviceBrand().equals("SUPOIN")){
+            IntentFilter intentFilter = new IntentFilter(SCN_CUST_ACTION_SCODE);
+            registerReceiver(mSamDataReceiver, intentFilter);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(myApp.getDeviceBrand().equals("SUPOIN")){
+            unregisterReceiver(mSamDataReceiver);
+        }
+    }*/
 
     @Override
     public void onBackPressed() {

@@ -2,6 +2,7 @@ package com.example.barscanv01;
 
 import android.app.Activity;
 import android.app.Application;
+import android.os.Build;
 
 import com.example.barscanv01.Bean.AreaBean;
 import com.example.barscanv01.Bean.DepotBean;
@@ -20,6 +21,7 @@ public class MyApp extends Application{
     private DepotBean currentDepot;
     private AreaBean currentAreaBean;
     private List<Activity>  activityList;
+    private String deviceBrand;
 
     @Override
     public void onCreate() {
@@ -28,6 +30,7 @@ public class MyApp extends Application{
         depotlist=new ArrayList<DepotBean>();
         currentDepot=new DepotBean();
         activityList=new ArrayList<Activity>();
+        deviceBrand= Build.BRAND;
     }
 
     public UserBean getUserBean() {
@@ -71,6 +74,13 @@ public class MyApp extends Application{
                 activity.finish();
             }
         }
+    }
+    public String getDeviceBrand() {
+        return deviceBrand;
+    }
+
+    public void setDeviceBrand(String deviceBrand) {
+        this.deviceBrand = deviceBrand;
     }
 
     @Override
