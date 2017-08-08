@@ -16,7 +16,7 @@
         <ImageView
             android:id="@+id/stock_transfer_image"
             android:layout_width="match_parent"
-            android:layout_height="190dp"
+            android:layout_height="175dp"
             app:srcCompat="@mipmap/exchange_location" />
         <TextView
             android:layout_width="match_parent"
@@ -36,7 +36,7 @@
         <ImageView
             android:id="@+id/load_car_image"
             android:layout_width="match_parent"
-            android:layout_height="190dp"
+            android:layout_height="175dp"
             app:srcCompat="@mipmap/load_car" />
         <TextView
             android:layout_height="wrap_content"

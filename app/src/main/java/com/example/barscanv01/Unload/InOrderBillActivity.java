@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -66,6 +67,8 @@ public class InOrderBillActivity extends AppCompatActivity {
     TextView actWeight;
     @BindView(R.id.inorder_bill_toolbar)
     Toolbar toolbar;
+    @BindView(R.id.in_order_bill_result_show)
+    LinearLayout resultShow;
 
     private MyApp myApp;
     private CarPlateUtil carPlateUtil;
@@ -83,9 +86,7 @@ public class InOrderBillActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("卸车信息获取");
         myApp = (MyApp) getApplication();
-        scanManager = ScanManager.getInstance();
-        scanManager.setOutpuMode(ScanSettings.Global.VALUE_OUT_PUT_MODE_FILLING);
-        scanManager.enableBeep();
+        initalScanSetting();
         carPlateUtil = new CarPlateUtil();
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, carPlateUtil.getProvinces());
         carPlateSpinner.setAdapter(adapter);
@@ -93,6 +94,17 @@ public class InOrderBillActivity extends AppCompatActivity {
         detailView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         detailView.setItemAnimator(new DefaultItemAnimator());
         setLinstener();
+    }
+    public void initalScanSetting() {
+        if (myApp.getDeviceBrand().equals("NEWLAND")) {
+            scanManager = ScanManager.getInstance();
+            scanManager.setOutpuMode(ScanSettings.Global.VALUE_OUT_PUT_MODE_FILLING);
+            scanManager.enableBeep();
+        } else if (myApp.getDeviceBrand().equals("SUPOIN")) {
+            LinearLayout.LayoutParams params= (LinearLayout.LayoutParams) resultShow.getLayoutParams();
+            params.height=200;
+            resultShow.setLayoutParams(params);
+        }
     }
 
     private void setLinstener() {

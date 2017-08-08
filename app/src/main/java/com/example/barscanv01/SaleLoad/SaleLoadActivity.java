@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -75,6 +77,8 @@ public class SaleLoadActivity extends AppCompatActivity {
     Button confirm;
     @BindView(R.id.customer_load_cancel)
     Button cancel;
+    @BindView(R.id.sale_load_result_show)
+    LinearLayout resultShow;
 
 
     private FragmentManager fragmentManager;
@@ -88,6 +92,9 @@ public class SaleLoadActivity extends AppCompatActivity {
     private List<OutOrderDetailBean> detailList;
     private DepotBean currentDepot;
 
+    /*销邦初始化设置*/
+    public static final String SCN_CUST_ACTION_SCODE = "com.android.server.scannerservice.broadcast";
+    public static final String SCN_CUST_EX_SCODE = "scannerdata";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,8 +121,7 @@ public class SaleLoadActivity extends AppCompatActivity {
         });
         transaction.add(R.id.customer_load_change_fragment, loadOperationSelectFragment, "OPERATION_SELECT");
         transaction.commit();
-        scanManager = ScanManager.getInstance();
-        scanManager.setOutpuMode(ScanSettings.Global.VALUE_OUT_PUT_MODE_BROADCAST);
+        initalScanSetting();
         confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -187,6 +193,17 @@ public class SaleLoadActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    private void initalScanSetting() {
+        if(myApp.getDeviceBrand().equals("NEWLAND")){
+            scanManager = ScanManager.getInstance();
+            scanManager.setOutpuMode(ScanSettings.Global.VALUE_OUT_PUT_MODE_BROADCAST);
+        }else if(Build.BRAND.equals("SUPOIN")){
+           LinearLayout.LayoutParams params= (LinearLayout.LayoutParams) resultShow.getLayoutParams();
+            params.height=300;
+            resultShow.setLayoutParams(params);
+        }
     }
 
     private void intitalData() {
@@ -346,13 +363,22 @@ public class SaleLoadActivity extends AppCompatActivity {
     }
 
     private void registerReceiver() {
-        IntentFilter intFilter = new IntentFilter(ScanManager.ACTION_SEND_SCAN_RESULT);
-        registerReceiver(mResultReceiver, intFilter);
+        if(myApp.getDeviceBrand().equals("NEWLAND")) {
+            IntentFilter intFilter = new IntentFilter(ScanManager.ACTION_SEND_SCAN_RESULT);
+            registerReceiver(mResultReceiver, intFilter);
+        }else if(myApp.getDeviceBrand().equals("SUPOIN")){
+            IntentFilter inFilter=new IntentFilter(SCN_CUST_ACTION_SCODE);
+            registerReceiver(mSamDataReceiver,inFilter);
+        }
     }
 
     private void unRegisterReceiver() {
         try {
-            unregisterReceiver(mResultReceiver);
+            if (myApp.getDeviceBrand().equals("NEWLAND")) {
+                unregisterReceiver(mResultReceiver);
+            } else if (myApp.getDeviceBrand().equals("SUPOIN")) {
+                unregisterReceiver(mSamDataReceiver);
+            }
         } catch (Exception e) {
         }
     }
@@ -382,6 +408,28 @@ public class SaleLoadActivity extends AppCompatActivity {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
+                    Toast.makeText(SaleLoadActivity.this, "扫码失败", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    };
+
+    private BroadcastReceiver mSamDataReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(SCN_CUST_ACTION_SCODE)) {
+                String message;
+                try {
+                    message = intent.getStringExtra(SCN_CUST_EX_SCODE).toString().trim();
+                    if (!fragmentManager.findFragmentById(R.id.customer_load_change_fragment).getTag().equals("OPERATION_SELECT")) {
+                        getScanResult(message);
+                    }else{
+                        Toast.makeText(SaleLoadActivity.this,"请选择装车或扫码操作",Toast.LENGTH_SHORT).show();
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.e("in", e.toString());
                     Toast.makeText(SaleLoadActivity.this, "扫码失败", Toast.LENGTH_SHORT).show();
                 }
             }

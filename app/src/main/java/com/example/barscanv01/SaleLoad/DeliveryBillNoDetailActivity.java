@@ -19,6 +19,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -74,6 +75,8 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
     Button confrim;
     @BindView(R.id.delivery_bill_nodetail_cancel)
     Button cancel;
+    @BindView(R.id.delivery_bill_nodetail_result_show)
+    LinearLayout resultShow;
 
     private FragmentManager fragmentManager;
     private MyApp myApp;
@@ -85,6 +88,10 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
     private List<PositionBean> positionList;
     private PositionBean position;
 
+    /*销邦初始化设置*/
+    public static final String SCN_CUST_ACTION_SCODE = "com.android.server.scannerservice.broadcast";
+    public static final String SCN_CUST_EX_SCODE = "scannerdata";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,8 +100,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("扫码装车/倒垛");
         myApp = (MyApp) getApplication();
-        scanManager = ScanManager.getInstance();
-        scanManager.setOutpuMode(ScanSettings.Global.VALUE_OUT_PUT_MODE_BROADCAST);
+        initalScanSetting();
         initalData();
         positionList = new ArrayList<PositionBean>();
         getPositionList();
@@ -159,6 +165,16 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
         userArea=myApp.getCurrentAreaBean();
         user=myApp.getUserBean();
         showWeight();
+    }
+    private void initalScanSetting() {
+        if(myApp.getDeviceBrand().equals("NEWLAND")){
+            scanManager = ScanManager.getInstance();
+            scanManager.setOutpuMode(ScanSettings.Global.VALUE_OUT_PUT_MODE_BROADCAST);
+        }else if(myApp.getDeviceBrand().equals("SUPOIN")){
+            LinearLayout.LayoutParams params= (LinearLayout.LayoutParams) resultShow.getLayoutParams();
+            params.height=280;
+            resultShow.setLayoutParams(params);
+        }
     }
 
     private void showWeight() {
@@ -287,13 +303,22 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
     }
 
     private void registerReceiver() {
-        IntentFilter intFilter = new IntentFilter(ScanManager.ACTION_SEND_SCAN_RESULT);
-        registerReceiver(mResultReceiver, intFilter);
+        if(myApp.getDeviceBrand().equals("NEWLAND")) {
+            IntentFilter intFilter = new IntentFilter(ScanManager.ACTION_SEND_SCAN_RESULT);
+            registerReceiver(mResultReceiver, intFilter);
+        }else if(myApp.getDeviceBrand().equals("SUPOIN")){
+            IntentFilter inFilter=new IntentFilter(SCN_CUST_ACTION_SCODE);
+            registerReceiver(mSamDataReceiver,inFilter);
+        }
     }
 
     private void unRegisterReceiver() {
         try {
-            unregisterReceiver(mResultReceiver);
+            if (myApp.getDeviceBrand().equals("NEWLAND")) {
+                unregisterReceiver(mResultReceiver);
+            } else if (myApp.getDeviceBrand().equals("SUPOIN")) {
+                unregisterReceiver(mSamDataReceiver);
+            }
         } catch (Exception e) {
         }
     }
@@ -326,8 +351,28 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
                     Toast.makeText(DeliveryBillNoDetailActivity.this, "扫码失败", Toast.LENGTH_SHORT).show();
                 }
             }
+        }
+    };
 
+    private BroadcastReceiver mSamDataReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(SCN_CUST_ACTION_SCODE)) {
+                String message;
+                try {
+                    message = intent.getStringExtra(SCN_CUST_EX_SCODE).toString().trim();
+                    if (!fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change).getTag().equals("OPERATION_SELECT")) {
+                        getScanResult(message);
+                    }else{
+                        Toast.makeText(DeliveryBillNoDetailActivity.this,"请选择装车或扫码操作",Toast.LENGTH_SHORT).show();
+                    }
 
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.e("in", e.toString());
+                    Toast.makeText(DeliveryBillNoDetailActivity.this, "扫码失败", Toast.LENGTH_SHORT).show();
+                }
+            }
         }
     };
 

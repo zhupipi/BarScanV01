@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -13,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +27,7 @@ import com.example.barscanv01.Bean.InOrderDetailBean;
 import com.example.barscanv01.Bean.ReceivedGoodsBarcodeInfo;
 import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
+import com.example.barscanv01.SaleLoad.SaleLoadActivity;
 import com.example.barscanv01.ServiceAPI.PutGoodLoadedforPDAService;
 import com.example.barscanv01.ServiceAPI.PutGoodsUnLoadService;
 import com.example.barscanv01.ServiceAPI.ScanBarcodeResultService;
@@ -61,12 +64,18 @@ public class UnLoadActivity extends AppCompatActivity {
     Button confirmButton;
     @BindView(R.id.un_load_cancel_button)
     Button cancelButton;
+    @BindView(R.id.un_load_result_show)
+    LinearLayout resultShow;
 
     private MyApp myApp;
     private ScanManager scanManager;
     private List<GoodsBarcodeBean> resultList;
     private InOrderScanResultAdapter scanAdapter;
     private InOrderBean inOrder;
+
+    /*销邦初始化设置*/
+    public static final String SCN_CUST_ACTION_SCODE = "com.android.server.scannerservice.broadcast";
+    public static final String SCN_CUST_EX_SCODE = "scannerdata";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,8 +86,7 @@ public class UnLoadActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("卸货扫码");
         myApp = (MyApp) getApplication();
         intialData();
-        scanManager = ScanManager.getInstance();
-        scanManager.setOutpuMode(ScanSettings.Global.VALUE_OUT_PUT_MODE_BROADCAST);
+        initalScanSetting();
         resultView.setLayoutManager(new LinearLayoutManager(this));
         resultView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         resultView.setItemAnimator(new DefaultItemAnimator());
@@ -94,25 +102,37 @@ public class UnLoadActivity extends AppCompatActivity {
         billNo.setText(InOrderSingleton.getInstance().getInOrder().getInOrderNo());
         carPlate.setText(InOrderSingleton.getInstance().getInOrder().getPlateNo());
         resultList = new ArrayList<GoodsBarcodeBean>();
-        inOrder=InOrderSingleton.getInstance().getInOrder();
+        inOrder = InOrderSingleton.getInstance().getInOrder();
     }
+
+    private void initalScanSetting() {
+        if (myApp.getDeviceBrand().equals("NEWLAND")) {
+            scanManager = ScanManager.getInstance();
+            scanManager.setOutpuMode(ScanSettings.Global.VALUE_OUT_PUT_MODE_BROADCAST);
+        } else if (Build.BRAND.equals("SUPOIN")) {
+            LinearLayout.LayoutParams params= (LinearLayout.LayoutParams) resultShow.getLayoutParams();
+            params.height=230;
+            resultShow.setLayoutParams(params);
+        }
+    }
+
     private void setListener() {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(resultList.size()>0){
-                    String ids="";
-                    for(GoodsBarcodeBean good:resultList){
-                        ids=ids+good.getId()+",";
+                if (resultList.size() > 0) {
+                    String ids = "";
+                    for (GoodsBarcodeBean good : resultList) {
+                        ids = ids + good.getId() + ",";
                     }
-                    Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
-                    PutGoodsUnLoadService putGoodsUnLoadService=retrofit.create(PutGoodsUnLoadService.class);
-                    Call<ResponseBody> call=putGoodsUnLoadService.putGoodsUnload(inOrder.getId(),inOrder.getOutOrderNo(),ids,myApp.getUserBean().getUserName());
+                    Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+                    PutGoodsUnLoadService putGoodsUnLoadService = retrofit.create(PutGoodsUnLoadService.class);
+                    Call<ResponseBody> call = putGoodsUnLoadService.putGoodsUnload(inOrder.getId(), inOrder.getOutOrderNo(), ids, myApp.getUserBean().getUserName());
                     call.enqueue(new Callback<ResponseBody>() {
                         @Override
                         public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                            Toast.makeText(UnLoadActivity.this,"卸货货品提交成功",Toast.LENGTH_SHORT).show();
-                            CheckInOrderDetailFinishedUtil checkfinishedUtil=new CheckInOrderDetailFinishedUtil(inOrder,UnLoadActivity.this);
+                            Toast.makeText(UnLoadActivity.this, "卸货货品提交成功", Toast.LENGTH_SHORT).show();
+                            CheckInOrderDetailFinishedUtil checkfinishedUtil = new CheckInOrderDetailFinishedUtil(inOrder, UnLoadActivity.this);
                             checkfinishedUtil.checkOrderFinished();
                             finish();
                         }
@@ -122,8 +142,8 @@ public class UnLoadActivity extends AppCompatActivity {
 
                         }
                     });
-                }else{
-                    Toast.makeText(UnLoadActivity.this,"请扫描需要卸车的货品",Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(UnLoadActivity.this, "请扫描需要卸车的货品", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -136,13 +156,22 @@ public class UnLoadActivity extends AppCompatActivity {
     }
 
     private void registerReceiver() {
-        IntentFilter intFilter = new IntentFilter(ScanManager.ACTION_SEND_SCAN_RESULT);
-        registerReceiver(mResultReceiver, intFilter);
+        if (myApp.getDeviceBrand().equals("NEWLAND")) {
+            IntentFilter intFilter = new IntentFilter(ScanManager.ACTION_SEND_SCAN_RESULT);
+            registerReceiver(mResultReceiver, intFilter);
+        } else if (myApp.getDeviceBrand().equals("SUPOIN")) {
+            IntentFilter inFilter = new IntentFilter(SCN_CUST_ACTION_SCODE);
+            registerReceiver(mSamDataReceiver, inFilter);
+        }
     }
 
     private void unRegisterReceiver() {
         try {
-            unregisterReceiver(mResultReceiver);
+            if (myApp.getDeviceBrand().equals("NEWLAND")) {
+                unregisterReceiver(mResultReceiver);
+            } else if (myApp.getDeviceBrand().equals("SUPOIN")) {
+                unregisterReceiver(mSamDataReceiver);
+            }
         } catch (Exception e) {
         }
     }
@@ -173,6 +202,23 @@ public class UnLoadActivity extends AppCompatActivity {
         }
     };
 
+    private BroadcastReceiver mSamDataReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(SCN_CUST_ACTION_SCODE)) {
+                String message;
+                try {
+                    message = intent.getStringExtra(SCN_CUST_EX_SCODE).toString().trim();
+                    getScanResult(message);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.e("in", e.toString());
+                    Toast.makeText(UnLoadActivity.this, "扫码失败", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    };
+
     private void getScanResult(String barcode) {
         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
         ScanBarcodeResultService scanBarcodeResultService = retrofit.create(ScanBarcodeResultService.class);
@@ -184,8 +230,8 @@ public class UnLoadActivity extends AppCompatActivity {
                     GoodsBarcodeBean good = response.body().getAttributes().getGoodsBarcode();
                     if (checkGood(good)) {
                         showScanRsult(good);
-                        double act_weight=Double.valueOf(actWeight.getText().toString().trim())+Double.valueOf(good.getActWeight());
-                        actWeight.setText(act_weight+"");
+                        double act_weight = Double.valueOf(actWeight.getText().toString().trim()) + Double.valueOf(good.getActWeight());
+                        actWeight.setText(act_weight + "");
                     }
                 } else {
                     Toast.makeText(UnLoadActivity.this, "该条码无对应货品信息", Toast.LENGTH_SHORT).show();
@@ -219,30 +265,32 @@ public class UnLoadActivity extends AppCompatActivity {
     }
 
     private int getScanNum(GoodsBarcodeBean good) {
-        int totalNum=0;
-        if(resultList.size()>0){
-            for(GoodsBarcodeBean goodBarcode:resultList){
-                if(goodBarcode.getGoodsId().equals(good.getGoodsId())){
-                    totalNum=totalNum+1;
+        int totalNum = 0;
+        if (resultList.size() > 0) {
+            for (GoodsBarcodeBean goodBarcode : resultList) {
+                if (goodBarcode.getGoodsId().equals(good.getGoodsId())) {
+                    totalNum = totalNum + 1;
                 }
             }
         }
         return totalNum;
     }
-    private int getDetailModleNum(GoodsBarcodeBean good){
-        int totalNum=0;
-        for(InOrderDetailBean detail:InOrderSingleton.getInstance().getInOrderDetailList()){
-            if(detail.getGoodsName().equals(good.getGoodsName())&&detail.getSpecificationModel().equals(good.getSpecificationModel())){
-                totalNum=totalNum+detail.getCount();
+
+    private int getDetailModleNum(GoodsBarcodeBean good) {
+        int totalNum = 0;
+        for (InOrderDetailBean detail : InOrderSingleton.getInstance().getInOrderDetailList()) {
+            if (detail.getGoodsName().equals(good.getGoodsName()) && detail.getSpecificationModel().equals(good.getSpecificationModel())) {
+                totalNum = totalNum + detail.getCount();
             }
         }
         return totalNum;
     }
-    private int getDetailModleActNum(GoodsBarcodeBean good){
-        int totalNum=0;
-        for(InOrderDetailBean detail:InOrderSingleton.getInstance().getInOrderDetailList()){
-            if(detail.getGoodsName().equals(good.getGoodsName())&&detail.getSpecificationModel().equals(good.getSpecificationModel())){
-                totalNum=totalNum+detail.getActCount();
+
+    private int getDetailModleActNum(GoodsBarcodeBean good) {
+        int totalNum = 0;
+        for (InOrderDetailBean detail : InOrderSingleton.getInstance().getInOrderDetailList()) {
+            if (detail.getGoodsName().equals(good.getGoodsName()) && detail.getSpecificationModel().equals(good.getSpecificationModel())) {
+                totalNum = totalNum + detail.getActCount();
             }
         }
         return totalNum;
