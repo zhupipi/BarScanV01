@@ -2,9 +2,11 @@ package com.example.barscanv01.Unload;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -13,6 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -24,10 +27,13 @@ import com.example.barscanv01.Bean.DetailBarcodeBean;
 import com.example.barscanv01.Bean.GoodsBarcodeBean;
 import com.example.barscanv01.Bean.InOrderBean;
 import com.example.barscanv01.Bean.InOrderDetailBean;
+import com.example.barscanv01.Bean.PositionBean;
 import com.example.barscanv01.Bean.ReceivedGoodsBarcodeInfo;
+import com.example.barscanv01.Bean.ReceivedPositionInfo;
 import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
 import com.example.barscanv01.SaleLoad.SaleLoadActivity;
+import com.example.barscanv01.ServiceAPI.GetPositionsByDepotService;
 import com.example.barscanv01.ServiceAPI.PutGoodLoadedforPDAService;
 import com.example.barscanv01.ServiceAPI.PutGoodsUnLoadService;
 import com.example.barscanv01.ServiceAPI.ScanBarcodeResultService;
@@ -73,6 +79,9 @@ public class UnLoadActivity extends AppCompatActivity {
     private InOrderScanResultAdapter scanAdapter;
     private InOrderBean inOrder;
 
+    private PositionBean position;
+    private List<PositionBean> positionList;
+
     /*销邦初始化设置*/
     public static final String SCN_CUST_ACTION_SCODE = "com.android.server.scannerservice.broadcast";
     public static final String SCN_CUST_EX_SCODE = "scannerdata";
@@ -87,6 +96,7 @@ public class UnLoadActivity extends AppCompatActivity {
         myApp = (MyApp) getApplication();
         intialData();
         initalScanSetting();
+        getPositionList();
         resultView.setLayoutManager(new LinearLayoutManager(this));
         resultView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         resultView.setItemAnimator(new DefaultItemAnimator());
@@ -103,6 +113,7 @@ public class UnLoadActivity extends AppCompatActivity {
         carPlate.setText(InOrderSingleton.getInstance().getInOrder().getPlateNo());
         resultList = new ArrayList<GoodsBarcodeBean>();
         inOrder = InOrderSingleton.getInstance().getInOrder();
+        positionList=new ArrayList<PositionBean>();
     }
 
     private void initalScanSetting() {
@@ -115,35 +126,74 @@ public class UnLoadActivity extends AppCompatActivity {
             resultShow.setLayoutParams(params);
         }
     }
+    private void getPositionList() {
+        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+        GetPositionsByDepotService getPositionsByDepotService = retrofit.create(GetPositionsByDepotService.class);
+        Call<ReceivedPositionInfo> call = getPositionsByDepotService.getPositions(myApp.getCurrentDepot().getId());
+        Log.d("aaaa", myApp.getCurrentDepot().getId());
+        call.enqueue(new Callback<ReceivedPositionInfo>() {
+            @Override
+            public void onResponse(Call<ReceivedPositionInfo> call, Response<ReceivedPositionInfo> response) {
+
+                positionList = response.body().getAttributes().getPositionList();
+            }
+
+            @Override
+            public void onFailure(Call<ReceivedPositionInfo> call, Throwable t) {
+
+            }
+        });
+    }
 
     private void setListener() {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (resultList.size() > 0) {
-                    String ids = "";
-                    for (GoodsBarcodeBean good : resultList) {
-                        ids = ids + good.getId() + ",";
+                if(positionList.size()>0){
+                    ArrayList<String> positionNames = new ArrayList<String>();
+                    for (PositionBean position : positionList) {
+                        positionNames.add(position.getPositionName());
                     }
-                    Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
-                    PutGoodsUnLoadService putGoodsUnLoadService = retrofit.create(PutGoodsUnLoadService.class);
-                    Call<ResponseBody> call = putGoodsUnLoadService.putGoodsUnload(inOrder.getId(), inOrder.getOutOrderNo(), ids, myApp.getUserBean().getUserName());
-                    call.enqueue(new Callback<ResponseBody>() {
+                    ArrayAdapter<String> adpter = new ArrayAdapter<String>(UnLoadActivity.this, android.R.layout.select_dialog_singlechoice, positionNames);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(UnLoadActivity.this);
+                    builder.setTitle("请选择卸货目标库位");
+                    builder.setSingleChoiceItems(adpter, -1, new DialogInterface.OnClickListener() {
                         @Override
-                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                            Toast.makeText(UnLoadActivity.this, "卸货货品提交成功", Toast.LENGTH_SHORT).show();
-                            CheckInOrderDetailFinishedUtil checkfinishedUtil = new CheckInOrderDetailFinishedUtil(inOrder, UnLoadActivity.this);
-                            checkfinishedUtil.checkOrderFinished();
-                            finish();
-                        }
-
-                        @Override
-                        public void onFailure(Call<ResponseBody> call, Throwable t) {
-
+                        public void onClick(DialogInterface dialog, int which) {
+                            position = positionList.get(which);
                         }
                     });
-                } else {
-                    Toast.makeText(UnLoadActivity.this, "请扫描需要卸车的货品", Toast.LENGTH_SHORT).show();
+                    builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (resultList.size() > 0) {
+                                String ids = "";
+                                for (GoodsBarcodeBean good : resultList) {
+                                    ids = ids + good.getId() + ",";
+                                }
+                                Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+                                PutGoodsUnLoadService putGoodsUnLoadService = retrofit.create(PutGoodsUnLoadService.class);
+                                Call<ResponseBody> call = putGoodsUnLoadService.putGoodsUnload(inOrder.getId(), inOrder.getOutOrderNo(), ids, myApp.getUserBean().getUserName());
+                                call.enqueue(new Callback<ResponseBody>() {
+                                    @Override
+                                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                        Toast.makeText(UnLoadActivity.this, "卸货货品提交成功", Toast.LENGTH_SHORT).show();
+                                        CheckInOrderDetailFinishedUtil checkfinishedUtil = new CheckInOrderDetailFinishedUtil(inOrder, UnLoadActivity.this);
+                                        checkfinishedUtil.checkOrderFinished();
+                                        finish();
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                                    }
+                                });
+                            } else {
+                                Toast.makeText(UnLoadActivity.this, "请扫描需要卸车的货品", Toast.LENGTH_SHORT).show();
+                            }
+
+                        }
+                    }).show();
                 }
             }
         });
