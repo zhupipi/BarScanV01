@@ -258,24 +258,46 @@ public class DeliveryBillActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 mySwipe.setRefreshing(true);
-                String id = DeliveryBillSingleton.getInstance().getOutOrderBean().getId();
-                Log.e("aaaa", "开始了");
-                Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
-                DeliveryBillById deliveryBillByBillNoService = retrofit.create(DeliveryBillById.class);
-                Call<ReceivedDelivieryBillInfo> call = deliveryBillByBillNoService.getDeliveryBillById(id);
-                call.enqueue(new Callback<ReceivedDelivieryBillInfo>() {
-                    @Override
-                    public void onResponse(Call<ReceivedDelivieryBillInfo> call, Response<ReceivedDelivieryBillInfo> response) {
-                        manageOutOrder(response.body().getAttributes().getOutOrder(), response.body().getAttributes().getOutOrderDetailList());
-                        showDetail();
-                        showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean());
-                    }
+                if(DeliveryBillSingleton.getInstance().getOutOrderDetailBean()!=null) {
+                    String id = DeliveryBillSingleton.getInstance().getOutOrderBean().getId();
+                    Log.e("aaaa", "开始了");
+                    Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+                    DeliveryBillById deliveryBillByBillNoService = retrofit.create(DeliveryBillById.class);
+                    Call<ReceivedDelivieryBillInfo> call = deliveryBillByBillNoService.getDeliveryBillById(id);
+                    call.enqueue(new Callback<ReceivedDelivieryBillInfo>() {
+                        @Override
+                        public void onResponse(Call<ReceivedDelivieryBillInfo> call, Response<ReceivedDelivieryBillInfo> response) {
+                            manageOutOrder(response.body().getAttributes().getOutOrder(), response.body().getAttributes().getOutOrderDetailList());
+                            showDetail();
+                            showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean());
+                        }
 
-                    @Override
-                    public void onFailure(Call<ReceivedDelivieryBillInfo> call, Throwable t) {
+                        @Override
+                        public void onFailure(Call<ReceivedDelivieryBillInfo> call, Throwable t) {
 
-                    }
-                });
+                        }
+                    });
+                }else{
+                    Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+                    GetLoadGoodsBarcodeService getLoadGoodsBarcodeService = retrofit.create(GetLoadGoodsBarcodeService.class);
+                    Call<ReceivedLoadGoodsBarcodeInfo> call = getLoadGoodsBarcodeService.getLoadedGoods(DeliveryBillSingleton.getInstance().getOutOrderBean().getId());
+                    call.enqueue(new Callback<ReceivedLoadGoodsBarcodeInfo>() {
+                        @Override
+                        public void onResponse(Call<ReceivedLoadGoodsBarcodeInfo> call, Response<ReceivedLoadGoodsBarcodeInfo> response) {
+                            loadGoodsResult = response.body().getAttributes().getGoodsBarcodeEndtityList();
+                            Log.d("ffff", response.toString());
+                            if (loadGoodsResult.size() > 0) {
+                                showLoadedGoods(loadGoodsResult);
+                                showLoadedGoodsWeight(loadGoodsResult);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ReceivedLoadGoodsBarcodeInfo> call, Throwable t) {
+
+                        }
+                    });
+                }
                 mySwipe.setRefreshing(false);
             }
         });
