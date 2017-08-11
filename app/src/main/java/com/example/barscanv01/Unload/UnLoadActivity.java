@@ -223,6 +223,7 @@ public class UnLoadActivity extends AppCompatActivity {
                 unregisterReceiver(mSamDataReceiver);
             }
         } catch (Exception e) {
+
         }
     }
 
@@ -385,4 +386,9 @@ public class UnLoadActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unRegisterReceiver();
+    }
 }

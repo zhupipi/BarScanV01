@@ -299,6 +299,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                                         }
                                     }
                                 }
+                                Toast.makeText(SaleLoadActivity.this,"货品倒垛提交成功",Toast.LENGTH_SHORT).show();
                                 sresultfg.cleanData();
                                 finish();
                             }
