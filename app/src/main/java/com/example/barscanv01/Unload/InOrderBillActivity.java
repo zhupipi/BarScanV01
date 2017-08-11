@@ -167,9 +167,6 @@ public class InOrderBillActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                /**需要注意：车牌省份已经修改。若后面需要动态修改省份，则我们也需要做动态
-                 *
-                 */
                 if (s.length() == 8) {
                     try {
                         String plate = s.toString();
@@ -235,7 +232,7 @@ public class InOrderBillActivity extends AppCompatActivity {
     }
 
     private void showDetailData() {
-        detailAdapter = new InOrderDetailAdapter(InOrderBillActivity.this, InOrderSingleton.getInstance().getInOrderDetailList());
+        detailAdapter = new InOrderDetailAdapter(InOrderBillActivity.this, InOrderSingleton.getInstance().getInOrderDetailList(),myApp.getCurrentDepot());
         detailView.setAdapter(detailAdapter);
     }
 

@@ -8,7 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.barscanv01.Bean.DepotBean;
 import com.example.barscanv01.Bean.InOrderDetailBean;
+import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
 
 import java.util.List;
@@ -20,10 +22,12 @@ import java.util.List;
 public class InOrderDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context mContext;
     private List<InOrderDetailBean> datas;
+    private DepotBean depot;
 
-    public InOrderDetailAdapter(Context mContext,List<InOrderDetailBean> datas){
+    public InOrderDetailAdapter(Context mContext,List<InOrderDetailBean> datas,DepotBean depot){
         this.mContext=mContext;
         this.datas=datas;
+        this.depot=depot;
     }
 
     @Override
@@ -39,12 +43,19 @@ public class InOrderDetailAdapter extends RecyclerView.Adapter<RecyclerView.View
         ((MyViewHolder)holder).customerName.setText(datas.get(position).getCustomerName());
         ((MyViewHolder)holder).modle.setText(datas.get(position).getSpecificationModel());
         ((MyViewHolder)holder).actcount.setText(datas.get(position).getActCount()+"");
-        if(datas.get(position).getFinishStatus().equals("0")){
+        if(datas.get(position).getFinishStatus().equals("0")&&datas.get(position).getDepotNo().equals(depot.getDepotNo())){
             ((MyViewHolder)holder).good.setTextColor(Color.RED);
             ((MyViewHolder)holder).count.setTextColor(Color.RED);
             ((MyViewHolder)holder).customerName.setTextColor(Color.RED);
             ((MyViewHolder)holder).modle.setTextColor(Color.RED);
             ((MyViewHolder)holder).actcount.setTextColor(Color.RED);
+        }
+        if(datas.get(position).getFinishStatus().equals("1")&&datas.get(position).getDepotNo().equals(depot.getDepotNo())){
+            ((MyViewHolder)holder).good.setTextColor(Color.BLUE);
+            ((MyViewHolder)holder).count.setTextColor(Color.BLUE);
+            ((MyViewHolder)holder).customerName.setTextColor(Color.BLUE);
+            ((MyViewHolder)holder).modle.setTextColor(Color.BLUE);
+            ((MyViewHolder)holder).actcount.setTextColor(Color.BLUE);
         }
 
     }
