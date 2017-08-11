@@ -194,6 +194,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
                 actWeight.setText("0.0");
             }
         });
+
     }
 
     private void submitData() {

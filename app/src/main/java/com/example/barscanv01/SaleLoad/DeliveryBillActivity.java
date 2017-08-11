@@ -258,7 +258,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 mySwipe.setRefreshing(true);
-                if(DeliveryBillSingleton.getInstance().getOutOrderDetailBean()!=null) {
+                if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean() != null) {
                     String id = DeliveryBillSingleton.getInstance().getOutOrderBean().getId();
                     Log.e("aaaa", "开始了");
                     Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
@@ -277,7 +277,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
 
                         }
                     });
-                }else{
+                } else {
                     Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
                     GetLoadGoodsBarcodeService getLoadGoodsBarcodeService = retrofit.create(GetLoadGoodsBarcodeService.class);
                     Call<ReceivedLoadGoodsBarcodeInfo> call = getLoadGoodsBarcodeService.getLoadedGoods(DeliveryBillSingleton.getInstance().getOutOrderBean().getId());
