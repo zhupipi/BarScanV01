@@ -258,6 +258,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                                 fragment.cleanData();
                                 setResult(1);
                                 finish();
+                                /*需在服务器后台，修改AraeName和DepotName*/
                             }
                             @Override
                             public void onFailure(Call<ResponseBody> call, Throwable t) {

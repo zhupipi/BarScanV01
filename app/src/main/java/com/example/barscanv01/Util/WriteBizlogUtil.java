@@ -47,7 +47,7 @@ public class WriteBizlogUtil {
         map1.put("process","开始装车");
         map1.put("remark","车牌号为["+outOrder.getPlateNo()+"]的车辆正在为订单号为"+"“"+outOrder.getOutOrderNo()+"”的订单在库区"+myApp.getCurrentDepot().getDepotName()+"装车");
 
-        Date currentDate=new Date(System.currentTimeMillis());
+        Date currentDate=new Date(System.currentTimeMillis()+5000);
         SimpleDateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String time= dateFormat.format(currentDate);
 
