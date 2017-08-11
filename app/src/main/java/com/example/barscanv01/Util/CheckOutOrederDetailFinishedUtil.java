@@ -70,6 +70,4 @@ public class CheckOutOrederDetailFinishedUtil {
         WriteBizlogUtil writeBizlog=new WriteBizlogUtil(activity);
         writeBizlog.writeOutOrderFinishedLog();
     }
-
-
 }
