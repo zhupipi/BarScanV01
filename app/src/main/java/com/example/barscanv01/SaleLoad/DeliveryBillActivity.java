@@ -83,6 +83,8 @@ public class DeliveryBillActivity extends AppCompatActivity {
     Button cancelButton;
     @BindView(R.id.delivery_bill_result_show)
     LinearLayout resultShowLayout;
+    @BindView(R.id.delivery_bill_title_bar)
+    LinearLayout titleBar;
 
     CarPlateUtil carPlateUtil;
     ScanManager scanManager;
@@ -104,7 +106,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("发货通知单信息");
         initalScanSetting();
-        List<GoodsBarcodeBean> loadGoodsResult = new ArrayList<GoodsBarcodeBean>();
+        loadGoodsResult = new ArrayList<GoodsBarcodeBean>();
         carPlateUtil = new CarPlateUtil();
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, carPlateUtil.getProvinces());
         carPlateProvince.setAdapter(adapter);
@@ -220,12 +222,12 @@ public class DeliveryBillActivity extends AppCompatActivity {
                                     if (checkOutOrderProcess(response.body().getAttributes().getOutOrder())) {
                                         manageOutOrder(response.body().getAttributes().getOutOrder(), response.body().getAttributes().getOutOrderDetailList());
                                         billNumber.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getOutOrderNo() + " ");
+                                        showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean());
                                         if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean() == null) {
                                             showNoDetail();
                                         } else {
                                             showDetail();
                                         }
-                                        showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean());
                                         OutOrderScanedUtil orderScanedUtil = new OutOrderScanedUtil(response.body().getAttributes().getOutOrder(), DeliveryBillActivity.this);
                                         orderScanedUtil.updateOutOrderProcess();
                                         orderScanedUtil.updateAreaInOut();
@@ -290,8 +292,16 @@ public class DeliveryBillActivity extends AppCompatActivity {
                                 Toast.makeText(DeliveryBillActivity.this, "该库区货品已全部装车完成", Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            Intent intent = new Intent(DeliveryBillActivity.this, DeliveryBillNoDetailActivity.class);
-                            startActivityForResult(intent, 2);
+                            AlertDialog.Builder builder = new AlertDialog.Builder(DeliveryBillActivity.this);
+                            builder.setTitle("注意")
+                                    .setMessage("该发货单在系统中无发货明细，请根据纸质发货单扫码装货")
+                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            Intent intent = new Intent(DeliveryBillActivity.this, DeliveryBillNoDetailActivity.class);
+                                            startActivityForResult(intent, 2);
+                                        }
+                                    }).show();
                         }
                     } else {
                         Toast.makeText(DeliveryBillActivity.this, "该发货单已经完成装车", Toast.LENGTH_SHORT).show();
@@ -403,21 +413,31 @@ public class DeliveryBillActivity extends AppCompatActivity {
     }
 
     public void showNoDetail() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(DeliveryBillActivity.this);
-        builder.setTitle("注意")
-                .setMessage("该发货单在系统中无发货明细，请根据纸质发货单扫码装货")
-                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(DeliveryBillActivity.this, DeliveryBillNoDetailActivity.class);
-                        startActivityForResult(intent, 2);
-                    }
-                }).show();
+        titleBar.setVisibility(View.INVISIBLE);
+        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+        GetLoadGoodsBarcodeService getLoadGoodsBarcodeService = retrofit.create(GetLoadGoodsBarcodeService.class);
+        Call<ReceivedLoadGoodsBarcodeInfo> call = getLoadGoodsBarcodeService.getLoadedGoods(DeliveryBillSingleton.getInstance().getOutOrderBean().getId());
+        call.enqueue(new Callback<ReceivedLoadGoodsBarcodeInfo>() {
+            @Override
+            public void onResponse(Call<ReceivedLoadGoodsBarcodeInfo> call, Response<ReceivedLoadGoodsBarcodeInfo> response) {
+                loadGoodsResult = response.body().getAttributes().getGoodsBarcodeEndtityList();
+                Log.d("ffff", response.toString());
+                if (loadGoodsResult.size() > 0) {
+                    showLoadedGoods(loadGoodsResult);
+                    showLoadedGoodsWeight(loadGoodsResult);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReceivedLoadGoodsBarcodeInfo> call, Throwable t) {
+
+            }
+        });
     }
 
     @Override
     protected void onActivityResult(final int requestCode, int resultCode, Intent data) {
-        if (resultCode == 1) {
+        if (requestCode == 1) {
             String id = DeliveryBillSingleton.getInstance().getOutOrderBean().getId();
             Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
             DeliveryBillById deliveryBillByBillNoService = retrofit.create(DeliveryBillById.class);
@@ -434,7 +454,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                 public void onFailure(Call<ReceivedDelivieryBillInfo> call, Throwable t) {
                 }
             });
-        } else if (resultCode == 2) {
+        } else if (requestCode == 2) {
             Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
             GetLoadGoodsBarcodeService getLoadGoodsBarcodeService = retrofit.create(GetLoadGoodsBarcodeService.class);
             Call<ReceivedLoadGoodsBarcodeInfo> call = getLoadGoodsBarcodeService.getLoadedGoods(DeliveryBillSingleton.getInstance().getOutOrderBean().getId());
