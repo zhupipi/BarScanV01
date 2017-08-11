@@ -173,7 +173,7 @@ public class UnLoadActivity extends AppCompatActivity {
                                 }
                                 Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
                                 PutGoodsUnLoadService putGoodsUnLoadService = retrofit.create(PutGoodsUnLoadService.class);
-                                Call<ResponseBody> call = putGoodsUnLoadService.putGoodsUnload(inOrder.getId(), inOrder.getOutOrderNo(), ids, myApp.getUserBean().getUserName());
+                                Call<ResponseBody> call = putGoodsUnLoadService.putGoodsUnload(inOrder.getId(), inOrder.getOutOrderNo(), ids, myApp.getUserBean().getUserName(),position.getPositionNo());
                                 call.enqueue(new Callback<ResponseBody>() {
                                     @Override
                                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {

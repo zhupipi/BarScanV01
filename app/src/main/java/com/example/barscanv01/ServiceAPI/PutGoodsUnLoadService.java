@@ -13,5 +13,5 @@ import retrofit2.http.POST;
 public interface PutGoodsUnLoadService {
     @FormUrlEncoded
     @POST("inOrderController.do?putGoodUnLoadforPDA")
-    Call<ResponseBody> putGoodsUnload(@Field("id") String id,@Field("outOrderNo") String outOrderNo,@Field("goodIds") String goodids,@Field("userName") String userName);
+    Call<ResponseBody> putGoodsUnload(@Field("id") String id,@Field("outOrderNo") String outOrderNo,@Field("goodIds") String goodids,@Field("userName") String userName,@Field("positionNo") String positionNo);
 }
