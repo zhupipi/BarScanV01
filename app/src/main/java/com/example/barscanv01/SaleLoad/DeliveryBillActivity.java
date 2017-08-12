@@ -208,48 +208,51 @@ public class DeliveryBillActivity extends AppCompatActivity {
                         String plate = s.toString();
                         String province = plate.substring(0, 2);
                         int id = Integer.parseInt(province);
-                        carPlateProvince.setSelection(id - 1);
-                        s = s.delete(0, 2);
-                        String finalPlate = ((String) carPlateProvince.getSelectedItem()) + s;
-                        Log.d("aaaa", finalPlate);
-                        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
-                        DeliveryBillByPlateService deliveryBillByPlateService = retrofit.create(DeliveryBillByPlateService.class);
-                        Call<ReceivedDelivieryBillInfo> call = deliveryBillByPlateService.getDeliveryBillByPlate(finalPlate, myApp.getCurrentAreaBean().getAreaNo());
-                        call.enqueue(new Callback<ReceivedDelivieryBillInfo>() {
-                            @Override
-                            public void onResponse(Call<ReceivedDelivieryBillInfo> call, Response<ReceivedDelivieryBillInfo> response) {
-                                if (response.body().getAttributes().getOutOrder() != null) {
-                                    if (checkOutOrderProcess(response.body().getAttributes().getOutOrder())) {
-                                        manageOutOrder(response.body().getAttributes().getOutOrder(), response.body().getAttributes().getOutOrderDetailList());
-                                        billNumber.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getOutOrderNo() + " ");
-                                        showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean());
-                                        if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean() == null) {
-                                            showNoDetail();
-                                        } else {
-                                            showDetail();
+                        if (id < 31) {
+                            carPlateProvince.setSelection(id - 1);
+                            s = s.delete(0, 2);
+                            String finalPlate = ((String) carPlateProvince.getSelectedItem()) + s;
+                            Log.d("aaaa", finalPlate);
+                            Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+                            DeliveryBillByPlateService deliveryBillByPlateService = retrofit.create(DeliveryBillByPlateService.class);
+                            Call<ReceivedDelivieryBillInfo> call = deliveryBillByPlateService.getDeliveryBillByPlate(finalPlate, myApp.getCurrentAreaBean().getAreaNo());
+                            call.enqueue(new Callback<ReceivedDelivieryBillInfo>() {
+                                @Override
+                                public void onResponse(Call<ReceivedDelivieryBillInfo> call, Response<ReceivedDelivieryBillInfo> response) {
+                                    if (response.body().getAttributes().getOutOrder() != null) {
+                                        if (checkOutOrderProcess(response.body().getAttributes().getOutOrder())) {
+                                            manageOutOrder(response.body().getAttributes().getOutOrder(), response.body().getAttributes().getOutOrderDetailList());
+                                            billNumber.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getOutOrderNo() + " ");
+                                            showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean());
+                                            if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean() == null) {
+                                                showNoDetail();
+                                            } else {
+                                                showDetail();
+                                            }
+                                            OutOrderScanedUtil orderScanedUtil = new OutOrderScanedUtil(response.body().getAttributes().getOutOrder(), DeliveryBillActivity.this);
+                                            orderScanedUtil.updateOutOrderProcess();
+                                            orderScanedUtil.updateAreaInOut();
+                                            if (!response.body().getAttributes().getOutOrder().getProcess().equals("5")) {
+                                                WriteBizlogUtil writeBizlog = new WriteBizlogUtil(DeliveryBillActivity.this);
+                                                writeBizlog.writeLoadStartedLog();
+                                            }
                                         }
-                                        OutOrderScanedUtil orderScanedUtil = new OutOrderScanedUtil(response.body().getAttributes().getOutOrder(), DeliveryBillActivity.this);
-                                        orderScanedUtil.updateOutOrderProcess();
-                                        orderScanedUtil.updateAreaInOut();
-                                        if (!response.body().getAttributes().getOutOrder().getProcess().equals("5")) {
-                                            WriteBizlogUtil writeBizlog = new WriteBizlogUtil(DeliveryBillActivity.this);
-                                            writeBizlog.writeLoadStartedLog();
-                                        }
+                                    } else {
+                                        Toast.makeText(DeliveryBillActivity.this, "发货单不存在", Toast.LENGTH_SHORT).show();
                                     }
-                                } else {
-                                    Toast.makeText(DeliveryBillActivity.this, "发货单不存在", Toast.LENGTH_SHORT).show();
                                 }
-                            }
 
-                            @Override
-                            public void onFailure(Call<ReceivedDelivieryBillInfo> call, Throwable t) {
+                                @Override
+                                public void onFailure(Call<ReceivedDelivieryBillInfo> call, Throwable t) {
 
-                            }
-                        });
+                                }
+                            });
+                        } else {
+                            Toast.makeText(DeliveryBillActivity.this, "请扫描正确的车牌号", Toast.LENGTH_SHORT).show();
+                        }
 
                     } catch (Exception e) {
                         Toast.makeText(DeliveryBillActivity.this, "请扫描正确的车牌号", Toast.LENGTH_SHORT).show();
-                        Log.d("ffffff", e.getMessage().toString());
                     }
                 }
             }

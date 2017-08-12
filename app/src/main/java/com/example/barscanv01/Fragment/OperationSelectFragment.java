@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
 import com.example.barscanv01.SaleLoad.DeliveryBillActivity;
+import com.example.barscanv01.Translate.TranslateActivity;
 import com.example.barscanv01.Unload.InOrderBillActivity;
 
 import butterknife.BindView;
@@ -87,6 +88,14 @@ public class OperationSelectFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent=new Intent(getActivity(), InOrderBillActivity.class);
+                startActivity(intent);
+            }
+        });
+        changeDepotButton=(Button)getView().findViewById(R.id.operation_change_depot);
+        changeDepotButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(getActivity(), TranslateActivity.class);
                 startActivity(intent);
             }
         });

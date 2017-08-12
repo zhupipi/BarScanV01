@@ -25,7 +25,8 @@
         <activity android:name=".SaleLoad.SaleLoadActivity" />
         <activity android:name=".SaleLoad.DeliveryBillNoDetailActivity" />
         <activity android:name=".Unload.InOrderBillActivity" />
-        <activity android:name=".Unload.UnLoadActivity"></activity>
+        <activity android:name=".Unload.UnLoadActivity" />
+        <activity android:name=".Translate.TranslateActivity"></activity>
     </application>
 
 </manifest>
