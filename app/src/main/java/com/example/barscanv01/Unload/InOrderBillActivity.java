@@ -131,17 +131,21 @@ public class InOrderBillActivity extends AppCompatActivity {
                         @Override
                         public void onResponse(Call<ReceivedInOrderInfo> call, Response<ReceivedInOrderInfo> response) {
                             if (response.body().getAttributes().getInOrder() != null) {
-                                if (checkInOrderProcess(response.body().getAttributes().getInOrder())) {
-                                    manageInOrder(response.body().getAttributes().getInOrder(), response.body().getAttributes().getInOrderDetailList());
-                                    carPlate.setText(carPlateUtil.getplateNum(InOrderSingleton.getInstance().getInOrder().getPlateNo()));
-                                    carPlateSpinner.setSelection(carPlateUtil.getId(InOrderSingleton.getInstance().getInOrder().getPlateNo()));
-                                    showDetailData();
-                                    showWeight();
-                                    InOrderScanedUtil scanedUtil = new InOrderScanedUtil(InOrderSingleton.getInstance().getInOrder());
-                                    scanedUtil.upDateInOrder();
+                                if(response.body().getAttributes().getInOrderDetailList()!=null) {
+                                    if (checkInOrderProcess(response.body().getAttributes().getInOrder())) {
+                                        manageInOrder(response.body().getAttributes().getInOrder(), response.body().getAttributes().getInOrderDetailList());
+                                        carPlate.setText(carPlateUtil.getplateNum(InOrderSingleton.getInstance().getInOrder().getPlateNo()) + " ");
+                                        carPlateSpinner.setSelection(carPlateUtil.getId(InOrderSingleton.getInstance().getInOrder().getPlateNo()));
+                                        showDetailData();
+                                        showWeight();
+                                        InOrderScanedUtil scanedUtil = new InOrderScanedUtil(InOrderSingleton.getInstance().getInOrder());
+                                        scanedUtil.upDateInOrder();
+                                    }
+                                }else {
+                                    Toast.makeText(InOrderBillActivity.this, "该车牌无对应退货单明细", Toast.LENGTH_SHORT).show();
                                 }
                             } else {
-                                Toast.makeText(InOrderBillActivity.this, "改车牌无对应退货单", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(InOrderBillActivity.this, "该车牌无对应退货单", Toast.LENGTH_SHORT).show();
                             }
                         }
 
@@ -168,23 +172,25 @@ public class InOrderBillActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (s.length() == 8) {
-                    try {
+                if (s.length() == 8 || s.length() == 6) {
+                    if (s.length() == 8) {
                         String plate = s.toString();
                         String province = plate.substring(0, 2);
                         int id = Integer.parseInt(province);
                         if (id < 31) {
                             carPlateSpinner.setSelection(id - 1);
                             s = s.delete(0, 2);
-                            String finalPlate = ((String) carPlateSpinner.getSelectedItem()) + s;
-                            finalPlate.trim();
-                            Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
-                            GetInOrderforPDAbyPlateService getInOrderforPDAbyPlateService = retrofit.create(GetInOrderforPDAbyPlateService.class);
-                            Call<ReceivedInOrderInfo> call = getInOrderforPDAbyPlateService.getInOrder(finalPlate, myApp.getCurrentAreaBean().getAreaNo());
-                            call.enqueue(new Callback<ReceivedInOrderInfo>() {
-                                @Override
-                                public void onResponse(Call<ReceivedInOrderInfo> call, Response<ReceivedInOrderInfo> response) {
-                                    if (response.body().getAttributes().getInOrder() != null) {
+                        }
+                    } else if (s.length() == 6) {
+                        String finalPlate = ((String) carPlateSpinner.getSelectedItem()) + s.toString().trim();
+                        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+                        GetInOrderforPDAbyPlateService getInOrderforPDAbyPlateService = retrofit.create(GetInOrderforPDAbyPlateService.class);
+                        Call<ReceivedInOrderInfo> call = getInOrderforPDAbyPlateService.getInOrder(finalPlate, myApp.getCurrentAreaBean().getAreaNo());
+                        call.enqueue(new Callback<ReceivedInOrderInfo>() {
+                            @Override
+                            public void onResponse(Call<ReceivedInOrderInfo> call, Response<ReceivedInOrderInfo> response) {
+                                if (response.body().getAttributes().getInOrder() != null) {
+                                    if(response.body().getAttributes().getInOrderDetailList()!=null) {
                                         if (checkInOrderProcess(response.body().getAttributes().getInOrder())) {
                                             manageInOrder(response.body().getAttributes().getInOrder(), response.body().getAttributes().getInOrderDetailList());
                                             billNo.setText(InOrderSingleton.getInstance().getInOrder().getInOrderNo() + " ");
@@ -193,26 +199,21 @@ public class InOrderBillActivity extends AppCompatActivity {
                                             InOrderScanedUtil scanedUtil = new InOrderScanedUtil(InOrderSingleton.getInstance().getInOrder());
                                             scanedUtil.upDateInOrder();
                                         }
-                                    } else {
-                                        Toast.makeText(InOrderBillActivity.this, "改车牌无对应退货单", Toast.LENGTH_SHORT).show();
+                                    }else {
+                                        Toast.makeText(InOrderBillActivity.this, "该车牌无对应退货单明细", Toast.LENGTH_SHORT).show();
                                     }
+                                } else {
+                                    Toast.makeText(InOrderBillActivity.this, "该车牌无对应退货单", Toast.LENGTH_SHORT).show();
                                 }
+                            }
 
-                                @Override
-                                public void onFailure(Call<ReceivedInOrderInfo> call, Throwable t) {
+                            @Override
+                            public void onFailure(Call<ReceivedInOrderInfo> call, Throwable t) {
 
-                                }
-                            });
-                        } else {
-                            Toast.makeText(InOrderBillActivity.this, "请扫描正确的车牌号", Toast.LENGTH_SHORT).show();
-                        }
-
-                    } catch (Exception e) {
-                        Toast.makeText(InOrderBillActivity.this, "请扫描正确的车牌号", Toast.LENGTH_SHORT).show();
-                        Log.d("eeee", e.getMessage());
+                            }
+                        });
                     }
                 }
-
             }
         });
         confirmButton.setOnClickListener(new View.OnClickListener() {
