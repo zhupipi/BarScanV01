@@ -17,10 +17,13 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
         android:text="请扫描需要移库的产成品条形码："
         android:textSize="18sp" />
 
     <ImageView
+        android:layout_marginTop="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:srcCompat="@drawable/divider" />
@@ -89,6 +92,7 @@
         app:srcCompat="@drawable/divider" />
 
     <LinearLayout
+        android:id="@+id/translate_result_view_modle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 

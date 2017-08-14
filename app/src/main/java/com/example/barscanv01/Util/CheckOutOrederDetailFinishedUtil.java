@@ -5,6 +5,7 @@ import android.widget.Toast;
 
 import com.example.barscanv01.Bean.OutOrderBean;
 import com.example.barscanv01.Bean.ReceivedCheckOutOrderFinishedInfo;
+import com.example.barscanv01.MyApp;
 import com.example.barscanv01.SaleLoad.DeliveryBillSingleton;
 import com.example.barscanv01.ServiceAPI.CheckOrderFinishedService;
 import com.example.barscanv01.ServiceAPI.OutOrderProcessService;
@@ -22,10 +23,12 @@ import retrofit2.Retrofit;
 public class CheckOutOrederDetailFinishedUtil {
     private OutOrderBean outOrder;
     private Activity activity;
+    private MyApp myApp;
 
     public CheckOutOrederDetailFinishedUtil(OutOrderBean outOrder,Activity activity){
         this.outOrder=outOrder;
         this.activity=activity;
+        myApp= (MyApp) activity.getApplication();
     }
     public void checkOutOrderFinished(){
         Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
@@ -58,7 +61,7 @@ public class CheckOutOrederDetailFinishedUtil {
         call3.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                AreaInOutUpdateUtil areaInOutUpdate = new AreaInOutUpdateUtil(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo(), "6");
+                AreaInOutUpdateUtil areaInOutUpdate = new AreaInOutUpdateUtil(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo(), "6",myApp.getCurrentDepot().getDepotNo(),myApp.getCurrentAreaBean().getAreaNo());
             }
 
             @Override

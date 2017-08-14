@@ -16,7 +16,7 @@ public interface AreaInOutUpdateService {
     //需要增加库位
     @FormUrlEncoded
     @POST("areaInController.do?doUpdatebyPDA")
-    Call<ResponseBody> updateService(@Field("plateNo") String plateNo, @Field("status") String status);
+    Call<ResponseBody> updateService(@Field("plateNo") String plateNo, @Field("status") String status,@Field(("depotNo")) String depotNo,@Field("areaNo") String areaNo);
     @FormUrlEncoded
     @POST("areaInController.do?doUpdatebyPDA")
     Call<ResponseBody> scanedUpdateService(@Field("plateNo") String plateNo, @Field("status") String status,@Field(("depotNo")) String depotNo,@Field("areaNo") String areaNo);

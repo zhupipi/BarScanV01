@@ -14,10 +14,10 @@ import retrofit2.Retrofit;
 
 public class AreaInOutUpdateUtil {
 
-    public AreaInOutUpdateUtil(String carPlate,String status){
+    public AreaInOutUpdateUtil(String carPlate,String status,String depotNo,String areaNo){
         Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
         AreaInOutUpdateService areaInOutUpdateService=retrofit.create(AreaInOutUpdateService.class);
-        Call<ResponseBody> call=areaInOutUpdateService.updateService(carPlate,status);
+        Call<ResponseBody> call=areaInOutUpdateService.updateService(carPlate,status,depotNo,areaNo);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
