@@ -32,7 +32,7 @@ public class CarPlateUtil {
     public String getplateNum(String carPlate){
         String plateNum=null;
         if(carPlate.length()>2) {
-            plateNum = carPlate.substring(1, carPlate.length() - 1);
+            plateNum = carPlate.substring(1, carPlate.length());
         }
         return  plateNum;
     }
