@@ -28,7 +28,7 @@ public class OutOrderScanedUtil {
         myApp= (MyApp) activity.getApplication();
     }
     public void updateOutOrderProcess(){
-        if(!outOrder.getProcess().equals(5)) {
+        if(!outOrder.getProcess().equals("5")) {
             Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
             OutOrderProcessService outOrderProcessService = retrofit.create(OutOrderProcessService.class);
             Call<ResponseBody> call = outOrderProcessService.updateProcess(outOrder.getId(), "4");
@@ -48,7 +48,7 @@ public class OutOrderScanedUtil {
         }
     }
     public void updateAreaInOut(){
-        if(!outOrder.getProcess().equals("6")) {
+        if(!outOrder.getProcess().equals("5")) {
             Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
             AreaInOutUpdateService areaInOutUpdateService = retrofit.create(AreaInOutUpdateService.class);
             Call<ResponseBody> call = areaInOutUpdateService.scanedUpdateService(outOrder.getPlateNo(), "5", myApp.getCurrentDepot().getDepotNo(), myApp.getCurrentAreaBean().getAreaNo());
