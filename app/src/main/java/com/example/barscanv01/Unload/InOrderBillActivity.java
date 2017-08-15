@@ -142,7 +142,7 @@ public class InOrderBillActivity extends AppCompatActivity {
                                         scanedUtil.upDateInOrder();
                                     }
                                 }else {
-                                    Toast.makeText(InOrderBillActivity.this, "该车牌无对应退货单明细", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(InOrderBillActivity.this, "该车牌在该用户工作库区无对应退货单明细", Toast.LENGTH_SHORT).show();
                                 }
                             } else {
                                 Toast.makeText(InOrderBillActivity.this, "该车牌无对应退货单", Toast.LENGTH_SHORT).show();
@@ -200,7 +200,7 @@ public class InOrderBillActivity extends AppCompatActivity {
                                             scanedUtil.upDateInOrder();
                                         }
                                     }else {
-                                        Toast.makeText(InOrderBillActivity.this, "该车牌无对应退货单明细", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(InOrderBillActivity.this, "该车牌在该用户工作库区无对应退货单明细", Toast.LENGTH_SHORT).show();
                                     }
                                 } else {
                                     Toast.makeText(InOrderBillActivity.this, "该车牌无对应退货单", Toast.LENGTH_SHORT).show();
