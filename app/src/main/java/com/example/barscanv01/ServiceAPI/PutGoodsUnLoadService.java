@@ -14,4 +14,8 @@ public interface PutGoodsUnLoadService {
     @FormUrlEncoded
     @POST("inOrderController.do?putGoodUnLoadforPDA")
     Call<ResponseBody> putGoodsUnload(@Field("id") String id,@Field("outOrderNo") String outOrderNo,@Field("goodIds") String goodids,@Field("userName") String userName,@Field("positionNo") String positionNo);
+
+    @FormUrlEncoded
+    @POST("outOrderController.do?putGoodUnLoadNoDetailforPDA")
+    Call<ResponseBody> putGoodsUnloadNoDetail(@Field("id") String id,@Field("goodIds") String ids,@Field("positionNo") String positionNo);
 }

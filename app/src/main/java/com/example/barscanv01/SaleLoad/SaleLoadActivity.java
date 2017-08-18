@@ -255,7 +255,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                                 checkFinishedUtil.checkOutOrderFinished();
                                 Toast.makeText(SaleLoadActivity.this,"货品装车成功！",Toast.LENGTH_SHORT).show();
                                 ScanResultFragment fragment = (ScanResultFragment) fragmentManager.findFragmentById(R.id.customer_load_change_fragment);
-                                fragment.cleanData();
+                                //fragment.cleanData();
                                 setResult(1);
                                 finish();
                                 /*需在服务器后台，修改AraeName和DepotName*/
@@ -506,6 +506,11 @@ public class SaleLoadActivity extends AppCompatActivity {
         List<GoodsBarcodeBean> result = scanResult.getScanResultArryList();
         switch (tag) {
             case "OPERATION_LOAD_CAR":
+                if (!good.getDepotNo().equals(myApp.getCurrentDepot().getDepotNo())) {
+                    Toast.makeText(this, "该货品存放库区与用户管理库区不一致", Toast.LENGTH_SHORT).show();
+                    checkresult = false;
+                    break;
+                }
                 if (!good.getStatus().equals("0")) {
                     Toast.makeText(this, "该货品已装车", Toast.LENGTH_SHORT).show();
                     checkresult = false;
@@ -527,10 +532,10 @@ public class SaleLoadActivity extends AppCompatActivity {
                     checkresult = false;
                     break;
                 }
-                GetCountUtil getCountUtil=new GetCountUtil(detailList,good);
-                if(getCountUtil.getActCount()+getCountUtil.getResultCount(result)+1>getCountUtil.getCount()){
-                    Toast.makeText(this,"该规格货品扫码数目已经超过发货单规定装车数目",Toast.LENGTH_SHORT).show();
-                    checkresult=false;
+                GetCountUtil getCountUtil = new GetCountUtil(detailList, good);
+                if (getCountUtil.getActCount() + getCountUtil.getResultCount(result) + 1 > getCountUtil.getCount()) {
+                    Toast.makeText(this, "该规格货品扫码数目已经超过发货单规定装车数目", Toast.LENGTH_SHORT).show();
+                    checkresult = false;
                     break;
                 }
                 break;

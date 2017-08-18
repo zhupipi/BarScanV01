@@ -205,9 +205,15 @@ public class DeliveryBillActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 if (s.length() == 8 || s.length() == 6) {
                     if (s.length() == 8) {
+                        int id=0;
                         String plate = s.toString();
                         String province = plate.substring(0, 2);
-                        int id = Integer.parseInt(province);
+                        try {
+                             id = Integer.parseInt(province);
+                        }catch (Exception e){
+                            Log.e("DeliveryBill",e.getMessage().toString());
+                            Toast.makeText(DeliveryBillActivity.this, "请输入正确车牌号", Toast.LENGTH_SHORT).show();
+                        }
                         if (id < 31) {
                             carPlateProvince.setSelection(id - 1);
                             s = s.delete(0, 2);

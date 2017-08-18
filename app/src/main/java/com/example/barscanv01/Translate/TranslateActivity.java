@@ -70,8 +70,7 @@ public class TranslateActivity extends AppCompatActivity {
     Button cancelButton;
     @BindView(R.id.translate_result_view)
     RecyclerView scanResultView;
-    @BindView(R.id.translate_result_view_modle)
-    LinearLayout resultViewModle;
+
 
     private List<GoodsBarcodeBean> scanResult;
     private MyApp myApp;
@@ -245,9 +244,9 @@ public class TranslateActivity extends AppCompatActivity {
             scanManager.setOutpuMode(ScanSettings.Global.VALUE_OUT_PUT_MODE_BROADCAST);
             scanManager.enableBeep();
         } else if (myApp.getDeviceBrand().equals("SUPOIN")) {
-            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) resultViewModle.getLayoutParams();
+          /*  LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) resultViewModle.getLayoutParams();
             params.height = 330;
-            resultViewModle.setLayoutParams(params);
+            resultViewModle.setLayoutParams(params);*/
         }
     }
 

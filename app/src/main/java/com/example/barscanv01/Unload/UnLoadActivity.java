@@ -299,7 +299,11 @@ public class UnLoadActivity extends AppCompatActivity {
 
     private boolean checkGood(GoodsBarcodeBean good) {
         boolean result = true;
-        if (!checkGoodEixted(good)) {
+        /*需要待确定——1*/
+        if(!good.getDepotNo().equals(myApp.getCurrentDepot().getDepotNo())){
+            result=false;
+            Toast.makeText(UnLoadActivity.this,"该货品不在用户管理的库区",Toast.LENGTH_SHORT).show();
+        }else if (!checkGoodEixted(good)) {
             result = false;
             Toast.makeText(UnLoadActivity.this, "该货品不在发货单“" + InOrderSingleton.getInstance().getInOrder().getOutOrderNo() + "”的装车明细中", Toast.LENGTH_SHORT).show();
         } else if (!good.getStatus().equals("1")) {

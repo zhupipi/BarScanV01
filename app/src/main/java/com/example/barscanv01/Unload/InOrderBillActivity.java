@@ -1,6 +1,8 @@
 package com.example.barscanv01.Unload;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -24,16 +26,19 @@ import com.example.barscanv01.Adapter.InOrderDetailAdapter;
 import com.example.barscanv01.Bean.InOrderBean;
 import com.example.barscanv01.Bean.InOrderDetailBean;
 import com.example.barscanv01.Bean.ReceivedCarResonInfo;
+import com.example.barscanv01.Bean.ReceivedDelivieryBillInfo;
 import com.example.barscanv01.Bean.ReceivedDetailBarcodeInfo;
 import com.example.barscanv01.Bean.ReceivedInOrderInfo;
 import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
+import com.example.barscanv01.ServiceAPI.DeliveryBillByPlateService;
 import com.example.barscanv01.ServiceAPI.GetCarResonService;
 import com.example.barscanv01.ServiceAPI.GetDetailBarcodeService;
 import com.example.barscanv01.ServiceAPI.GetInOrdeByIdService;
 import com.example.barscanv01.ServiceAPI.GetInOrderByOrderNoService;
 import com.example.barscanv01.ServiceAPI.GetInOrderforPDAbyPlateService;
 import com.example.barscanv01.Util.CarPlateUtil;
+import com.example.barscanv01.Util.InOrderDetailSortUtil;
 import com.example.barscanv01.Util.InOrderScanedUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
 import com.nlscan.android.scan.ScanManager;
@@ -43,6 +48,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -131,7 +137,7 @@ public class InOrderBillActivity extends AppCompatActivity {
                         @Override
                         public void onResponse(Call<ReceivedInOrderInfo> call, Response<ReceivedInOrderInfo> response) {
                             if (response.body().getAttributes().getInOrder() != null) {
-                                if(response.body().getAttributes().getInOrderDetailList()!=null) {
+                                if (response.body().getAttributes().getInOrderDetailList() != null) {
                                     if (checkInOrderProcess(response.body().getAttributes().getInOrder())) {
                                         manageInOrder(response.body().getAttributes().getInOrder(), response.body().getAttributes().getInOrderDetailList());
                                         carPlate.setText(carPlateUtil.getplateNum(InOrderSingleton.getInstance().getInOrder().getPlateNo()) + " ");
@@ -141,7 +147,7 @@ public class InOrderBillActivity extends AppCompatActivity {
                                         InOrderScanedUtil scanedUtil = new InOrderScanedUtil(InOrderSingleton.getInstance().getInOrder());
                                         scanedUtil.upDateInOrder();
                                     }
-                                }else {
+                                } else {
                                     Toast.makeText(InOrderBillActivity.this, "该车牌在该用户工作库区无对应退货单明细", Toast.LENGTH_SHORT).show();
                                 }
                             } else {
@@ -182,7 +188,7 @@ public class InOrderBillActivity extends AppCompatActivity {
                             s = s.delete(0, 2);
                         }
                     } else if (s.length() == 6) {
-                        String finalPlate = ((String) carPlateSpinner.getSelectedItem()) + s.toString().trim();
+                        final String finalPlate = ((String) carPlateSpinner.getSelectedItem()) + s.toString().trim();
                         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
                         GetInOrderforPDAbyPlateService getInOrderforPDAbyPlateService = retrofit.create(GetInOrderforPDAbyPlateService.class);
                         Call<ReceivedInOrderInfo> call = getInOrderforPDAbyPlateService.getInOrder(finalPlate, myApp.getCurrentAreaBean().getAreaNo());
@@ -190,7 +196,7 @@ public class InOrderBillActivity extends AppCompatActivity {
                             @Override
                             public void onResponse(Call<ReceivedInOrderInfo> call, Response<ReceivedInOrderInfo> response) {
                                 if (response.body().getAttributes().getInOrder() != null) {
-                                    if(response.body().getAttributes().getInOrderDetailList()!=null) {
+                                    if (response.body().getAttributes().getInOrderDetailList() != null) {
                                         if (checkInOrderProcess(response.body().getAttributes().getInOrder())) {
                                             manageInOrder(response.body().getAttributes().getInOrder(), response.body().getAttributes().getInOrderDetailList());
                                             billNo.setText(InOrderSingleton.getInstance().getInOrder().getInOrderNo() + " ");
@@ -199,11 +205,12 @@ public class InOrderBillActivity extends AppCompatActivity {
                                             InOrderScanedUtil scanedUtil = new InOrderScanedUtil(InOrderSingleton.getInstance().getInOrder());
                                             scanedUtil.upDateInOrder();
                                         }
-                                    }else {
+                                    } else {
                                         Toast.makeText(InOrderBillActivity.this, "该车牌在该用户工作库区无对应退货单明细", Toast.LENGTH_SHORT).show();
                                     }
                                 } else {
-                                    Toast.makeText(InOrderBillActivity.this, "该车牌无对应退货单", Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(InOrderBillActivity.this, "该车牌无对应退货单", Toast.LENGTH_SHORT).show();
+                                    unInOrderDetail(finalPlate);
                                 }
                             }
 
@@ -219,13 +226,18 @@ public class InOrderBillActivity extends AppCompatActivity {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!InOrderSingleton.getInstance().getInOrder().getProcess().equals("5")) {
-                    Intent intent = new Intent(InOrderBillActivity.this, UnLoadActivity.class);
-                    intent.putExtra("weight", weight.getText().toString().trim());
-                    intent.putExtra("actWeight", actWeight.getText().toString().trim());
-                    startActivityForResult(intent, HAVE_INORDER_DETAIL);
+                if (InOrderSingleton.getInstance().getInOrder().getId() != null) {
+                    if (!InOrderSingleton.getInstance().getInOrder().getProcess().equals("5")) {
+                        Intent intent = new Intent(InOrderBillActivity.this, UnLoadActivity.class);
+                        intent.putExtra("weight", weight.getText().toString().trim());
+                        intent.putExtra("actWeight", actWeight.getText().toString().trim());
+                        startActivityForResult(intent, HAVE_INORDER_DETAIL);
+
+                    } else {
+                        Toast.makeText(InOrderBillActivity.this, "该退货单已卸货完成", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    Toast.makeText(InOrderBillActivity.this, "该退货单已卸货完成", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(InOrderBillActivity.this, "请录入退货单号或车牌信息", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -237,14 +249,55 @@ public class InOrderBillActivity extends AppCompatActivity {
         });
     }
 
+    private void unInOrderDetail(String finalPlate) {
+        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+        DeliveryBillByPlateService deliveryBillByPlateService = retrofit.create(DeliveryBillByPlateService.class);
+        Call<ReceivedDelivieryBillInfo> call = deliveryBillByPlateService.getDeliveryBillByPlate(finalPlate, myApp.getCurrentAreaBean().getAreaNo());
+        call.enqueue(new Callback<ReceivedDelivieryBillInfo>() {
+            @Override
+            public void onResponse(Call<ReceivedDelivieryBillInfo> call, Response<ReceivedDelivieryBillInfo> response) {
+                if (response.body().getAttributes().getOutOrder() != null && response.body().getAttributes().getOutOrder().getProcess().equals("4")) {
+                    InOrderSingleton.getInstance().setNoDetailOutOrder(response.body().getAttributes().getOutOrder());
+                    AlertDialog.Builder builder = new AlertDialog.Builder(InOrderBillActivity.this);
+                    builder.setTitle("注意")
+                            .setMessage("该发货单未完成装车，如果需要卸货，请和客户协商好卸车")
+                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent intent = new Intent(InOrderBillActivity.this, NoDetailUnLoadActivity.class);
+                                    startActivity(intent);
+                                }
+                            }).show();
+                } else {
+                    Toast.makeText(InOrderBillActivity.this, "该车牌无对应退货单", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReceivedDelivieryBillInfo> call, Throwable t) {
+
+            }
+        });
+
+    }
+
     private void showDetailData() {
         detailAdapter = new InOrderDetailAdapter(InOrderBillActivity.this, InOrderSingleton.getInstance().getInOrderDetailList(), myApp.getCurrentDepot());
         detailView.setAdapter(detailAdapter);
     }
 
+    /**
+     * 待确定
+     **/
     private void manageInOrder(InOrderBean inOrder, List<InOrderDetailBean> inOrderDetailList) {
         InOrderSingleton.getInstance().setInOrder(inOrder);
-        InOrderSingleton.getInstance().setInOrderDetailList(inOrderDetailList);
+        if (inOrderDetailList != null) {
+            InOrderDetailSortUtil sortUtil = new InOrderDetailSortUtil(inOrderDetailList, InOrderBillActivity.this);
+            InOrderSingleton.getInstance().setInOrderDetailList(sortUtil.getFinalInOrderDetails());
+        } else {
+            InOrderSingleton.getInstance().setInOrderDetailList(null);
+        }
+
     }
 
     private void showWeight() {

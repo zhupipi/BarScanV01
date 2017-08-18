@@ -15,4 +15,8 @@ public interface GetDetailBarcodeService {
     @FormUrlEncoded
     @POST("detailBarcodeController.do?doGetDetailBarcodesforPDAbyOrderNo")
     Call<ReceivedDetailBarcodeInfo> getDetailBarcodes(@Field("orderNo") String orderNo);
+
+    @FormUrlEncoded
+    @POST("detailBarcodeController.do?doGetDetailBarcodesforPDA")
+    Call<ReceivedDetailBarcodeInfo> getDetailBarcodesById(@Field("orderId") String orderId);
 }

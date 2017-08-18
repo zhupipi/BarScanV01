@@ -3,6 +3,7 @@ package com.example.barscanv01.Unload;
 import com.example.barscanv01.Bean.DetailBarcodeBean;
 import com.example.barscanv01.Bean.InOrderBean;
 import com.example.barscanv01.Bean.InOrderDetailBean;
+import com.example.barscanv01.Bean.OutOrderBean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,13 +16,16 @@ public class InOrderSingleton {
     public InOrderBean inOrder;
     public List<InOrderDetailBean> inOrderDetailList;
     public List<DetailBarcodeBean> detailBarcodeList;
+    /*未装车完成的可以自由卸货的发货单*/
+    public OutOrderBean noDetailOutOrder;
 
     private static InOrderSingleton instance = null;
 
     private InOrderSingleton() {
-        inOrder=new InOrderBean();
-        inOrderDetailList=new ArrayList<InOrderDetailBean>();
-        detailBarcodeList=new ArrayList<DetailBarcodeBean>();
+        inOrder = new InOrderBean();
+        inOrderDetailList = new ArrayList<InOrderDetailBean>();
+        detailBarcodeList = new ArrayList<DetailBarcodeBean>();
+        noDetailOutOrder = new OutOrderBean();
     }
 
     public static InOrderSingleton getInstance() {
@@ -55,5 +59,13 @@ public class InOrderSingleton {
 
     public void setDetailBarcodeList(List<DetailBarcodeBean> detailBarcodeList) {
         this.detailBarcodeList = detailBarcodeList;
+    }
+
+    public OutOrderBean getNoDetailOutOrder() {
+        return noDetailOutOrder;
+    }
+
+    public void setNoDetailOutOrder(OutOrderBean noDetailOutOrder) {
+        this.noDetailOutOrder = noDetailOutOrder;
     }
 }
