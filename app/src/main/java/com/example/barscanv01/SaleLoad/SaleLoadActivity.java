@@ -272,46 +272,50 @@ public class SaleLoadActivity extends AppCompatActivity {
                     }
                     break;
                 case "OPERATION_CHANGE_DEPOT":
-                    if (positionList.size() > 0) {
-                        ArrayList<String> positionNames = new ArrayList<String>();
-                        for (PositionBean position : positionList) {
-                            positionNames.add(position.getPositionName());
-                        }
-                        ArrayAdapter<String> adpter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice, positionNames);
-                        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                        builder.setTitle("请选择倒垛目标库位");
-                        builder.setSingleChoiceItems(adpter, -1, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                position = positionList.get(which);
+                    if(scanResult.size() > 0) {
+                        if (positionList.size() > 0) {
+                            ArrayList<String> positionNames = new ArrayList<String>();
+                            for (PositionBean position : positionList) {
+                                positionNames.add(position.getPositionName());
                             }
-                        });
-                        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                            ScanResultFragment sresultfg = (ScanResultFragment) fragmentManager.findFragmentById(R.id.customer_load_change_fragment);
-                            ArrayList<GoodsBarcodeBean> sresult = sresultfg.getScanResultArryList();
+                            ArrayAdapter<String> adpter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice, positionNames);
+                            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                            builder.setTitle("请选择倒垛目标库位");
+                            builder.setSingleChoiceItems(adpter, -1, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    position = positionList.get(which);
+                                }
+                            });
+                            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                ScanResultFragment sresultfg = (ScanResultFragment) fragmentManager.findFragmentById(R.id.customer_load_change_fragment);
+                                ArrayList<GoodsBarcodeBean> sresult = sresultfg.getScanResultArryList();
 
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (position != null) {
-                                    if (sresult.size() > 0) {
-                                        for (GoodsBarcodeBean good1 : sresult) {
-                                            changeDepot(good1, position);
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (position != null) {
+                                        if (sresult.size() > 0) {
+                                            for (GoodsBarcodeBean good1 : sresult) {
+                                                changeDepot(good1, position);
+                                            }
                                         }
                                     }
+                                    Toast.makeText(SaleLoadActivity.this, "货品倒垛提交成功", Toast.LENGTH_SHORT).show();
+                                    sresultfg.cleanData();
+                                    finish();
                                 }
-                                Toast.makeText(SaleLoadActivity.this,"货品倒垛提交成功",Toast.LENGTH_SHORT).show();
-                                sresultfg.cleanData();
-                                finish();
-                            }
-                        });
-                        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                alertDialog.dismiss();
-                            }
-                        });
-                        alertDialog = builder.create();
-                        alertDialog.show();
+                            });
+                            builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    alertDialog.dismiss();
+                                }
+                            });
+                            alertDialog = builder.create();
+                            alertDialog.show();
+                        }
+                    }else{
+                        Toast.makeText(SaleLoadActivity.this,"没有扫描需要倒垛的货品",Toast.LENGTH_SHORT).show();
                     }
                     break;
                 default:
