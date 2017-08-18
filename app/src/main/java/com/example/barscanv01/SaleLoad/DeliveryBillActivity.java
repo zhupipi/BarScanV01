@@ -284,7 +284,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
     private void getOutOrderByNo(String billNo) {
         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
         DeliveryBillByBillNoService deliveryBillByBillNoService = retrofit.create(DeliveryBillByBillNoService.class);
-        Call<ReceivedDelivieryBillInfo> call = deliveryBillByBillNoService.getDeliveryBillbyBillN0(billNo);
+        Call<ReceivedDelivieryBillInfo> call = deliveryBillByBillNoService.getDeliveryBillbyBillN0(billNo,myApp.getCurrentAreaBean().getAreaNo());
         call.enqueue(new Callback<ReceivedDelivieryBillInfo>() {
             @Override
             public void onResponse(Call<ReceivedDelivieryBillInfo> call, Response<ReceivedDelivieryBillInfo> response) {
@@ -312,7 +312,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                             }
                         }
                     } else {
-                        Toast.makeText(DeliveryBillActivity.this, "发货单不存在", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(DeliveryBillActivity.this, "该库区不存在该发货单", Toast.LENGTH_SHORT).show();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -353,7 +353,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                         }
                     }
                 } else {
-                    Toast.makeText(DeliveryBillActivity.this, "发货单不存在", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DeliveryBillActivity.this, "该库区不存在该发货单", Toast.LENGTH_SHORT).show();
                 }
             }
 

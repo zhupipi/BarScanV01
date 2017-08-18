@@ -15,5 +15,5 @@ import retrofit2.http.POST;
 public interface DeliveryBillByBillNoService {
     @FormUrlEncoded
     @POST("outOrderController.do?getoutOrderforPDA")
-    Call<ReceivedDelivieryBillInfo> getDeliveryBillbyBillN0(@Field("outOrderNo") String outOrderNo  );
+    Call<ReceivedDelivieryBillInfo> getDeliveryBillbyBillN0(@Field("outOrderNo") String outOrderNo ,@Field("areaNo") String areaNo);
 }
