@@ -41,6 +41,8 @@ public class ReceivedUserInfo {
         private UserBean user;
         private List<DepotBean> depotlist;
 
+        private List<AreaBean> arealist;
+
         public UserBean getUser() {
             return user;
         }
@@ -49,7 +51,11 @@ public class ReceivedUserInfo {
             return depotlist;
         }
 
-        /*public static class UserBean {
+        public List<AreaBean> getArealist() {
+            return arealist;
+        }
+
+       /*public static class UserBean {
             *//**
              * officePhone :
              * mobilePhone :

@@ -17,6 +17,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.barscanv01.Bean.AreaBean;
 import com.example.barscanv01.Bean.DepotBean;
 import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
@@ -39,10 +40,12 @@ public class UserContentFragment extends Fragment {
     EditText deviceName;
     TextView deviceId;
     Button deviceNameChangedButton;
+    TextView areaName;
 
     MyApp myApp;
     ArrayList<String> sprinnerWarehouseList;
-    ArrayList<String> sprinnerAreaList;
+    List<AreaBean> areaList;
+
 
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
@@ -66,9 +69,16 @@ public class UserContentFragment extends Fragment {
         userKey.setText(myApp.getUserBean().getUserKey());
         userName = (TextView) getView().findViewById(R.id.user_content_username2);
         userName.setText(myApp.getUserBean().getUserName());
+        areaName = (TextView) getView().findViewById(R.id.user_content_area_name);
+        areaList = new ArrayList<AreaBean>();
+        getDepotandArea();
+        getDeviceInfo();
+    }
+
+    private void getDepotandArea() {
         sprinnerWarehouseList = new ArrayList<String>();
-        sprinnerAreaList = new ArrayList<String>();
         depotSpinner = (Spinner) getView().findViewById(R.id.user_content_spinner);
+        areaList = myApp.getArealist();
         //mySpinner.setPrompt("选择工作库区");
         if (myApp.getDepotlist() != null) {
             List<DepotBean> depotBeanList = myApp.getDepotlist();
@@ -83,6 +93,10 @@ public class UserContentFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 myApp.setCurrentDepot(myApp.getDepotlist().get(position));
+                if (myApp.getDepotlist().size() == areaList.size()) {
+                    myApp.setCurrentAreaBean(areaList.get(position));
+                    areaName.setText(areaList.get(position).getAreaName());
+                }
             }
 
             @Override
@@ -90,11 +104,14 @@ public class UserContentFragment extends Fragment {
 
             }
         });
+    }
+
+    private void getDeviceInfo() {
         TelephonyManager telephonyManager = (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
         final String device_id = telephonyManager.getDeviceId();
         deviceId = (TextView) getView().findViewById(R.id.device_id);
         deviceId.setText(device_id);
-        deviceName=(EditText)getView().findViewById(R.id.edit_device_name);
+        deviceName = (EditText) getView().findViewById(R.id.edit_device_name);
         String device_name = sharedPreferences.getString("device_name", "");
         if (!device_name.equals("")) {
             deviceName.setText(device_name);
@@ -105,11 +122,9 @@ public class UserContentFragment extends Fragment {
             public void onClick(View v) {
                 editor.putString("device_name", deviceName.getText().toString());
                 editor.commit();
-                Toast.makeText(getActivity(),"更改设备名称成功",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "更改设备名称成功", Toast.LENGTH_SHORT).show();
             }
         });
-
-
     }
 
     @Override

@@ -56,7 +56,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
-        myApp=(MyApp) getApplication();
+        myApp = (MyApp) getApplication();
         myApp.addActivity(this);
         loginCache = new LoginCache(LoginActivity.this);
         user_name.setText(loginCache.getIntalName());
@@ -79,7 +79,7 @@ public class LoginActivity extends AppCompatActivity {
     void login() {
         String account_name = user_name.getText().toString();
         String account_password = user_password.getText().toString();
-        Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
+        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
         LoginService loginService = retrofit.create(LoginService.class);
         Map<String, String> map = new HashMap<>();
         map.put("userName", account_name);
@@ -88,27 +88,28 @@ public class LoginActivity extends AppCompatActivity {
         call.enqueue(new Callback<ReceivedUserInfo>() {
             @Override
             public void onResponse(Call<ReceivedUserInfo> call, Response<ReceivedUserInfo> response) {
-               if(response.body().isSuccess()){
-                    if(response.body().getAttributes().getUser().getStatus()!=1) {
+                if (response.body().isSuccess()) {
+                    if (response.body().getAttributes().getUser().getStatus() != 1) {
                         loginCache.putName(response.body().getAttributes().getUser().getUserName());
                         myApp.setUserBean(response.body().getAttributes().getUser());
                         myApp.setDepotlist(response.body().getAttributes().getDepotlist());
-                        myApp.setCurrentAreaBean(new AreaBean("一号厂区","C01"));
+                        myApp.setArealist(response.body().getAttributes().getArealist());
                         Intent intent = new Intent(LoginActivity.this, OperationSelectActivity.class);
                         startActivity(intent);
-                        UpdateUserUtil updateUserUtil = new UpdateUserUtil(myApp.getUserBean(),LoginActivity.this);
+                        UpdateUserUtil updateUserUtil = new UpdateUserUtil(myApp.getUserBean(), LoginActivity.this);
                         updateUserUtil.login();
-                    }else{
-                        Toast.makeText(LoginActivity.this,"此用户在"+response.body().getAttributes().getUser().getDeviceName()+"上已经登录",Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(LoginActivity.this, "此用户在" + response.body().getAttributes().getUser().getDeviceName() + "上已经登录", Toast.LENGTH_SHORT).show();
                     }
 
-                }else{
-                    Toast.makeText(LoginActivity.this,"用户名密码错误",Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(LoginActivity.this, "用户名密码错误", Toast.LENGTH_SHORT).show();
                 }
             }
+
             @Override
             public void onFailure(Call<ReceivedUserInfo> call, Throwable t) {
-                Toast.makeText(LoginActivity.this,"服务器连接错误",Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, "服务器连接错误", Toast.LENGTH_SHORT).show();
             }
 
         });
