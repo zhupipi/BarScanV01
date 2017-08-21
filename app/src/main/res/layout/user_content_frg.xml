@@ -18,7 +18,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="45dp">
+        android:layout_height="35dp">
 
         <TextView
             android:id="@+id/user_content_userrole"
@@ -27,7 +27,7 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:text="角色："
-            android:textSize="20sp" />
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/user_content_userKey"
@@ -35,12 +35,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="2"
-            android:textSize="20sp" />
+            android:textSize="18sp" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="45dp">
+        android:layout_height="35dp">
 
         <TextView
             android:id="@+id/user_content_username1"
@@ -49,7 +49,7 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:text="登陆帐户："
-            android:textSize="20sp" />
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/user_content_username2"
@@ -57,12 +57,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="2"
-            android:textSize="20sp" />
+            android:textSize="18sp" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="45dp">
+        android:layout_height="35dp">
 
         <TextView
             android:id="@+id/user_content_warehouse"
@@ -72,7 +72,7 @@
             android:layout_weight="1"
 
             android:text="工作库位："
-            android:textSize="20sp" />
+            android:textSize="18sp" />
 
         <Spinner
             android:id="@+id/user_content_spinner"
@@ -84,7 +84,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="45dp">
+        android:layout_height="35dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -92,7 +92,7 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:text="工作场区："
-            android:textSize="20sp" />
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/user_content_area_name"
@@ -100,12 +100,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="2"
-            android:textSize="20sp" />
+            android:textSize="18sp" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="45dp"
+        android:layout_height="35dp"
         android:orientation="horizontal">
 
         <TextView
@@ -114,7 +114,7 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:text="工作天车："
-            android:textSize="20sp" />
+            android:textSize="18sp" />
 
         <Spinner
             android:id="@+id/user_travller_spinner"
@@ -132,7 +132,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="45dp"
+        android:layout_height="40dp"
         android:orientation="horizontal">
 
         <TextView
@@ -142,22 +142,20 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:text="设备名："
-            android:textSize="20sp" />
+            android:textSize="18sp" />
 
         <EditText
             android:id="@+id/edit_device_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
             android:layout_weight="2"
             android:hint="请输入设备名字"
-            android:textSize="18sp" />
+            android:textSize="14sp" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_weight="0.04"
+        android:layout_height="35dp"
         android:orientation="horizontal">
 
         <TextView
@@ -166,7 +164,7 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:text="设备ID："
-            android:textSize="20sp" />
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/device_id"

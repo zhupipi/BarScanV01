@@ -5,51 +5,66 @@ package com.example.barscanv01.Bean;
  */
 
 public class InOrderDetailBean {
+
     /**
-     * number : 7
-     * address : 江苏省南京市雨花区十字大街389号
-     * id : 402884cd5da76d07015da7989fc20013
+     * number : 0
+     * address : 辽宁省沈阳市雨花村
+     * id : 8a88808a5dff371d015dff6d31230007
      * count : 1
+     * specificationModel : 4分*1.8
+     * inOrderId : 8a88808a5dff371d015dff6d31220006
+     * createName : 管理员
+     * createBy : admin
+     * createDate : 1503228932387
+     * updateName : null
+     * updateBy : null
+     * updateDate : null
      * areaNo : C01
      * depotNo : A01
-     * customerCode : 101001
-     * customerName : 南京范氏工贸有限公司
-     * weight : 805.7056
+     * actCount : null
+     * actNumber : null
+     * remark :
+     * customerCode : 101002
+     * customerName : 天津思帝欧商贸
+     * weight : 1069.1807
      * goodsName : 结构圆镀管
-     * goodsCode : 131015130
-     * diameter : 20
-     * thickness : 1.3
-     * meterWeight : 0.5995
+     * goodsCode : 131015180
+     * diameter : 20.3
+     * thickness : 1.8
+     * meterWeight : 0.8212
      * numberCount : 217
      * actWeight : null
      * finishStatus : 0
-     * actCount : null
-     * inOrderId : 402884cd5da76d07015da7989fc20012
-     * actNumber : null
-     * specificationModel : 4分*1.3
      */
 
     private int number;
     private String address;
     private String id;
     private int count;
+    private String specificationModel;
+    private String inOrderId;
+    private String createName;
+    private String createBy;
+    private long createDate;
+    private Object updateName;
+    private Object updateBy;
+    private Object updateDate;
     private String areaNo;
     private String depotNo;
+    private int actCount;
+    private int actNumber;
+    private String remark;
     private String customerCode;
     private String customerName;
     private double weight;
     private String goodsName;
     private String goodsCode;
-    private int diameter;
+    private double diameter;
     private double thickness;
     private double meterWeight;
     private int numberCount;
     private double actWeight;
     private String finishStatus;
-    private int actCount;
-    private String inOrderId;
-    private int actNumber;
-    private String specificationModel;
 
     public int getNumber() {
         return number;
@@ -83,6 +98,70 @@ public class InOrderDetailBean {
         this.count = count;
     }
 
+    public String getSpecificationModel() {
+        return specificationModel;
+    }
+
+    public void setSpecificationModel(String specificationModel) {
+        this.specificationModel = specificationModel;
+    }
+
+    public String getInOrderId() {
+        return inOrderId;
+    }
+
+    public void setInOrderId(String inOrderId) {
+        this.inOrderId = inOrderId;
+    }
+
+    public String getCreateName() {
+        return createName;
+    }
+
+    public void setCreateName(String createName) {
+        this.createName = createName;
+    }
+
+    public String getCreateBy() {
+        return createBy;
+    }
+
+    public void setCreateBy(String createBy) {
+        this.createBy = createBy;
+    }
+
+    public long getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(long createDate) {
+        this.createDate = createDate;
+    }
+
+    public Object getUpdateName() {
+        return updateName;
+    }
+
+    public void setUpdateName(Object updateName) {
+        this.updateName = updateName;
+    }
+
+    public Object getUpdateBy() {
+        return updateBy;
+    }
+
+    public void setUpdateBy(Object updateBy) {
+        this.updateBy = updateBy;
+    }
+
+    public Object getUpdateDate() {
+        return updateDate;
+    }
+
+    public void setUpdateDate(Object updateDate) {
+        this.updateDate = updateDate;
+    }
+
     public String getAreaNo() {
         return areaNo;
     }
@@ -97,6 +176,30 @@ public class InOrderDetailBean {
 
     public void setDepotNo(String depotNo) {
         this.depotNo = depotNo;
+    }
+
+    public int getActCount() {
+        return actCount;
+    }
+
+    public void setActCount(int actCount) {
+        this.actCount = actCount;
+    }
+
+    public Object getActNumber() {
+        return actNumber;
+    }
+
+    public void setActNumber(int actNumber) {
+        this.actNumber = actNumber;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 
     public String getCustomerCode() {
@@ -139,11 +242,11 @@ public class InOrderDetailBean {
         this.goodsCode = goodsCode;
     }
 
-    public int getDiameter() {
+    public double getDiameter() {
         return diameter;
     }
 
-    public void setDiameter(int diameter) {
+    public void setDiameter(double diameter) {
         this.diameter = diameter;
     }
 
@@ -185,37 +288,5 @@ public class InOrderDetailBean {
 
     public void setFinishStatus(String finishStatus) {
         this.finishStatus = finishStatus;
-    }
-
-    public int getActCount() {
-        return actCount;
-    }
-
-    public void setActCount(int actCount) {
-        this.actCount = actCount;
-    }
-
-    public String getInOrderId() {
-        return inOrderId;
-    }
-
-    public void setInOrderId(String inOrderId) {
-        this.inOrderId = inOrderId;
-    }
-
-    public int getActNumber() {
-        return actNumber;
-    }
-
-    public void setActNumber(int actNumber) {
-        this.actNumber = actNumber;
-    }
-
-    public String getSpecificationModel() {
-        return specificationModel;
-    }
-
-    public void setSpecificationModel(String specificationModel) {
-        this.specificationModel = specificationModel;
     }
 }

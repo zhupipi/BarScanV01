@@ -25,6 +25,8 @@ import com.example.barscanv01.R;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.barscanv01.R.id.delivery_bill_nodetail_result_show;
+import static com.example.barscanv01.R.id.transition_current_scene;
 import static com.example.barscanv01.R.id.user_content_warehouse;
 
 /**
@@ -45,10 +47,10 @@ public class UserContentFragment extends Fragment {
     MyApp myApp;
     ArrayList<String> sprinnerWarehouseList;
     List<AreaBean> areaList;
-
-
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
+    SharedPreferences sharedPreferences1;
+    SharedPreferences.Editor editor1;
 
     @Nullable
     @Override
@@ -73,6 +75,16 @@ public class UserContentFragment extends Fragment {
         areaList = new ArrayList<AreaBean>();
         getDepotandArea();
         getDeviceInfo();
+        sharedPreferences1 = getActivity().getSharedPreferences("currentDepot", 0);
+        editor1 = sharedPreferences.edit();
+        initalDepot();
+    }
+
+    private void initalDepot() {
+        int id = sharedPreferences.getInt("currentId", 0);
+        if (myApp.getDepotlist().size() > 0) {
+            depotSpinner.setSelection(id);
+        }
     }
 
     private void getDepotandArea() {
@@ -96,6 +108,8 @@ public class UserContentFragment extends Fragment {
                 if (myApp.getDepotlist().size() == areaList.size()) {
                     myApp.setCurrentAreaBean(areaList.get(position));
                     areaName.setText(areaList.get(position).getAreaName());
+                    editor1.putInt("currentId", position);
+                    editor1.commit();
                 }
             }
 

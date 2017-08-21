@@ -18,8 +18,7 @@
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
             android:minHeight="?attr/actionBarSize"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-        </android.support.v7.widget.Toolbar>
+            android:theme="@style/Theme.ToolBar.MyToolbar"/>
 
         <FrameLayout
             android:id="@+id/operation_select_frame"
@@ -45,12 +44,6 @@
             android:id="@+id/user_content_frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
-            <fragment
-                android:id="@+id/user_content_fragment"
-                android:name="com.example.barscanv01.Fragment.UserContentFragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
         </FrameLayout>
 
     </LinearLayout>
