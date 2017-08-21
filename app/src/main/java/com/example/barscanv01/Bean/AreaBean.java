@@ -7,6 +7,7 @@ package com.example.barscanv01.Bean;
 public class AreaBean {
     private String areaName;
     private String areaNo;
+    private String id;
     public AreaBean(String areaName,String areaNo){
         this.areaName=areaName;
         this.areaNo=areaNo;
@@ -26,5 +27,13 @@ public class AreaBean {
 
     public void setAreaNo(String areaNo) {
         this.areaNo = areaNo;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

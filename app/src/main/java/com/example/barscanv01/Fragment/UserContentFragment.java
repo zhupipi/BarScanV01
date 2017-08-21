@@ -83,7 +83,9 @@ public class UserContentFragment extends Fragment {
     private void initalDepot() {
         int id = sharedPreferences.getInt("currentId", 0);
         if (myApp.getDepotlist().size() > 0) {
-            depotSpinner.setSelection(id);
+            if(myApp.getDepotlist().size()>id) {
+                depotSpinner.setSelection(id);
+            }
         }
     }
 

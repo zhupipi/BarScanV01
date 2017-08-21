@@ -127,7 +127,7 @@ public class TranslateActivity extends AppCompatActivity {
     private void getDepotInfo() {
         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
         GetDepotInfoByAreaService getDepotService = retrofit.create(GetDepotInfoByAreaService.class);
-        Call<ReceiveDepotByAreaInfo> call = getDepotService.getDepot("402885f45ccf0eb1015ccf0eb1800000");
+        Call<ReceiveDepotByAreaInfo> call = getDepotService.getDepot(myApp.getCurrentAreaBean().getId());
         call.enqueue(new Callback<ReceiveDepotByAreaInfo>() {
             @Override
             public void onResponse(Call<ReceiveDepotByAreaInfo> call, Response<ReceiveDepotByAreaInfo> response) {
