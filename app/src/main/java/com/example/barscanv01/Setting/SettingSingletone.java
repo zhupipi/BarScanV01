@@ -20,6 +20,8 @@ public class SettingSingletone {
     public SettingSingletone(Context context) {
         sharedPreferences = context.getSharedPreferences("add_remove_result", 0);
         mEditor = sharedPreferences.edit();
+        addResult=sharedPreferences.getBoolean("add_result",false);
+        removeResult=sharedPreferences.getBoolean("remove_result", false);
     }
 
     public static SettingSingletone getInstance(Context context) {

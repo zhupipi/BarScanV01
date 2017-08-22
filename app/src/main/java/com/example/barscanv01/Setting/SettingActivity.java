@@ -35,10 +35,10 @@ public class SettingActivity extends AppCompatActivity {
 
     private void intial() {
         if (SettingSingletone.getInstance(this).getAddResult()) {
-            addCheckBox.setSelected(true);
+            addCheckBox.setChecked(true);
         }
         if (SettingSingletone.getInstance(this).getRemoveResult()) {
-            removeCheckBox.setSelected(true);
+            removeCheckBox.setChecked(true);
         }
     }
 

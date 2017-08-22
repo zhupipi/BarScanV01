@@ -235,16 +235,23 @@ public class NoDetailUnLoadActivity extends AppCompatActivity {
 
     private boolean checkGood(GoodsBarcodeBean good) {
         boolean result = true;
-        if (good.getStatus().equals("0")) {
+        if (!good.getDepotNo().equals(myApp.getCurrentDepot().getDepotNo())) {
+            result = false;
+            Toast.makeText(NoDetailUnLoadActivity.this, "该货品已扫描", Toast.LENGTH_SHORT).show();
+        } else if (!good.getStatus().equals("1")) {
+            if (good.getStatus().equals("0")) {
+                Toast.makeText(NoDetailUnLoadActivity.this, "该货品并未装车", Toast.LENGTH_SHORT).show();
+            } else if (good.getStatus().equals("2")) {
+                Toast.makeText(NoDetailUnLoadActivity.this, "该货品已复重", Toast.LENGTH_SHORT).show();
+            } else if (good.getStatus().equals("3")) {
+                Toast.makeText(NoDetailUnLoadActivity.this, "该货品结算", Toast.LENGTH_SHORT).show();
+            }
             result = false;
             Toast.makeText(NoDetailUnLoadActivity.this, "该货品并未装车", Toast.LENGTH_SHORT).show();
         } else if (checkExist(good)) {
             result = false;
             Toast.makeText(NoDetailUnLoadActivity.this, "该货品并未在装车明细中", Toast.LENGTH_SHORT).show();
         } else if (checkGoodScaned(good)) {
-            result = false;
-            Toast.makeText(NoDetailUnLoadActivity.this, "该货品已扫描", Toast.LENGTH_SHORT).show();
-        } else if (!good.getDepotNo().equals(myApp.getCurrentDepot().getDepotNo())) {
             result = false;
             Toast.makeText(NoDetailUnLoadActivity.this, "该货品已扫描", Toast.LENGTH_SHORT).show();
         }

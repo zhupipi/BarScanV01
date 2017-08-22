@@ -25,15 +25,18 @@ import android.widget.Toast;
 
 import com.example.barscanv01.Bean.DepotBean;
 import com.example.barscanv01.Bean.GoodsBarcodeBean;
+import com.example.barscanv01.Bean.GoodsManageDetailBean;
 import com.example.barscanv01.Bean.OutOrderBean;
 import com.example.barscanv01.Bean.OutOrderDetailBean;
 import com.example.barscanv01.Bean.PositionBean;
 import com.example.barscanv01.Bean.ReceivedGoodsBarcodeInfo;
+import com.example.barscanv01.Bean.ReceivedGoodsManageInfo;
 import com.example.barscanv01.Bean.ReceivedPositionInfo;
 import com.example.barscanv01.Fragment.LoadOperationSelectFragment;
 import com.example.barscanv01.Fragment.ScanResultFragment;
 import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
+import com.example.barscanv01.ServiceAPI.GetGoodsManageDetailService;
 import com.example.barscanv01.ServiceAPI.GetPositionsByDepotService;
 import com.example.barscanv01.ServiceAPI.LoadOverByDepotService;
 import com.example.barscanv01.ServiceAPI.LoadOverService;
@@ -92,6 +95,8 @@ public class SaleLoadActivity extends AppCompatActivity {
     private List<OutOrderDetailBean> detailList;
     private DepotBean currentDepot;
 
+    private List<GoodsManageDetailBean> goodsManageDetailBeanList;
+
     /*销邦初始化设置*/
     public static final String SCN_CUST_ACTION_SCODE = "com.android.server.scannerservice.broadcast";
     public static final String SCN_CUST_EX_SCODE = "scannerdata";
@@ -107,6 +112,8 @@ public class SaleLoadActivity extends AppCompatActivity {
         intitalData();
         positionList = new ArrayList<PositionBean>();
         getPositionList();
+        goodsManageDetailBeanList=new ArrayList<GoodsManageDetailBean>();
+        getGoodsManageDetail();
         fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         LoadOperationSelectFragment loadOperationSelectFragment = new LoadOperationSelectFragment();
@@ -304,65 +311,96 @@ public class SaleLoadActivity extends AppCompatActivity {
             }
         });
     }
-    private void depotOver(){
-        AlertDialog.Builder outOrderDetailOverbuilder = new AlertDialog.Builder(SaleLoadActivity.this);
-        outOrderDetailOverbuilder.setTitle("注意");
-        outOrderDetailOverbuilder.setMessage("您确定该车辆在此库位所有货品装车完成");
-        outOrderDetailOverbuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+
+    private void getGoodsManageDetail(){
+        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+        GetGoodsManageDetailService getGoodsManageDetailService = retrofit.create(GetGoodsManageDetailService.class);
+        Call<ReceivedGoodsManageInfo> call = getGoodsManageDetailService.getGoodsManageDetail();
+        call.enqueue(new Callback<ReceivedGoodsManageInfo>() {
             @Override
-            public void onClick(final DialogInterface dialog, int which) {
-                Retrofit retrofit = new RetrofitBuildUtil().retrofit;
-                LoadOverByDepotService loadOverByDepotService = retrofit.create(LoadOverByDepotService.class);
-                Call<ResponseBody> call = loadOverByDepotService.loadedByDepot(outOrder.getId(), currentDepot.getDepotNo());
-                call.enqueue(new Callback<ResponseBody>() {
-                    @Override
-                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                        CheckOutOrederDetailFinishedUtil checkFinishedUtil = new CheckOutOrederDetailFinishedUtil(outOrder, SaleLoadActivity.this);
-                        checkFinishedUtil.checkOutOrderFinished();
-                        Toast.makeText(SaleLoadActivity.this, "该车辆在该库区装车完成", Toast.LENGTH_SHORT).show();
-                        setResult(1);
-                        finish();
-                    }
+            public void onResponse(Call<ReceivedGoodsManageInfo> call, Response<ReceivedGoodsManageInfo> response) {
+                goodsManageDetailBeanList = response.body().getAttributes().getGoodsManageDetailList();
+            }
 
-                    @Override
-                    public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-                    }
-                });
-                WriteBizlogUtil wirteBizlog = new WriteBizlogUtil(SaleLoadActivity.this);
-                wirteBizlog.writeDepotLoadFinishedLog();
-
+            @Override
+            public void onFailure(Call<ReceivedGoodsManageInfo> call, Throwable t) {
+                Toast.makeText(SaleLoadActivity.this, "获取加减货信息失败", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+
+    private void depotOver(){
+        GoodsManageUtil goodsManageUtil=new GoodsManageUtil(detailList,SaleLoadActivity.this);
+        boolean result=goodsManageUtil.getDepotRemoveResult(currentDepot,goodsManageDetailBeanList);
+        if(result) {
+            AlertDialog.Builder outOrderDetailOverbuilder = new AlertDialog.Builder(SaleLoadActivity.this);
+            outOrderDetailOverbuilder.setTitle("注意");
+            outOrderDetailOverbuilder.setMessage("您确定该车辆在此库位所有货品装车完成");
+            outOrderDetailOverbuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(final DialogInterface dialog, int which) {
+                    Retrofit retrofit = new RetrofitBuildUtil().retrofit;
+                    LoadOverByDepotService loadOverByDepotService = retrofit.create(LoadOverByDepotService.class);
+                    Call<ResponseBody> call = loadOverByDepotService.loadedByDepot(outOrder.getId(), currentDepot.getDepotNo());
+                    call.enqueue(new Callback<ResponseBody>() {
+                        @Override
+                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                            CheckOutOrederDetailFinishedUtil checkFinishedUtil = new CheckOutOrederDetailFinishedUtil(outOrder, SaleLoadActivity.this);
+                            checkFinishedUtil.checkOutOrderFinished();
+                            Toast.makeText(SaleLoadActivity.this, "该车辆在该库区装车完成", Toast.LENGTH_SHORT).show();
+                            setResult(1);
+                            finish();
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                        }
+                    });
+                    WriteBizlogUtil wirteBizlog = new WriteBizlogUtil(SaleLoadActivity.this);
+                    wirteBizlog.writeDepotLoadFinishedLog();
+
+                }
+            }).show();
+        }else{
+            showRemoveResult(goodsManageUtil.getResultCode());
+        }
+    }
+
     public void orderOver(){
-        AlertDialog.Builder outOrderOverBuild = new AlertDialog.Builder(SaleLoadActivity.this);
-        outOrderOverBuild.setTitle("注意")
-                .setMessage("您确定该发货单全部装车完成")
-                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+        GoodsManageUtil goodsManageUtil=new GoodsManageUtil(detailList,SaleLoadActivity.this);
+        boolean result=goodsManageUtil.getOrderRemoveResult(goodsManageDetailBeanList);
+        if(result) {
+            AlertDialog.Builder outOrderOverBuild = new AlertDialog.Builder(SaleLoadActivity.this);
+            outOrderOverBuild.setTitle("注意")
+                    .setMessage("您确定该发货单全部装车完成")
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
 
-                        Retrofit retrofit = new RetrofitBuildUtil().retrofit;
-                        LoadOverService loadOverService = retrofit.create(LoadOverService.class);
-                        Call<ResponseBody> call = loadOverService.loadOver(outOrder.getId());
-                        call.enqueue(new Callback<ResponseBody>() {
-                            @Override
-                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                CheckOutOrederDetailFinishedUtil checkFinished = new CheckOutOrederDetailFinishedUtil(outOrder, SaleLoadActivity.this);
-                                checkFinished.outOrderFinised();
-                            }
+                            Retrofit retrofit = new RetrofitBuildUtil().retrofit;
+                            LoadOverService loadOverService = retrofit.create(LoadOverService.class);
+                            Call<ResponseBody> call = loadOverService.loadOver(outOrder.getId());
+                            call.enqueue(new Callback<ResponseBody>() {
+                                @Override
+                                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                    CheckOutOrederDetailFinishedUtil checkFinished = new CheckOutOrederDetailFinishedUtil(outOrder, SaleLoadActivity.this);
+                                    checkFinished.outOrderFinised();
+                                }
 
-                            @Override
-                            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                @Override
+                                public void onFailure(Call<ResponseBody> call, Throwable t) {
 
-                            }
-                        });
-                        //GoodsManageUtil goodsManageUtil = new GoodsManageUtil(SaleLoadActivity.this);
-                    }
-                })
-                .show();
+                                }
+                            });
+                            //GoodsManageUtil goodsManageUtil = new GoodsManageUtil(SaleLoadActivity.this);
+                        }
+                    })
+                    .show();
+        }else {
+            showRemoveResult(goodsManageUtil.getResultCode());
+        }
     }
 
 
@@ -484,7 +522,13 @@ public class SaleLoadActivity extends AppCompatActivity {
                     break;
                 }
                 if (!good.getStatus().equals("0")) {
-                    Toast.makeText(this, "该货品已装车", Toast.LENGTH_SHORT).show();
+                    if (good.getStatus().equals("1")) {
+                        Toast.makeText(this, "该货品已装车", Toast.LENGTH_SHORT).show();
+                    } else if (good.getStatus().equals("2")) {
+                        Toast.makeText(this, "该货品已复重", Toast.LENGTH_SHORT).show();
+                    } else if (good.getStatus().equals("3")) {
+                        Toast.makeText(this, "该货品已结算", Toast.LENGTH_SHORT).show();
+                    }
                     checkresult = false;
                     break;
                 } else {
@@ -514,7 +558,13 @@ public class SaleLoadActivity extends AppCompatActivity {
 
             case "OPERATION_CHANGE_DEPOT":
                 if (!good.getStatus().equals("0")) {
-                    Toast.makeText(this, "该货品已装车", Toast.LENGTH_SHORT).show();
+                    if (good.getStatus().equals("1")) {
+                        Toast.makeText(this, "该货品已装车", Toast.LENGTH_SHORT).show();
+                    } else if (good.getStatus().equals("2")) {
+                        Toast.makeText(this, "该货品已复重", Toast.LENGTH_SHORT).show();
+                    } else if (good.getStatus().equals("3")) {
+                        Toast.makeText(this, "该货品已结算", Toast.LENGTH_SHORT).show();
+                    }
                     checkresult = false;
                     break;
                 } else {
@@ -547,6 +597,23 @@ public class SaleLoadActivity extends AppCompatActivity {
         }
         return result;
     }
+
+    private void showRemoveResult(int resultCode) {
+        switch (resultCode){
+            case GoodsManageUtil.DEPOT_LOAD_OVER_NO_PROMISE:
+                Toast.makeText(SaleLoadActivity.this,"该库区部分产品未按计划装车完成货",Toast.LENGTH_SHORT).show();
+                break;
+            case GoodsManageUtil.ORDER_LOAD_OVER_NO_PROMISE:
+                Toast.makeText(SaleLoadActivity.this,"该发货单部分产品未按计划装车完成",Toast.LENGTH_SHORT).show();
+                break;
+            case GoodsManageUtil.REMOVE_GOOD_NO_PROMISE:
+                Toast.makeText(SaleLoadActivity.this,"已设置不可减货",Toast.LENGTH_SHORT).show();
+                break;
+            default:
+                break;
+        }
+    }
+
 
     @Override
     protected void onPause() {

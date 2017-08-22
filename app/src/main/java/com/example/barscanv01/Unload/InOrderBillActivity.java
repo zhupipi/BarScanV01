@@ -1,5 +1,6 @@
 package com.example.barscanv01.Unload;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
@@ -13,6 +14,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -162,6 +164,7 @@ public class InOrderBillActivity extends AppCompatActivity {
                     });
 
                 }
+                ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(InOrderBillActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
             }
         });
 
@@ -180,9 +183,15 @@ public class InOrderBillActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 if (s.length() == 8 || s.length() == 6) {
                     if (s.length() == 8) {
+                        int id = 0;
                         String plate = s.toString();
                         String province = plate.substring(0, 2);
-                        int id = Integer.parseInt(province);
+                        try {
+                            id = Integer.parseInt(province);
+                        } catch (Exception e) {
+                            Log.e("DeliveryBill", e.getMessage().toString());
+                            Toast.makeText(InOrderBillActivity.this, "请输入正确车牌号", Toast.LENGTH_SHORT).show();
+                        }
                         if (id < 31) {
                             carPlateSpinner.setSelection(id - 1);
                             s = s.delete(0, 2);
@@ -220,6 +229,7 @@ public class InOrderBillActivity extends AppCompatActivity {
                             }
                         });
                     }
+                    ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(InOrderBillActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
                 }
             }
         });

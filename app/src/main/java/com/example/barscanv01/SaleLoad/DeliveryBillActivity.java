@@ -20,6 +20,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -153,6 +154,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                 if (s.length() == 10) {
                     String billNo = s.toString();
                     getOutOrderByNo(billNo);
+                    ((InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(DeliveryBillActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
                 }
             }
         });
@@ -188,6 +190,8 @@ public class DeliveryBillActivity extends AppCompatActivity {
                         String finalPlate = ((String) carPlateProvince.getSelectedItem()) + s.toString().trim();
                         getOutOrderbyPlate(finalPlate);
                     }
+                    ((InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(DeliveryBillActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
                 }
             }
         });

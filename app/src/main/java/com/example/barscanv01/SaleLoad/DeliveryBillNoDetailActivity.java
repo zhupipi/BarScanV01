@@ -415,7 +415,13 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
             Toast.makeText(DeliveryBillNoDetailActivity.this, "该货品不在用户管理库区", Toast.LENGTH_SHORT).show();
             result = false;
         } else if (!good.getStatus().equals("0")) {
-            Toast.makeText(DeliveryBillNoDetailActivity.this, "该货品已经装车", Toast.LENGTH_SHORT).show();
+            if (good.getStatus().equals("1")) {
+                Toast.makeText(this, "该货品已装车", Toast.LENGTH_SHORT).show();
+            } else if (good.getStatus().equals("2")) {
+                Toast.makeText(this, "该货品已复重", Toast.LENGTH_SHORT).show();
+            } else if (good.getStatus().equals("3")) {
+                Toast.makeText(this, "该货品已结算", Toast.LENGTH_SHORT).show();
+            }
             result = false;
 
         } else {

@@ -43,7 +43,9 @@ import com.nlscan.android.scan.ScanManager;
 import com.nlscan.android.scan.ScanSettings;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -78,9 +80,11 @@ public class UnLoadActivity extends AppCompatActivity {
     private List<GoodsBarcodeBean> resultList;
     private InOrderScanResultAdapter scanAdapter;
     private InOrderBean inOrder;
+    private List<InOrderDetailBean> detailList;
 
     private PositionBean position;
     private List<PositionBean> positionList;
+    private Map<String, Integer> map;
 
     /*销邦初始化设置*/
     public static final String SCN_CUST_ACTION_SCODE = "com.android.server.scannerservice.broadcast";
@@ -113,7 +117,12 @@ public class UnLoadActivity extends AppCompatActivity {
         carPlate.setText(InOrderSingleton.getInstance().getInOrder().getPlateNo());
         resultList = new ArrayList<GoodsBarcodeBean>();
         inOrder = InOrderSingleton.getInstance().getInOrder();
-        positionList=new ArrayList<PositionBean>();
+        detailList = InOrderSingleton.getInstance().getInOrderDetailList();
+        positionList = new ArrayList<PositionBean>();
+        map = new HashMap<>();
+        for (InOrderDetailBean detail : detailList) {
+            map.put(detail.getId(), detail.getActCount());
+        }
     }
 
     private void initalScanSetting() {
@@ -121,11 +130,12 @@ public class UnLoadActivity extends AppCompatActivity {
             scanManager = ScanManager.getInstance();
             scanManager.setOutpuMode(ScanSettings.Global.VALUE_OUT_PUT_MODE_BROADCAST);
         } else if (Build.BRAND.equals("SUPOIN")) {
-            LinearLayout.LayoutParams params= (LinearLayout.LayoutParams) resultShow.getLayoutParams();
-            params.height=230;
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) resultShow.getLayoutParams();
+            params.height = 230;
             resultShow.setLayoutParams(params);
         }
     }
+
     private void getPositionList() {
         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
         GetPositionsByDepotService getPositionsByDepotService = retrofit.create(GetPositionsByDepotService.class);
@@ -149,7 +159,7 @@ public class UnLoadActivity extends AppCompatActivity {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(positionList.size()>0){
+                if (positionList.size() > 0) {
                     ArrayList<String> positionNames = new ArrayList<String>();
                     for (PositionBean position : positionList) {
                         positionNames.add(position.getPositionName());
@@ -173,7 +183,7 @@ public class UnLoadActivity extends AppCompatActivity {
                                 }
                                 Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
                                 PutGoodsUnLoadService putGoodsUnLoadService = retrofit.create(PutGoodsUnLoadService.class);
-                                Call<ResponseBody> call = putGoodsUnLoadService.putGoodsUnload(inOrder.getId(), inOrder.getOutOrderNo(), ids, myApp.getUserBean().getUserName(),position.getPositionNo());
+                                Call<ResponseBody> call = putGoodsUnLoadService.putGoodsUnload(inOrder.getId(), inOrder.getOutOrderNo(), ids, myApp.getUserBean().getUserName(), position.getPositionNo());
                                 call.enqueue(new Callback<ResponseBody>() {
                                     @Override
                                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -300,21 +310,56 @@ public class UnLoadActivity extends AppCompatActivity {
     private boolean checkGood(GoodsBarcodeBean good) {
         boolean result = true;
         /*需要待确定——1*/
-        if(!good.getDepotNo().equals(myApp.getCurrentDepot().getDepotNo())){
-            result=false;
-            Toast.makeText(UnLoadActivity.this,"该货品不在用户管理的库区",Toast.LENGTH_SHORT).show();
-        }else if (!checkGoodEixted(good)) {
+        if (!good.getDepotNo().equals(myApp.getCurrentDepot().getDepotNo())) {
+            result = false;
+            Toast.makeText(UnLoadActivity.this, "该货品不在用户管理的库区", Toast.LENGTH_SHORT).show();
+        } else if (!checkGoodEixted(good)) {
             result = false;
             Toast.makeText(UnLoadActivity.this, "该货品不在发货单“" + InOrderSingleton.getInstance().getInOrder().getOutOrderNo() + "”的装车明细中", Toast.LENGTH_SHORT).show();
-        } else if (!good.getStatus().equals("1")) {
+        } else if (!good.getStatus().equals("2")) {
+            if (good.getStatus().equals("0")) {
+                Toast.makeText(UnLoadActivity.this, "该货品已卸车", Toast.LENGTH_SHORT).show();
+            } else if (good.getStatus().equals("1")) {
+                Toast.makeText(UnLoadActivity.this, "该货品已装车，但未负重", Toast.LENGTH_SHORT).show();
+            } else if (good.getStatus().equals("3")) {
+                Toast.makeText(UnLoadActivity.this, "该货品已结算", Toast.LENGTH_SHORT).show();
+            }
             result = false;
-            Toast.makeText(UnLoadActivity.this, "该货品已卸车", Toast.LENGTH_SHORT).show();
+
         } else if (!checkDetailGood(good)) {
             result = false;
             Toast.makeText(UnLoadActivity.this, "该货品不不符合卸货单明细要求", Toast.LENGTH_SHORT).show();
         } else if (getScanNum(good) + getDetailModleActNum(good) + 1 > getDetailModleNum(good)) {
             result = false;
             Toast.makeText(UnLoadActivity.this, "该货品已超出退货明细规定退货数目", Toast.LENGTH_SHORT).show();
+        } else if (!checkDetailNum(good)) {
+            result = false;
+            Toast.makeText(UnLoadActivity.this, "该货品已超出退货明细规定退货数目", Toast.LENGTH_SHORT).show();
+        }
+        return result;
+    }
+
+    private boolean checkDetailNum(GoodsBarcodeBean good) {
+        boolean result = true;
+        String customerCode = "";
+        for (DetailBarcodeBean detailBarcode : InOrderSingleton.getInstance().getDetailBarcodeList()) {
+            if (detailBarcode.getBarcode().equals(good.getBarcode())) {
+                customerCode = detailBarcode.getCustomerCode();
+                break;
+            }
+        }
+        for (InOrderDetailBean detail : InOrderSingleton.getInstance().getInOrderDetailList()) {
+            if (detail.getCustomerCode().equals(customerCode)) {
+                if (detail.getGoodsName().equals(good.getGoodsName()) && detail.getSpecificationModel().equals(good.getSpecificationModel())) {
+                    if (map.get(detail.getId()) + 1 > detail.getCount()) {
+                        result = false;
+                        break;
+                    } else {
+                        int act_count = map.get(detail.getId()) + 1;
+                        map.put(detail.getId(), act_count);
+                    }
+                }
+            }
         }
         return result;
     }
@@ -356,7 +401,7 @@ public class UnLoadActivity extends AppCompatActivity {
         for (DetailBarcodeBean detailBarcode : InOrderSingleton.getInstance().getDetailBarcodeList()) {
             if (detailBarcode.getBarcode().equals(good.getBarcode())) {
                 for (InOrderDetailBean detail : InOrderSingleton.getInstance().getInOrderDetailList()) {
-                    if (detail.getSpecificationModel().equals(good.getSpecificationModel()) && detail.getCustomerCode().equals(detail.getCustomerCode())) {
+                    if (detail.getGoodsName().equals(good.getGoodsName()) && detail.getSpecificationModel().equals(good.getSpecificationModel()) && detail.getCustomerCode().equals(detail.getCustomerCode())) {
                         result = true;
                         break;
                     }

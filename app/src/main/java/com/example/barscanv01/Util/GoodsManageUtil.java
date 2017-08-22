@@ -1,17 +1,24 @@
 package com.example.barscanv01.Util;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
+import com.example.barscanv01.Bean.DepotBean;
+import com.example.barscanv01.Bean.GoodsManageDetailBean;
 import com.example.barscanv01.Bean.OutOrderDetailBean;
 import com.example.barscanv01.Bean.ReceivedGoodsManageInfo;
+import com.example.barscanv01.MyApp;
 import com.example.barscanv01.SaleLoad.DeliveryBillSingleton;
+import com.example.barscanv01.ServiceAPI.GetGoodsManageDetailService;
 import com.example.barscanv01.ServiceAPI.GetGoodsManageService;
 import com.example.barscanv01.ServiceAPI.OutOrderDetailProcessService;
 import com.example.barscanv01.ServiceAPI.OutOrderProcessService;
+import com.example.barscanv01.Setting.SettingSingletone;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,99 +35,133 @@ import retrofit2.Retrofit;
  */
 
 public class GoodsManageUtil {
-    private Activity activity;
-    ArrayList<String> goods;
-    ArrayList<String> goodCodes;
-    String goodCode;
-    public GoodsManageUtil(Activity activity){
-        this.activity=activity;
-        goods=new ArrayList<String>();
-        goodCodes=new ArrayList<String>();
-        getGoodList();
-       // showDialog();
+
+    public static final int REMOVE_GOOD_NO_PROMISE = 0;
+    public static final int DEPOT_LOAD_OVER_NO_PROMISE = 1;
+    public static final int ORDER_LOAD_OVER_NO_PROMISE = 2;
+
+    private Context context;
+    private List<OutOrderDetailBean> outOrderDetailList;
+    //private List<GoodsManageDetailBean> goodsManageDetailBeanList;
+    private MyApp myApp;
+
+    public int resultCode;
+
+    public GoodsManageUtil(List<OutOrderDetailBean> outOrderDetailList, Context context) {
+        this.context = context;
+        this.outOrderDetailList = outOrderDetailList;
     }
-    public void getGoodList(){
-        Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
-        GetGoodsManageService getGoodsManageService=retrofit.create(GetGoodsManageService.class);
-        Call<ReceivedGoodsManageInfo> call=getGoodsManageService.getGoodList();
+
+/*    private void getGoodsManageDetail() {
+        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+        GetGoodsManageDetailService getGoodsManageDetailService = retrofit.create(GetGoodsManageDetailService.class);
+        Call<ReceivedGoodsManageInfo> call = getGoodsManageDetailService.getGoodsManageDetail();
         call.enqueue(new Callback<ReceivedGoodsManageInfo>() {
             @Override
             public void onResponse(Call<ReceivedGoodsManageInfo> call, Response<ReceivedGoodsManageInfo> response) {
-
-                if(response.body().getAttributes().getGoodsList().size()>0){
-                    for(ReceivedGoodsManageInfo.AttributesBean.GoodsListBean goodsListBean:response.body().getAttributes().getGoodsList()){
-                        goods.add(goodsListBean.getGoodsName()+","+goodsListBean.getSpecificationModel());
-                        goodCodes.add(goodsListBean.getGoodsCode());
-                    }
-                    showDialog();
-                }
-
+                goodsManageDetailBeanList = response.body().getAttributes().getGoodsManageDetailList();
             }
 
             @Override
             public void onFailure(Call<ReceivedGoodsManageInfo> call, Throwable t) {
-
+                Toast.makeText(context, "获取加减货信息失败", Toast.LENGTH_SHORT).show();
             }
         });
-    }
-    public void showDialog() {
-        if (goods.size() > 0) {
-            ArrayAdapter<String> adpter = new ArrayAdapter<String>(activity, android.R.layout.select_dialog_singlechoice, goods);
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-            builder.setTitle("请选择加减货货品");
-            builder.setSingleChoiceItems(adpter,0, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    goodCode=goodCodes.get(which);
+    }*/
+
+    public boolean getDepotRemoveResult(DepotBean currentDepot,List<GoodsManageDetailBean> goodsManageDetailBeanList) {
+        boolean result = true;
+        if (SettingSingletone.getInstance(context).getRemoveResult()) {
+            if (goodsManageDetailBeanList.size()>0) {
+                for (OutOrderDetailBean orderDetail : outOrderDetailList) {
+                    if (orderDetail.getDepotNo().equals(currentDepot.getDepotNo())) {
+                        for (GoodsManageDetailBean goodsManageDetail : goodsManageDetailBeanList) {
+                            if (!orderDetail.getGoodsCode().equals(goodsManageDetail.getGoodsCode())) {
+                                float actCount = 0;
+                                if (orderDetail.getActCount() != null) {
+                                    actCount = Float.valueOf(orderDetail.getActCount());
+                                }
+                                if (actCount < orderDetail.getCount()) {
+                                    result = false;
+                                    resultCode = DEPOT_LOAD_OVER_NO_PROMISE;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (result == false) {
+                        break;
+                    }
                 }
-            });
-            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    List<OutOrderDetailBean> detailList= DeliveryBillSingleton.getInstance().getOutOrderDetailBean();
-                    for(final OutOrderDetailBean detail:detailList){
-                        if(detail.getGoodsCode().equals(goodCode)){
-                            Retrofit retrofit= new RetrofitBuildUtil().getRetrofit();
-                            final OutOrderDetailProcessService outOrderDetailProcessService=retrofit.create(OutOrderDetailProcessService.class);
-                            Call<ResponseBody> call=outOrderDetailProcessService.recallProcess(detail.getId());
-                            call.enqueue(new Callback<ResponseBody>() {
-                                @Override
-                                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                    Retrofit retrofit1=new RetrofitBuildUtil().getRetrofit();
-                                    OutOrderProcessService outOrderProcessService=retrofit1.create(OutOrderProcessService.class);
-                                    Call<ResponseBody> responseBodyCall=outOrderProcessService.updateProcess(detail.getOutOrderId(),"4");
-                                    responseBodyCall.enqueue(new Callback<ResponseBody>() {
-                                        @Override
-                                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                            activity.setResult(1);
-                                            activity.finish();
-                                        }
-
-                                        @Override
-                                        public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-                                        }
-                                    });
-
-                                }
-
-                                @Override
-                                public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-                                }
-                            });
-
+            } else {
+                for (OutOrderDetailBean orderDetail : outOrderDetailList) {
+                    if (orderDetail.getDepotNo().equals(currentDepot.getDepotNo())) {
+                        float actCount = 0;
+                        if (orderDetail.getActCount() != null) {
+                            actCount = Float.valueOf(orderDetail.getActCount());
+                        }
+                        if (actCount < orderDetail.getCount()) {
+                            result = false;
+                            resultCode = DEPOT_LOAD_OVER_NO_PROMISE;
+                            break;
                         }
                     }
                 }
-            }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    activity.setResult(1);
-                    activity.finish();
-                }
-            }).show();
+            }
+        } else {
+            result = false;
+            resultCode = REMOVE_GOOD_NO_PROMISE;
         }
+        return result;
     }
 
+    public boolean getOrderRemoveResult(List<GoodsManageDetailBean> goodsManageDetailBeanList) {
+        boolean result = true;
+        if (SettingSingletone.getInstance(context).getRemoveResult()) {
+            if (goodsManageDetailBeanList != null) {
+                for (OutOrderDetailBean orderDetail : outOrderDetailList) {
+                    for (GoodsManageDetailBean goodsManageDetail : goodsManageDetailBeanList) {
+                        if (!orderDetail.getGoodsCode().equals(goodsManageDetail.getGoodsCode())) {
+                            float actCount = 0;
+                            if (orderDetail.getActCount() != null) {
+                                actCount = Float.valueOf(orderDetail.getActCount());
+                            }
+                            if (actCount < orderDetail.getCount()) {
+                                result = false;
+                                resultCode = ORDER_LOAD_OVER_NO_PROMISE;
+                                break;
+                            }
+                        }
+
+                    }
+                    if (!result) {
+                        break;
+                    }
+                }
+            } else {
+                for (OutOrderDetailBean orderDetail : outOrderDetailList) {
+
+                    float actCount = 0;
+                    if (orderDetail.getActCount() != null) {
+                        actCount = Float.valueOf(orderDetail.getActCount());
+                    }
+                    if (actCount < orderDetail.getCount()) {
+                        result = false;
+                        resultCode = DEPOT_LOAD_OVER_NO_PROMISE;
+                        break;
+                    }
+                }
+
+            }
+
+        } else {
+            result = false;
+            resultCode = REMOVE_GOOD_NO_PROMISE;
+        }
+        return result;
+    }
+
+    public int getResultCode() {
+        return resultCode;
+    }
 }
