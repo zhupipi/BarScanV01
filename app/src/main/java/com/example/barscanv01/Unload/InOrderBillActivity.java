@@ -146,8 +146,9 @@ public class InOrderBillActivity extends AppCompatActivity {
                                         carPlateSpinner.setSelection(carPlateUtil.getId(InOrderSingleton.getInstance().getInOrder().getPlateNo()));
                                         showDetailData();
                                         showWeight();
-                                        InOrderScanedUtil scanedUtil = new InOrderScanedUtil(InOrderSingleton.getInstance().getInOrder());
+                                        InOrderScanedUtil scanedUtil = new InOrderScanedUtil(InOrderSingleton.getInstance().getInOrder(), InOrderBillActivity.this);
                                         scanedUtil.upDateInOrder();
+                                        scanedUtil.upDateAreaInOut();
                                     }
                                 } else {
                                     Toast.makeText(InOrderBillActivity.this, "该车牌在该用户工作库区无对应退货单明细", Toast.LENGTH_SHORT).show();
@@ -162,9 +163,8 @@ public class InOrderBillActivity extends AppCompatActivity {
 
                         }
                     });
-
+                    ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(InOrderBillActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
                 }
-                ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(InOrderBillActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
             }
         });
 
@@ -211,8 +211,9 @@ public class InOrderBillActivity extends AppCompatActivity {
                                             billNo.setText(InOrderSingleton.getInstance().getInOrder().getInOrderNo() + " ");
                                             showDetailData();
                                             showWeight();
-                                            InOrderScanedUtil scanedUtil = new InOrderScanedUtil(InOrderSingleton.getInstance().getInOrder());
+                                            InOrderScanedUtil scanedUtil = new InOrderScanedUtil(InOrderSingleton.getInstance().getInOrder(), InOrderBillActivity.this);
                                             scanedUtil.upDateInOrder();
+                                            scanedUtil.upDateAreaInOut();
                                         }
                                     } else {
                                         Toast.makeText(InOrderBillActivity.this, "该车牌在该用户工作库区无对应退货单明细", Toast.LENGTH_SHORT).show();

@@ -42,17 +42,27 @@ public class GoodsManageUtil {
 
     private Context context;
     private List<OutOrderDetailBean> outOrderDetailList;
-    //private List<GoodsManageDetailBean> goodsManageDetailBeanList;
+    private List<GoodsManageDetailBean> goodsManageDetailBeanList;
     private MyApp myApp;
+    private OnResponseListener onResponseListener;
 
     public int resultCode;
+
+    public GoodsManageUtil(){
+        goodsManageDetailBeanList = new ArrayList<GoodsManageDetailBean>();
+    }
 
     public GoodsManageUtil(List<OutOrderDetailBean> outOrderDetailList, Context context) {
         this.context = context;
         this.outOrderDetailList = outOrderDetailList;
+        goodsManageDetailBeanList = new ArrayList<GoodsManageDetailBean>();
     }
 
-/*    private void getGoodsManageDetail() {
+    public void setOnResponseListener(OnResponseListener onResponseListener) {
+        this.onResponseListener = onResponseListener;
+    }
+
+    public void getGoodsManageDetail() {
         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
         GetGoodsManageDetailService getGoodsManageDetailService = retrofit.create(GetGoodsManageDetailService.class);
         Call<ReceivedGoodsManageInfo> call = getGoodsManageDetailService.getGoodsManageDetail();
@@ -60,6 +70,9 @@ public class GoodsManageUtil {
             @Override
             public void onResponse(Call<ReceivedGoodsManageInfo> call, Response<ReceivedGoodsManageInfo> response) {
                 goodsManageDetailBeanList = response.body().getAttributes().getGoodsManageDetailList();
+                if (onResponseListener != null) {
+                    onResponseListener.onResponse(goodsManageDetailBeanList);
+                }
             }
 
             @Override
@@ -67,12 +80,12 @@ public class GoodsManageUtil {
                 Toast.makeText(context, "获取加减货信息失败", Toast.LENGTH_SHORT).show();
             }
         });
-    }*/
+    }
 
-    public boolean getDepotRemoveResult(DepotBean currentDepot,List<GoodsManageDetailBean> goodsManageDetailBeanList) {
+    public boolean getDepotRemoveResult(DepotBean currentDepot, List<GoodsManageDetailBean> goodsManageDetailBeanList) {
         boolean result = true;
         if (SettingSingletone.getInstance(context).getRemoveResult()) {
-            if (goodsManageDetailBeanList.size()>0) {
+            if (goodsManageDetailBeanList.size() > 0) {
                 for (OutOrderDetailBean orderDetail : outOrderDetailList) {
                     if (orderDetail.getDepotNo().equals(currentDepot.getDepotNo())) {
                         for (GoodsManageDetailBean goodsManageDetail : goodsManageDetailBeanList) {
@@ -118,7 +131,7 @@ public class GoodsManageUtil {
     public boolean getOrderRemoveResult(List<GoodsManageDetailBean> goodsManageDetailBeanList) {
         boolean result = true;
         if (SettingSingletone.getInstance(context).getRemoveResult()) {
-            if (goodsManageDetailBeanList != null) {
+            if (goodsManageDetailBeanList.size() > 0) {
                 for (OutOrderDetailBean orderDetail : outOrderDetailList) {
                     for (GoodsManageDetailBean goodsManageDetail : goodsManageDetailBeanList) {
                         if (!orderDetail.getGoodsCode().equals(goodsManageDetail.getGoodsCode())) {
@@ -163,5 +176,9 @@ public class GoodsManageUtil {
 
     public int getResultCode() {
         return resultCode;
+    }
+
+    public interface OnResponseListener {
+        void onResponse(List<GoodsManageDetailBean> goodsManagerDetailList);
     }
 }

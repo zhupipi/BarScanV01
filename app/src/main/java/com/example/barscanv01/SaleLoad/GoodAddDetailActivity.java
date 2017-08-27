@@ -1,0 +1,123 @@
+package com.example.barscanv01.SaleLoad;
+
+import android.content.Intent;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.barscanv01.Adapter.DividerItemDecoration;
+import com.example.barscanv01.Adapter.GoodAddDetailAdapter;
+import com.example.barscanv01.Bean.GoodsManageDetailBean;
+import com.example.barscanv01.R;
+import com.example.barscanv01.Util.GoodsManageUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
+public class GoodAddDetailActivity extends AppCompatActivity {
+    @BindView(R.id.good_add_detail_outOrder_No)
+    TextView orderNo;
+    @BindView(R.id.good_add_detail_car_plate)
+    TextView carPlate;
+    @BindView(R.id.good_add_detail_weight)
+    TextView actWeight;
+    @BindView(R.id.good_add_detail_toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.good_add_detail_confrim)
+    Button confrimButton;
+    @BindView(R.id.good_add_detail_cancel)
+    Button cancelButton;
+    @BindView(R.id.good_add_detail_result_view)
+    RecyclerView resultView;
+
+    List<GoodsManageDetailBean> mGoodsManageDetailList;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_good_add_detail);
+        ButterKnife.bind(this);
+        initalData();
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("加货信息确认");
+        getGoodsManageList();
+        mGoodsManageDetailList = new ArrayList<GoodsManageDetailBean>();
+        getGoodsManageList();
+        resultView.setLayoutManager(new LinearLayoutManager(this));
+        resultView.setItemAnimator(new DefaultItemAnimator());
+        resultView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
+        setListener();
+    }
+
+    private void setListener() {
+        confrimButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mGoodsManageDetailList.size()>0) {
+                    Intent intent = new Intent(GoodAddDetailActivity.this, GoodAddLoadActivity.class);
+                    intent.putExtra("act_weight", Double.valueOf(actWeight.getText().toString().trim()));
+                    startActivity(intent);
+                }else {
+                    Toast.makeText(GoodAddDetailActivity.this,"现在无加货货品",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DeliveryBillSingleton.getInstance().setGoodsManageDetailList(null);
+                GoodAddDetailActivity.this.finish();
+            }
+        });
+    }
+
+    private void initalData() {
+        Intent intent = getIntent();
+        actWeight.setText(String.valueOf(intent.getExtras().getDouble("act_weight")));
+        orderNo.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getOutOrderNo());
+        carPlate.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo());
+    }
+
+    private void getGoodsManageList() {
+        GoodsManageUtil goodsManageUtil = new GoodsManageUtil();
+        goodsManageUtil.getGoodsManageDetail();
+        goodsManageUtil.setOnResponseListener(new GoodsManageUtil.OnResponseListener() {
+            @Override
+            public void onResponse(List<GoodsManageDetailBean> goodsManagerDetailList) {
+                mGoodsManageDetailList = goodsManagerDetailList;
+                DeliveryBillSingleton.getInstance().setGoodsManageDetailList(mGoodsManageDetailList);
+                showDetail(mGoodsManageDetailList);
+                if (mGoodsManageDetailList.size() == 0) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(GoodAddDetailActivity.this);
+                    builder.setTitle("注意")
+                            .setMessage("现在无加货货品")
+                            .setPositiveButton("确定", null)
+                            .show();
+                }
+            }
+        });
+    }
+
+    private void showDetail(List<GoodsManageDetailBean> mGoodsManageDetailList) {
+        GoodAddDetailAdapter adapter = new GoodAddDetailAdapter(GoodAddDetailActivity.this, mGoodsManageDetailList);
+        resultView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onBackPressed() {
+        DeliveryBillSingleton.getInstance().setGoodsManageDetailList(null);
+        this.finish();
+    }
+}

@@ -32,10 +32,12 @@ import android.widget.Toast;
 import com.example.barscanv01.Adapter.DividerItemDecoration;
 import com.example.barscanv01.Adapter.LoadedResultAdapter;
 import com.example.barscanv01.Adapter.OutOrderDetailAdapter;
+import com.example.barscanv01.Bean.DetailBarcodeBean;
 import com.example.barscanv01.Bean.GoodsBarcodeBean;
 import com.example.barscanv01.Bean.OutOrderBean;
 import com.example.barscanv01.Bean.OutOrderDetailBean;
 import com.example.barscanv01.Bean.ReceivedDelivieryBillInfo;
+import com.example.barscanv01.Bean.ReceivedDetailBarcodeInfo;
 import com.example.barscanv01.Bean.ReceivedDetailTotalWeightBean;
 import com.example.barscanv01.Bean.ReceivedLoadGoodsBarcodeInfo;
 import com.example.barscanv01.MyApp;
@@ -43,8 +45,10 @@ import com.example.barscanv01.R;
 import com.example.barscanv01.ServiceAPI.DeliveryBillByBillNoService;
 import com.example.barscanv01.ServiceAPI.DeliveryBillById;
 import com.example.barscanv01.ServiceAPI.DeliveryBillByPlateService;
+import com.example.barscanv01.ServiceAPI.GetDetailBarcodeService;
 import com.example.barscanv01.ServiceAPI.GetLoadGoodsBarcodeService;
 import com.example.barscanv01.ServiceAPI.GetOrderDetailWeightService;
+import com.example.barscanv01.Setting.SettingSingletone;
 import com.example.barscanv01.TitleChangeFragment.OrderDetailTitleFragment;
 import com.example.barscanv01.TitleChangeFragment.OrderNoDetailTitleFragment;
 import com.example.barscanv01.Util.CarPlateUtil;
@@ -154,7 +158,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                 if (s.length() == 10) {
                     String billNo = s.toString();
                     getOutOrderByNo(billNo);
-                    ((InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(DeliveryBillActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                    ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(DeliveryBillActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
                 }
             }
         });
@@ -190,7 +194,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                         String finalPlate = ((String) carPlateProvince.getSelectedItem()) + s.toString().trim();
                         getOutOrderbyPlate(finalPlate);
                     }
-                    ((InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(DeliveryBillActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                    ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(DeliveryBillActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
                 }
             }
@@ -210,7 +214,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                         public void onResponse(Call<ReceivedDelivieryBillInfo> call, Response<ReceivedDelivieryBillInfo> response) {
                             manageOutOrder(response.body().getAttributes().getOutOrder(), response.body().getAttributes().getOutOrderDetailList());
                             showDetail();
-                            showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean());
+                            showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean(), response.body().getAttributes().getOutOrder().getId());
                         }
 
                         @Override
@@ -266,8 +270,24 @@ public class DeliveryBillActivity extends AppCompatActivity {
                                         }
                                     }).show();
                         }
-                    } else {
-                        Toast.makeText(DeliveryBillActivity.this, "该发货单已经完成装车", Toast.LENGTH_SHORT).show();
+                    } else if (DeliveryBillSingleton.getInstance().getOutOrderBean().getProcess().equals("5")) {
+                        if (SettingSingletone.getInstance(DeliveryBillActivity.this).getAddResult()) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(DeliveryBillActivity.this);
+                            builder.setTitle("注意")
+                                    .setMessage("该发货单已经装车完成，是否需要根据加货明细进行加货")
+                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            Intent intent = new Intent(DeliveryBillActivity.this, GoodAddDetailActivity.class);
+                                            intent.putExtra("act_weight",Double.valueOf(ActWeight.getText().toString().trim()));
+                                            startActivity(intent);
+                                        }
+                                    })
+                                    .setNegativeButton("取消", null)
+                                    .show();
+                        } else {
+                            Toast.makeText(DeliveryBillActivity.this, "该发货单已经完成装车", Toast.LENGTH_SHORT).show();
+                        }
                     }
 
                 } else {
@@ -288,7 +308,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
     private void getOutOrderByNo(String billNo) {
         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
         DeliveryBillByBillNoService deliveryBillByBillNoService = retrofit.create(DeliveryBillByBillNoService.class);
-        Call<ReceivedDelivieryBillInfo> call = deliveryBillByBillNoService.getDeliveryBillbyBillN0(billNo,myApp.getCurrentAreaBean().getAreaNo());
+        Call<ReceivedDelivieryBillInfo> call = deliveryBillByBillNoService.getDeliveryBillbyBillN0(billNo, myApp.getCurrentAreaBean().getAreaNo());
         call.enqueue(new Callback<ReceivedDelivieryBillInfo>() {
             @Override
             public void onResponse(Call<ReceivedDelivieryBillInfo> call, Response<ReceivedDelivieryBillInfo> response) {
@@ -303,7 +323,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                             } else {
                                 showDetail();
                             }
-                            showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean());
+                            showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean(), DeliveryBillSingleton.getInstance().getOutOrderBean().getId());
                             OutOrderScanedUtil orderScanedUtil = new OutOrderScanedUtil(response.body().getAttributes().getOutOrder(), DeliveryBillActivity.this);
                             orderScanedUtil.updateOutOrderProcess();
                             orderScanedUtil.updateAreaInOut();
@@ -342,7 +362,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                     if (checkOutOrderProcess(response.body().getAttributes().getOutOrder())) {
                         manageOutOrder(response.body().getAttributes().getOutOrder(), response.body().getAttributes().getOutOrderDetailList());
                         billNumber.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getOutOrderNo() + " ");
-                        showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean());
+                        showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean(), DeliveryBillSingleton.getInstance().getOutOrderBean().getId());
                         if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean() == null) {
                             showNoDetail();
                         } else {
@@ -428,38 +448,38 @@ public class DeliveryBillActivity extends AppCompatActivity {
         }
     }
 
-    public void showOutOrderWeight(List<OutOrderDetailBean> outOrderDetailList) {
+    public void showOutOrderWeight(List<OutOrderDetailBean> outOrderDetailList, String id) {
         if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean() != null) {
             float totalWeight = 0;
-            float totalActWeight = 0;
             for (OutOrderDetailBean detail : outOrderDetailList) {
                 totalWeight = totalWeight + detail.getWeight();
-                if (detail.getActWeight() == null) {
-                    totalActWeight = totalActWeight + 0;
-                } else {
-                    totalActWeight = totalActWeight + Float.valueOf(detail.getActWeight());
-                }
             }
             weight.setText(totalWeight + "");
-            ActWeight.setText(totalActWeight + "");
-        } else {
-            Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
-            GetOrderDetailWeightService getWeightService = retrofit.create(GetOrderDetailWeightService.class);
-            Call<ReceivedDetailTotalWeightBean> call = getWeightService.getTotalWeight(DeliveryBillSingleton.getInstance().getOutOrderBean().getId());
-            call.enqueue(new Callback<ReceivedDetailTotalWeightBean>() {
-                @Override
-                public void onResponse(Call<ReceivedDetailTotalWeightBean> call, Response<ReceivedDetailTotalWeightBean> response) {
-                    float totalWeight = response.body().getAttributes().getTotalWeight();
-                    ActWeight.setText(String.valueOf(totalWeight));
-
-                }
-
-                @Override
-                public void onFailure(Call<ReceivedDetailTotalWeightBean> call, Throwable t) {
-                    ActWeight.setText("0.0");
-                }
-            });
         }
+        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+        GetDetailBarcodeService getDetailBarcodeService = retrofit.create(GetDetailBarcodeService.class);
+        Call<ReceivedDetailBarcodeInfo> call = getDetailBarcodeService.getDetailBarcodesById(id);
+        call.enqueue(new Callback<ReceivedDetailBarcodeInfo>() {
+            @Override
+            public void onResponse(Call<ReceivedDetailBarcodeInfo> call, Response<ReceivedDetailBarcodeInfo> response) {
+                List<DetailBarcodeBean> detailBarcodeList = new ArrayList<DetailBarcodeBean>();
+                detailBarcodeList = response.body().getAttributes().getDetailBarcodeEntityList();
+                if (detailBarcodeList.size() == 0) {
+                    ActWeight.setText("0.0");
+                } else {
+                    double act_weight = 0;
+                    for (DetailBarcodeBean detailBarcode : detailBarcodeList) {
+                        act_weight = act_weight + detailBarcode.getWeight();
+                    }
+                    ActWeight.setText(String.valueOf(act_weight));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReceivedDetailBarcodeInfo> call, Throwable t) {
+
+            }
+        });
     }
 
     public boolean checkDepotFinished(List<OutOrderDetailBean> outOrderDetailList) {
@@ -511,7 +531,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                 public void onResponse(Call<ReceivedDelivieryBillInfo> call, Response<ReceivedDelivieryBillInfo> response) {
                     manageOutOrder(response.body().getAttributes().getOutOrder(), response.body().getAttributes().getOutOrderDetailList());
                     showDetail();
-                    showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean());
+                    showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean(), DeliveryBillSingleton.getInstance().getOutOrderBean().getId());
                 }
 
                 @Override

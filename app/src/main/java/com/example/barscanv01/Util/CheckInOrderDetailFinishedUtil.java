@@ -50,6 +50,7 @@ public class CheckInOrderDetailFinishedUtil {
                     });
 
                 }
+                AreaInOutUpdateUtil areaInOutUpdateUtil=new AreaInOutUpdateUtil(inOrder.getPlateNo(),"6",inOrder.getDepotNo(),inOrder.getAreaNo());
             }
 
             @Override

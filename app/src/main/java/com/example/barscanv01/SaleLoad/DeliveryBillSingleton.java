@@ -1,5 +1,6 @@
 package com.example.barscanv01.SaleLoad;
 
+import com.example.barscanv01.Bean.GoodsManageDetailBean;
 import com.example.barscanv01.Bean.OutOrderBean;
 import com.example.barscanv01.Bean.OutOrderDetailBean;
 
@@ -32,11 +33,14 @@ public class DeliveryBillSingleton {
 
     public List<OutOrderDetailBean> outOrderDetailBean;
 
+    public List<GoodsManageDetailBean> goodsManageDetailList;
+
     private static DeliveryBillSingleton instance = null;
 
     private DeliveryBillSingleton(){
         outOrderBean=new OutOrderBean();
         outOrderDetailBean=new ArrayList<OutOrderDetailBean>();
+        goodsManageDetailList=new ArrayList<GoodsManageDetailBean>();
     }
 
     public static DeliveryBillSingleton getInstance() {
@@ -47,5 +51,13 @@ public class DeliveryBillSingleton {
         }
 
         return instance;
+    }
+
+    public List<GoodsManageDetailBean> getGoodsManageDetailList() {
+        return goodsManageDetailList;
+    }
+
+    public void setGoodsManageDetailList(List<GoodsManageDetailBean> goodsManageDetailList) {
+        this.goodsManageDetailList = goodsManageDetailList;
     }
 }

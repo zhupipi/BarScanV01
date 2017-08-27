@@ -86,7 +86,6 @@ public class SaleLoadActivity extends AppCompatActivity {
 
     private FragmentManager fragmentManager;
     private MyApp myApp;
-    private ScanManager scanManager;
     private List<PositionBean> positionList;
     private PositionBean position;
 

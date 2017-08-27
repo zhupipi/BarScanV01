@@ -315,7 +315,7 @@ public class UnLoadActivity extends AppCompatActivity {
             Toast.makeText(UnLoadActivity.this, "该货品不在用户管理的库区", Toast.LENGTH_SHORT).show();
         } else if (!checkGoodEixted(good)) {
             result = false;
-            Toast.makeText(UnLoadActivity.this, "该货品不在发货单“" + InOrderSingleton.getInstance().getInOrder().getOutOrderNo() + "”的装车明细中", Toast.LENGTH_SHORT).show();
+            Toast.makeText(UnLoadActivity.this, "该货品已扫", Toast.LENGTH_SHORT).show();
         } else if (!good.getStatus().equals("2")) {
             if (good.getStatus().equals("0")) {
                 Toast.makeText(UnLoadActivity.this, "该货品已卸车", Toast.LENGTH_SHORT).show();
@@ -413,11 +413,10 @@ public class UnLoadActivity extends AppCompatActivity {
     }
 
     private boolean checkGoodEixted(GoodsBarcodeBean good) {
-        boolean result = false;
-        for (DetailBarcodeBean detailBarcode : InOrderSingleton.getInstance().getDetailBarcodeList()) {
-            Log.e("fffff", detailBarcode.getBarcode());
-            if (detailBarcode.getBarcode().equals(good.getBarcode())) {
-                result = true;
+        boolean result = true;
+        for (GoodsBarcodeBean goodsBarcode : resultList) {
+            if (goodsBarcode.getBarcode().equals(good.getBarcode())) {
+                result = false;
                 break;
             }
         }
