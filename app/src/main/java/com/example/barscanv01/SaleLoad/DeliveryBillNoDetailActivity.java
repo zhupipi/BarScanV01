@@ -75,8 +75,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
     Button confrim;
     @BindView(R.id.delivery_bill_nodetail_cancel)
     Button cancel;
-    @BindView(R.id.delivery_bill_nodetail_result_show)
-    LinearLayout resultShow;
+
 
     private FragmentManager fragmentManager;
     private MyApp myApp;
@@ -100,7 +99,6 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("扫码装车/倒垛");
         myApp = (MyApp) getApplication();
-        initalScanSetting();
         initalData();
         positionList = new ArrayList<PositionBean>();
         getPositionList();
@@ -123,7 +121,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 int id = item.getItemId();
                 if (id == R.id.delivery_bill_nodetail_loadover) {
-                    AlertDialog.Builder builder=new AlertDialog.Builder(DeliveryBillNoDetailActivity.this);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(DeliveryBillNoDetailActivity.this);
                     builder.setTitle("注意")
                             .setMessage("您确定该发货单全部装车完成")
                             .setPositiveButton("确定", new DialogInterface.OnClickListener() {
@@ -138,6 +136,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
                                             CheckOutOrederDetailFinishedUtil checkFinished = new CheckOutOrederDetailFinishedUtil(outOrder, DeliveryBillNoDetailActivity.this);
                                             checkFinished.outOrderFinised();
                                         }
+
                                         @Override
                                         public void onFailure(Call<ResponseBody> call, Throwable t) {
 
@@ -161,20 +160,10 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
         outOrder = DeliveryBillSingleton.getInstance().getOutOrderBean();
         billNo.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getOutOrderNo());
         plateNo.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo());
-        userDepot=myApp.getCurrentDepot();
-        userArea=myApp.getCurrentAreaBean();
-        user=myApp.getUserBean();
+        userDepot = myApp.getCurrentDepot();
+        userArea = myApp.getCurrentAreaBean();
+        user = myApp.getUserBean();
         showWeight();
-    }
-    private void initalScanSetting() {
-        if(myApp.getDeviceBrand().equals("NEWLAND")){
-            scanManager = ScanManager.getInstance();
-            scanManager.setOutpuMode(ScanSettings.Global.VALUE_OUT_PUT_MODE_BROADCAST);
-        }else if(myApp.getDeviceBrand().equals("SUPOIN")){
-            LinearLayout.LayoutParams params= (LinearLayout.LayoutParams) resultShow.getLayoutParams();
-            params.height=280;
-            resultShow.setLayoutParams(params);
-        }
     }
 
     private void showWeight() {
@@ -231,13 +220,13 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
                 }
                 break;
             case "OPERATION_CHANGE_DEPOT":
-                if(positionList.size()>0){
-                    ArrayList<String> positionNames=new ArrayList<String>();
-                    for(PositionBean position:positionList){
+                if (positionList.size() > 0) {
+                    ArrayList<String> positionNames = new ArrayList<String>();
+                    for (PositionBean position : positionList) {
                         positionNames.add(position.getPositionName());
                     }
                     ArrayAdapter<String> adpter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice, positionNames);
-                    AlertDialog.Builder builder=new AlertDialog.Builder(this);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle("请选择倒垛目标库位");
                     builder.setSingleChoiceItems(adpter, -1, new DialogInterface.OnClickListener() {
                         @Override
@@ -246,15 +235,15 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
                         }
                     });
                     builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                        ScanResultFragment scanResult= (ScanResultFragment) fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change);
-                        ArrayList<GoodsBarcodeBean> result=scanResult.getScanResultArryList();
+                        ScanResultFragment scanResult = (ScanResultFragment) fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change);
+                        ArrayList<GoodsBarcodeBean> result = scanResult.getScanResultArryList();
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            if(position!=null){
-                                if(result.size()>0){
-                                    for(GoodsBarcodeBean goodsBarcode:result){
-                                        changePosition(goodsBarcode,position);
+                            if (position != null) {
+                                if (result.size() > 0) {
+                                    for (GoodsBarcodeBean goodsBarcode : result) {
+                                        changePosition(goodsBarcode, position);
                                     }
                                 }
                             }
@@ -293,7 +282,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
         call.enqueue(new Callback<ReceivedPositionInfo>() {
             @Override
             public void onResponse(Call<ReceivedPositionInfo> call, Response<ReceivedPositionInfo> response) {
-                positionList=response.body().getAttributes().getPositionList();
+                positionList = response.body().getAttributes().getPositionList();
             }
 
             @Override
@@ -304,56 +293,16 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
     }
 
     private void registerReceiver() {
-        if(myApp.getDeviceBrand().equals("NEWLAND")) {
-            IntentFilter intFilter = new IntentFilter(ScanManager.ACTION_SEND_SCAN_RESULT);
-            registerReceiver(mResultReceiver, intFilter);
-        }else if(myApp.getDeviceBrand().equals("SUPOIN")){
-            IntentFilter inFilter=new IntentFilter(SCN_CUST_ACTION_SCODE);
-            registerReceiver(mSamDataReceiver,inFilter);
-        }
+        IntentFilter inFilter = new IntentFilter(SCN_CUST_ACTION_SCODE);
+        registerReceiver(mSamDataReceiver, inFilter);
     }
 
     private void unRegisterReceiver() {
         try {
-            if (myApp.getDeviceBrand().equals("NEWLAND")) {
-                unregisterReceiver(mResultReceiver);
-            } else if (myApp.getDeviceBrand().equals("SUPOIN")) {
-                unregisterReceiver(mSamDataReceiver);
-            }
+            unregisterReceiver(mSamDataReceiver);
         } catch (Exception e) {
         }
     }
-
-    private BroadcastReceiver mResultReceiver=new BroadcastReceiver(){
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (ScanManager.ACTION_SEND_SCAN_RESULT.equals(action)) {
-                byte[] bvalue1 = intent.getByteArrayExtra(ScanManager.EXTRA_SCAN_RESULT_ONE_BYTES);
-                byte[] bvalue2 = intent.getByteArrayExtra(ScanManager.EXTRA_SCAN_RESULT_TWO_BYTES);
-                String svalue1 = null;
-                String svalue2 = null;
-                try {
-                    if (bvalue1 != null)
-                        svalue1 = new String(bvalue1, "GBK");
-                    if (bvalue2 != null)
-                        svalue2 = new String(bvalue1, "GBK");
-                    svalue1 = svalue1 == null ? "" : svalue1;
-                    svalue2 = svalue2 == null ? "" : svalue2;
-                    String result = svalue1 + svalue2;
-                    if (!fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change).getTag().equals("OPERATION_SELECT")) {
-                       getScanResult(result);
-                    }else{
-                        Toast.makeText(DeliveryBillNoDetailActivity.this,"请选择装车或扫码操作",Toast.LENGTH_SHORT).show();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(DeliveryBillNoDetailActivity.this, "扫码失败", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
-    };
 
     private BroadcastReceiver mSamDataReceiver = new BroadcastReceiver() {
         @Override
@@ -364,8 +313,8 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
                     message = intent.getStringExtra(SCN_CUST_EX_SCODE).toString().trim();
                     if (!fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change).getTag().equals("OPERATION_SELECT")) {
                         getScanResult(message);
-                    }else{
-                        Toast.makeText(DeliveryBillNoDetailActivity.this,"请选择装车或扫码操作",Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(DeliveryBillNoDetailActivity.this, "请选择装车或扫码操作", Toast.LENGTH_SHORT).show();
                     }
 
                 } catch (Exception e) {
@@ -378,24 +327,24 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
     };
 
     private void getScanResult(String result) {
-        Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
-        ScanBarcodeResultService scanResultService=retrofit.create(ScanBarcodeResultService.class);
-        Call<ReceivedGoodsBarcodeInfo> call=scanResultService.getGoodsBarcode(result);
+        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+        ScanBarcodeResultService scanResultService = retrofit.create(ScanBarcodeResultService.class);
+        Call<ReceivedGoodsBarcodeInfo> call = scanResultService.getGoodsBarcode(result);
         call.enqueue(new Callback<ReceivedGoodsBarcodeInfo>() {
             @Override
             public void onResponse(Call<ReceivedGoodsBarcodeInfo> call, Response<ReceivedGoodsBarcodeInfo> response) {
-                GoodsBarcodeBean good=response.body().getAttributes().getGoodsBarcode();
-                if(good!=null){
-                    ScanResultFragment result= (ScanResultFragment) fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change);
-                    if(checkResult(good)){
+                GoodsBarcodeBean good = response.body().getAttributes().getGoodsBarcode();
+                if (good != null) {
+                    ScanResultFragment result = (ScanResultFragment) fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change);
+                    if (checkResult(good)) {
                         result.addData(good);
-                        if(result.getTag().equals("OPERATION_LOAD_CAR")){
-                            float act_weight=Float.valueOf(actWeight.getText().toString().trim())+Float.valueOf(good.getActWeight());
+                        if (result.getTag().equals("OPERATION_LOAD_CAR")) {
+                            float act_weight = Float.valueOf(actWeight.getText().toString().trim()) + Float.valueOf(good.getActWeight());
                             actWeight.setText(String.valueOf(act_weight));
                         }
                     }
-                }else{
-                    Toast.makeText(DeliveryBillNoDetailActivity.this,"该条码不存在对应的货品",Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(DeliveryBillNoDetailActivity.this, "该条码不存在对应的货品", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -445,7 +394,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.delivery_no_detail_select,menu);
+        inflater.inflate(R.menu.delivery_no_detail_select, menu);
         return super.onCreateOptionsMenu(menu);
     }
 

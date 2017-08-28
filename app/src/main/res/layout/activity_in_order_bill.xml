@@ -9,7 +9,7 @@
     <android.support.v7.widget.Toolbar
         android:id="@+id/inorder_bill_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:background="@color/colorPrimary"
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/Theme.ToolBar.MyToolbar"></android.support.v7.widget.Toolbar>
@@ -27,8 +27,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:paddingTop="10dp">
+            android:paddingRight="5dp">
 
             <TextView
                 android:layout_width="0dp"
@@ -54,8 +53,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:paddingTop="5dp">
+            android:paddingRight="5dp">
 
             <TextView
                 android:layout_width="0dp"
@@ -88,7 +86,6 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
             android:layout_marginLeft="5dp"
-            android:layout_marginTop="5dp"
             android:orientation="horizontal">
 
             <TextView
@@ -190,24 +187,12 @@
         android:layout_height="wrap_content"
         app:srcCompat="@drawable/divider" />
 
-    <LinearLayout
-        android:id="@+id/in_order_bill_result_show"
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/inorder_detial"
         android:layout_width="match_parent"
-        android:layout_height="250dp">
+        android:layout_height="185dp" />
 
-        <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/inorder_swipe_refresh"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/inorder_detial"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-        </android.support.v4.widget.SwipeRefreshLayout>
-    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

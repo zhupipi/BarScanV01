@@ -25,7 +25,7 @@ import com.example.barscanv01.R;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.barscanv01.R.id.delivery_bill_nodetail_result_show;
+
 import static com.example.barscanv01.R.id.transition_current_scene;
 import static com.example.barscanv01.R.id.user_content_warehouse;
 

@@ -90,16 +90,11 @@
         android:layout_height="1dp"
         app:srcCompat="@drawable/divider" />
 
-    <LinearLayout
-        android:id="@+id/delivery_bill_nodetail_result_show"
-        android:layout_width="match_parent"
-        android:layout_height="320dp">
-
         <FrameLayout
             android:id="@+id/delivery_bill_nodetail_frag_change"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </LinearLayout>
+            android:layout_height="230dp" />
+
 
     <LinearLayout
         android:layout_width="match_parent"

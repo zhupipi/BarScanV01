@@ -91,9 +91,6 @@ public class DeliveryBillActivity extends AppCompatActivity {
     Button confirmButton;
     @BindView(R.id.delivery_bill_cancel_button)
     Button cancelButton;
-    @BindView(R.id.delivery_bill_result_show)
-    LinearLayout resultShowLayout;
-
 
     private CarPlateUtil carPlateUtil;
     ScanManager scanManager;
@@ -115,7 +112,6 @@ public class DeliveryBillActivity extends AppCompatActivity {
         myApp = (MyApp) getApplication();
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("发货通知单信息");
-        initalScanSetting();
         loadGoodsResult = new ArrayList<GoodsBarcodeBean>();
         carPlateUtil = new CarPlateUtil();
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, carPlateUtil.getProvinces());
@@ -127,18 +123,6 @@ public class DeliveryBillActivity extends AppCompatActivity {
         outOrderDetialView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         outOrderDetialView.setItemAnimator(new DefaultItemAnimator());
         setListener();
-    }
-
-    public void initalScanSetting() {
-        if (myApp.getDeviceBrand().equals("NEWLAND")) {
-            scanManager = ScanManager.getInstance();
-            scanManager.setOutpuMode(ScanSettings.Global.VALUE_OUT_PUT_MODE_FILLING);
-            scanManager.enableBeep();
-        } else if (myApp.getDeviceBrand().equals("SUPOIN")) {
-            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) resultShowLayout.getLayoutParams();
-            params.height = 200;
-            resultShowLayout.setLayoutParams(params);
-        }
     }
 
     private void setListener() {
@@ -203,7 +187,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 mySwipe.setRefreshing(true);
-                if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean() != null) {
+                if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean().size() > 0) {
                     String id = DeliveryBillSingleton.getInstance().getOutOrderBean().getId();
                     Log.e("aaaa", "开始了");
                     Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
@@ -231,10 +215,8 @@ public class DeliveryBillActivity extends AppCompatActivity {
                         public void onResponse(Call<ReceivedLoadGoodsBarcodeInfo> call, Response<ReceivedLoadGoodsBarcodeInfo> response) {
                             loadGoodsResult = response.body().getAttributes().getGoodsBarcodeEndtityList();
                             Log.d("ffff", response.toString());
-                            if (loadGoodsResult.size() > 0) {
-                                showLoadedGoods(loadGoodsResult);
-                                showLoadedGoodsWeight(loadGoodsResult);
-                            }
+                            showLoadedGoods(loadGoodsResult);
+                            showLoadedGoodsWeight(loadGoodsResult);
                         }
 
                         @Override
@@ -251,7 +233,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (DeliveryBillSingleton.getInstance().getOutOrderBean() != null && DeliveryBillSingleton.getInstance().getOutOrderBean().getId() != null) {
                     if (DeliveryBillSingleton.getInstance().getOutOrderBean().getProcess().equals("4") || DeliveryBillSingleton.getInstance().getOutOrderBean().getProcess().equals("3")) {
-                        if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean() != null) {
+                        if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean().size() > 0) {
                             if (!checkDepotFinished(DeliveryBillSingleton.getInstance().getOutOrderDetailBean())) {
                                 Intent intent = new Intent(DeliveryBillActivity.this, SaleLoadActivity.class);
                                 startActivityForResult(intent, 1);
@@ -279,7 +261,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
                                             Intent intent = new Intent(DeliveryBillActivity.this, GoodAddDetailActivity.class);
-                                            intent.putExtra("act_weight",Double.valueOf(ActWeight.getText().toString().trim()));
+                                            intent.putExtra("act_weight", Double.valueOf(ActWeight.getText().toString().trim()));
                                             startActivity(intent);
                                         }
                                     })
@@ -318,7 +300,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                             manageOutOrder(response.body().getAttributes().getOutOrder(), response.body().getAttributes().getOutOrderDetailList());
                             carPlate.setText(carPlateUtil.getplateNum(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo()) + " ");
                             carPlateProvince.setSelection(carPlateUtil.getId(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo()));
-                            if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean() == null) {
+                            if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean().size() == 0) {
                                 showNoDetail();
                             } else {
                                 showDetail();
@@ -330,9 +312,6 @@ public class DeliveryBillActivity extends AppCompatActivity {
                             if (response.body().getAttributes().getOutOrder().getProcess().equals("3") && response.body().getAttributes().getOutOrder().getProcess().equals("4")) {
                                 WriteBizlogUtil writeBizlog = new WriteBizlogUtil(DeliveryBillActivity.this);
                                 writeBizlog.writeLoadStartedLog();
-                            }
-                            if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean() == null) {
-                                showNoDetail();
                             }
                         }
                     } else {
@@ -363,7 +342,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                         manageOutOrder(response.body().getAttributes().getOutOrder(), response.body().getAttributes().getOutOrderDetailList());
                         billNumber.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getOutOrderNo() + " ");
                         showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean(), DeliveryBillSingleton.getInstance().getOutOrderBean().getId());
-                        if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean() == null) {
+                        if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean().size() == 0) {
                             showNoDetail();
                         } else {
                             showDetail();
@@ -401,6 +380,8 @@ public class DeliveryBillActivity extends AppCompatActivity {
     }
 
     private void showDetail() {
+        OrderDetailTitleFragment orderDetailTitleFragment = new OrderDetailTitleFragment();
+        setTitleFragment(orderDetailTitleFragment, "OutOrderDetailTitle");
         myAdapter = new OutOrderDetailAdapter(DeliveryBillActivity.this, DeliveryBillSingleton.getInstance().getOutOrderDetailBean(), myApp.getCurrentDepot());
         outOrderDetialView.setAdapter(myAdapter);
     }
@@ -443,8 +424,6 @@ public class DeliveryBillActivity extends AppCompatActivity {
         if (outOrderDetailList != null) {
             OutOrderDetailSortUtil sort = new OutOrderDetailSortUtil(outOrderDetailList, DeliveryBillActivity.this);
             DeliveryBillSingleton.getInstance().setOutOrderDetailBean(sort.getFinalOutOrderDetails());
-        } else {
-            DeliveryBillSingleton.getInstance().setOutOrderDetailBean(null);
         }
     }
 
@@ -454,7 +433,8 @@ public class DeliveryBillActivity extends AppCompatActivity {
             for (OutOrderDetailBean detail : outOrderDetailList) {
                 totalWeight = totalWeight + detail.getWeight();
             }
-            weight.setText(totalWeight + "");
+            totalWeight = (float) Math.round(totalWeight) / 1000;
+            weight.setText(String.valueOf(totalWeight) + "t");
         }
         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
         GetDetailBarcodeService getDetailBarcodeService = retrofit.create(GetDetailBarcodeService.class);
@@ -465,13 +445,14 @@ public class DeliveryBillActivity extends AppCompatActivity {
                 List<DetailBarcodeBean> detailBarcodeList = new ArrayList<DetailBarcodeBean>();
                 detailBarcodeList = response.body().getAttributes().getDetailBarcodeEntityList();
                 if (detailBarcodeList.size() == 0) {
-                    ActWeight.setText("0.0");
+                    ActWeight.setText("0.0" + "t");
                 } else {
                     double act_weight = 0;
                     for (DetailBarcodeBean detailBarcode : detailBarcodeList) {
                         act_weight = act_weight + detailBarcode.getWeight();
                     }
-                    ActWeight.setText(String.valueOf(act_weight));
+                    act_weight = (float) Math.round(act_weight) / 1000;
+                    ActWeight.setText(String.valueOf(act_weight) + "t");
                 }
             }
 
@@ -506,10 +487,9 @@ public class DeliveryBillActivity extends AppCompatActivity {
             public void onResponse(Call<ReceivedLoadGoodsBarcodeInfo> call, Response<ReceivedLoadGoodsBarcodeInfo> response) {
                 loadGoodsResult = response.body().getAttributes().getGoodsBarcodeEndtityList();
                 Log.d("ffff", response.toString());
-                if (loadGoodsResult.size() > 0) {
-                    showLoadedGoods(loadGoodsResult);
-                    showLoadedGoodsWeight(loadGoodsResult);
-                }
+                showLoadedGoods(loadGoodsResult);
+                showLoadedGoodsWeight(loadGoodsResult);
+
             }
 
             @Override
@@ -567,7 +547,8 @@ public class DeliveryBillActivity extends AppCompatActivity {
         for (GoodsBarcodeBean good : loadGoodsResult) {
             totalActWeight = totalActWeight + Float.valueOf(good.getActWeight());
         }
-        ActWeight.setText(String.valueOf(totalActWeight));
+        totalActWeight = Math.round(totalActWeight) / 1000;
+        ActWeight.setText(String.valueOf(totalActWeight) + "t");
     }
 
 
