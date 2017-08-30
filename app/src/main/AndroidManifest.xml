@@ -30,7 +30,8 @@
         <activity android:name=".Unload.NoDetailUnLoadActivity" />
         <activity android:name=".Setting.SettingActivity" />
         <activity android:name=".SaleLoad.GoodAddDetailActivity" />
-        <activity android:name=".SaleLoad.GoodAddLoadActivity"></activity>
+        <activity android:name=".SaleLoad.GoodAddLoadActivity" />
+        <activity android:name=".SaleLoad.LoadContentActivity"></activity>
     </application>
 
 </manifest>

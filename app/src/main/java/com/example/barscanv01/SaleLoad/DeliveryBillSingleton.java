@@ -1,5 +1,6 @@
 package com.example.barscanv01.SaleLoad;
 
+import com.example.barscanv01.Bean.DetailBarcodeBean;
 import com.example.barscanv01.Bean.GoodsManageDetailBean;
 import com.example.barscanv01.Bean.OutOrderBean;
 import com.example.barscanv01.Bean.OutOrderDetailBean;
@@ -14,10 +15,34 @@ import java.util.List;
 public class DeliveryBillSingleton {
     public OutOrderBean outOrderBean;
 
+    public List<OutOrderDetailBean> outOrderDetailBean;
+
+    public List<GoodsManageDetailBean> goodsManageDetailList;
+
+    // public List<DetailBarcodeBean> loadedDetailBarcodeList;
+
+    private static DeliveryBillSingleton instance = null;
+
+    private DeliveryBillSingleton() {
+        outOrderBean = new OutOrderBean();
+        outOrderDetailBean = new ArrayList<OutOrderDetailBean>();
+        goodsManageDetailList = new ArrayList<GoodsManageDetailBean>();
+        //loadedDetailBarcodeList = new ArrayList<DetailBarcodeBean>();
+    }
+
+    public static DeliveryBillSingleton getInstance() {
+        synchronized (DeliveryBillSingleton.class) {
+            if (instance == null) {
+                instance = new DeliveryBillSingleton();
+            }
+        }
+
+        return instance;
+    }
+
     public OutOrderBean getOutOrderBean() {
         return outOrderBean;
     }
-
 
     public void setOutOrderBean(OutOrderBean outOrderBean) {
         this.outOrderBean = outOrderBean;
@@ -31,28 +56,6 @@ public class DeliveryBillSingleton {
         this.outOrderDetailBean = outOrderDetailBean;
     }
 
-    public List<OutOrderDetailBean> outOrderDetailBean;
-
-    public List<GoodsManageDetailBean> goodsManageDetailList;
-
-    private static DeliveryBillSingleton instance = null;
-
-    private DeliveryBillSingleton(){
-        outOrderBean=new OutOrderBean();
-        outOrderDetailBean=new ArrayList<OutOrderDetailBean>();
-        goodsManageDetailList=new ArrayList<GoodsManageDetailBean>();
-    }
-
-    public static DeliveryBillSingleton getInstance() {
-        synchronized (DeliveryBillSingleton.class) {
-            if (instance == null) {
-                instance = new DeliveryBillSingleton();
-            }
-        }
-
-        return instance;
-    }
-
     public List<GoodsManageDetailBean> getGoodsManageDetailList() {
         return goodsManageDetailList;
     }
@@ -60,4 +63,5 @@ public class DeliveryBillSingleton {
     public void setGoodsManageDetailList(List<GoodsManageDetailBean> goodsManageDetailList) {
         this.goodsManageDetailList = goodsManageDetailList;
     }
+
 }

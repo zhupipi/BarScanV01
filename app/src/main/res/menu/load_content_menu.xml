@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/out_order_total_load_content"
+        android:orderInCategory="100"
+        android:title="查看发货单装车明细" />
+    <item
+        android:id="@+id/depot_load_content"
+        android:orderInCategory="101"
+        android:title="查看库房装车明细" />
+
+</menu>

@@ -79,18 +79,18 @@ public class DeliveryBillActivity extends AppCompatActivity {
     EditText billNumber;
     @BindView(R.id.out_order_detial)
     RecyclerView outOrderDetialView;
-    @BindView(R.id.delivery_bill_toolbar)
-    Toolbar toolbar;
     @BindView(R.id.out_order_swipe_refresh)
     SwipeRefreshLayout mySwipe;
-    @BindView(R.id.delivery_bill_weight)
-    TextView weight;
     @BindView(R.id.delivery_bill_act_weight)
     TextView ActWeight;
     @BindView(R.id.delivery_bill_confirm_button)
     Button confirmButton;
     @BindView(R.id.delivery_bill_cancel_button)
     Button cancelButton;
+    @BindView(R.id.delivery_bill_count)
+    TextView count;
+    @BindView(R.id.delivery_bill_act_cout)
+    TextView act_count;
 
     private CarPlateUtil carPlateUtil;
     ScanManager scanManager;
@@ -110,8 +110,6 @@ public class DeliveryBillActivity extends AppCompatActivity {
         setContentView(R.layout.activity_delivery_bill);
         ButterKnife.bind(this);
         myApp = (MyApp) getApplication();
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("发货通知单信息");
         loadGoodsResult = new ArrayList<GoodsBarcodeBean>();
         carPlateUtil = new CarPlateUtil();
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, carPlateUtil.getProvinces());
@@ -303,9 +301,9 @@ public class DeliveryBillActivity extends AppCompatActivity {
                             if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean().size() == 0) {
                                 showNoDetail();
                             } else {
+                                showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean(), DeliveryBillSingleton.getInstance().getOutOrderBean().getId());
                                 showDetail();
                             }
-                            showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean(), DeliveryBillSingleton.getInstance().getOutOrderBean().getId());
                             OutOrderScanedUtil orderScanedUtil = new OutOrderScanedUtil(response.body().getAttributes().getOutOrder(), DeliveryBillActivity.this);
                             orderScanedUtil.updateOutOrderProcess();
                             orderScanedUtil.updateAreaInOut();
@@ -341,10 +339,10 @@ public class DeliveryBillActivity extends AppCompatActivity {
                     if (checkOutOrderProcess(response.body().getAttributes().getOutOrder())) {
                         manageOutOrder(response.body().getAttributes().getOutOrder(), response.body().getAttributes().getOutOrderDetailList());
                         billNumber.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getOutOrderNo() + " ");
-                        showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean(), DeliveryBillSingleton.getInstance().getOutOrderBean().getId());
                         if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean().size() == 0) {
                             showNoDetail();
                         } else {
+                            showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean(), DeliveryBillSingleton.getInstance().getOutOrderBean().getId());
                             showDetail();
                         }
                         OutOrderScanedUtil orderScanedUtil = new OutOrderScanedUtil(response.body().getAttributes().getOutOrder(), DeliveryBillActivity.this);
@@ -428,14 +426,18 @@ public class DeliveryBillActivity extends AppCompatActivity {
     }
 
     public void showOutOrderWeight(List<OutOrderDetailBean> outOrderDetailList, String id) {
-        if (DeliveryBillSingleton.getInstance().getOutOrderDetailBean() != null) {
-            float totalWeight = 0;
-            for (OutOrderDetailBean detail : outOrderDetailList) {
-                totalWeight = totalWeight + detail.getWeight();
+        int counts = 0;
+        int actCounts = 0;
+        for (OutOrderDetailBean detail : outOrderDetailList) {
+            if (detail.getDepotNo().equals(myApp.getCurrentDepot().getDepotNo())) {
+                counts = counts + detail.getCount();
+                if (detail.getActCount() != null) {
+                    actCounts = (int) (actCounts + Double.valueOf(detail.getActCount()));
+                }
             }
-            totalWeight = (float) Math.round(totalWeight) / 1000;
-            weight.setText(String.valueOf(totalWeight) + "t");
         }
+        count.setText(String.valueOf(counts));
+        act_count.setText(String.valueOf(actCounts));
         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
         GetDetailBarcodeService getDetailBarcodeService = retrofit.create(GetDetailBarcodeService.class);
         Call<ReceivedDetailBarcodeInfo> call = getDetailBarcodeService.getDetailBarcodesById(id);
@@ -451,7 +453,8 @@ public class DeliveryBillActivity extends AppCompatActivity {
                     for (DetailBarcodeBean detailBarcode : detailBarcodeList) {
                         act_weight = act_weight + detailBarcode.getWeight();
                     }
-                    act_weight = (float) Math.round(act_weight) / 1000;
+                    act_weight = Math.round(act_weight);
+                    act_weight = act_weight / 1000;
                     ActWeight.setText(String.valueOf(act_weight) + "t");
                 }
             }
@@ -544,11 +547,16 @@ public class DeliveryBillActivity extends AppCompatActivity {
 
     private void showLoadedGoodsWeight(List<GoodsBarcodeBean> loadGoodsResult) {
         float totalActWeight = 0;
+        int totoalCount = 0;
         for (GoodsBarcodeBean good : loadGoodsResult) {
             totalActWeight = totalActWeight + Float.valueOf(good.getActWeight());
+            totoalCount = totoalCount + 1;
         }
-        totalActWeight = Math.round(totalActWeight) / 1000;
+        totalActWeight = Math.round(totalActWeight);
+        totalActWeight = totalActWeight / 1000;
         ActWeight.setText(String.valueOf(totalActWeight) + "t");
+        act_count.setText(String.valueOf(totoalCount));
+
     }
 
 

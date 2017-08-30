@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.barscanv01.Bean.DetailBarcodeBean;
 import com.example.barscanv01.Bean.GoodsBarcodeBean;
 import com.example.barscanv01.R;
 
@@ -19,6 +20,7 @@ import java.util.List;
 public class LoadedResultAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
     private Context mContext;
     private List<GoodsBarcodeBean> datas;
+    //private List<DetailBarcodeBean> datas;
     public interface OnItemClickLitener
     {
         void onItemClick(View view, int position);

@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -68,8 +69,10 @@ public class SaleLoadActivity extends AppCompatActivity {
     TextView outOrderNo;
     @BindView(R.id.load_car_plate)
     TextView carPlate;
-    @BindView(R.id.load_weight)
-    TextView weight;
+    @BindView(R.id.load_count)
+    TextView count;
+    @BindView(R.id.load_act_count)
+    TextView actCount;
     @BindView(R.id.load_act_weight)
     TextView actWeight;
     @BindView(R.id.customer_load_toolbar)
@@ -80,8 +83,6 @@ public class SaleLoadActivity extends AppCompatActivity {
     Button confirm;
     @BindView(R.id.customer_load_cancel)
     Button cancel;
-    @BindView(R.id.sale_load_result_show)
-    LinearLayout resultShow;
 
 
     private FragmentManager fragmentManager;
@@ -111,7 +112,7 @@ public class SaleLoadActivity extends AppCompatActivity {
         intitalData();
         positionList = new ArrayList<PositionBean>();
         getPositionList();
-        goodsManageDetailBeanList=new ArrayList<GoodsManageDetailBean>();
+        goodsManageDetailBeanList = new ArrayList<GoodsManageDetailBean>();
         getGoodsManageDetail();
         fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -127,7 +128,6 @@ public class SaleLoadActivity extends AppCompatActivity {
         });
         transaction.add(R.id.customer_load_change_fragment, loadOperationSelectFragment, "OPERATION_SELECT");
         transaction.commit();
-        initalScanSetting();
         confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -138,46 +138,51 @@ public class SaleLoadActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 int id = item.getItemId();
-                if (id == R.id.out_order_depot_over) {
-                    depotOver();
-                } else if (id == R.id.out_order_total_over) {
-                    orderOver();
+                switch (id) {
+                    case R.id.out_order_depot_over:
+                        depotOver();
+                        break;
+                    case R.id.out_order_total_over:
+                        orderOver();
+                        break;
+                    case R.id.out_order_load_content:
+                        showContentSelection();
+                        break;
+                    default:
+                        break;
                 }
                 return true;
             }
         });
     }
 
-    private void initalScanSetting() {
-        if(Build.BRAND.equals("SUPOIN")){
-           LinearLayout.LayoutParams params= (LinearLayout.LayoutParams) resultShow.getLayoutParams();
-            params.height=300;
-            resultShow.setLayoutParams(params);
-        }
-    }
-
     private void intitalData() {
         outOrderNo.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getOutOrderNo());
         carPlate.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo());
         showOutOrderWeight(DeliveryBillSingleton.getInstance().getOutOrderDetailBean());
-        outOrder=DeliveryBillSingleton.getInstance().getOutOrderBean();
-        detailList=DeliveryBillSingleton.getInstance().getOutOrderDetailBean();
-        currentDepot=myApp.getCurrentDepot();
+        outOrder = DeliveryBillSingleton.getInstance().getOutOrderBean();
+        detailList = DeliveryBillSingleton.getInstance().getOutOrderDetailBean();
+        currentDepot = myApp.getCurrentDepot();
     }
 
     private void showOutOrderWeight(List<OutOrderDetailBean> outOrderDetailBeanList) {
-        float totalWeight=0;
-        float totalActWeight=0;
-        for(OutOrderDetailBean detail:outOrderDetailBeanList){
-            totalWeight=totalWeight+detail.getWeight();
-            if(detail.getActWeight()==null){
-                totalActWeight=totalActWeight+0;
-            }else {
-                totalActWeight=totalActWeight+Float.valueOf(detail.getActWeight());
+        float totalActWeight = 0;
+        int counts = 0;
+        int act_count = 0;
+        for (OutOrderDetailBean detail : outOrderDetailBeanList) {
+            if (detail.getActWeight() == null) {
+                totalActWeight = totalActWeight + 0;
+            } else {
+                totalActWeight = totalActWeight + Float.valueOf(detail.getActWeight());
             }
+            if (detail.getActCount() != null) {
+                act_count = (int)(act_count + Double.valueOf(detail.getActCount()));
+            }
+            counts = counts + detail.getCount();
         }
-        weight.setText(String.valueOf(totalWeight));
         actWeight.setText(String.valueOf(totalActWeight));
+        count.setText(String.valueOf(counts));
+        actCount.setText(String.valueOf(act_count));
     }
 
     private void submitData() {
@@ -191,25 +196,26 @@ public class SaleLoadActivity extends AppCompatActivity {
             switch (tag) {
                 case "OPERATION_LOAD_CAR":
                     if (scanResult.size() > 0) {
-                        String Ids="";
+                        String Ids = "";
                         for (GoodsBarcodeBean good : scanResult) {
-                            Ids=Ids+good.getId()+",";
+                            Ids = Ids + good.getId() + ",";
                         }
                         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
                         PutGoodLoadedforPDAService goodLoadedforPDAService = retrofit.create(PutGoodLoadedforPDAService.class);
-                        Call<ResponseBody> call=goodLoadedforPDAService.putGoodsLoaded(outOrder.getId(),Ids,myApp.getCurrentAreaBean().getAreaNo(),myApp.getUserBean().getUserName());
+                        Call<ResponseBody> call = goodLoadedforPDAService.putGoodsLoaded(outOrder.getId(), Ids, myApp.getCurrentAreaBean().getAreaNo(), myApp.getUserBean().getUserName());
                         call.enqueue(new Callback<ResponseBody>() {
                             @Override
                             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                                 CheckOutOrederDetailFinishedUtil checkFinishedUtil = new CheckOutOrederDetailFinishedUtil(outOrder, SaleLoadActivity.this);
                                 checkFinishedUtil.checkOutOrderFinished();
-                                Toast.makeText(SaleLoadActivity.this,"货品装车成功！",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(SaleLoadActivity.this, "货品装车成功！", Toast.LENGTH_SHORT).show();
                                 ScanResultFragment fragment = (ScanResultFragment) fragmentManager.findFragmentById(R.id.customer_load_change_fragment);
                                 //fragment.cleanData();
                                 setResult(1);
                                 finish();
                                 /*需在服务器后台，修改AraeName和DepotName*/
                             }
+
                             @Override
                             public void onFailure(Call<ResponseBody> call, Throwable t) {
 
@@ -222,7 +228,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                     }
                     break;
                 case "OPERATION_CHANGE_DEPOT":
-                    if(scanResult.size() > 0) {
+                    if (scanResult.size() > 0) {
                         if (positionList.size() > 0) {
                             ArrayList<String> positionNames = new ArrayList<String>();
                             for (PositionBean position : positionList) {
@@ -264,8 +270,8 @@ public class SaleLoadActivity extends AppCompatActivity {
                             alertDialog = builder.create();
                             alertDialog.show();
                         }
-                    }else{
-                        Toast.makeText(SaleLoadActivity.this,"没有扫描需要倒垛的货品",Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(SaleLoadActivity.this, "没有扫描需要倒垛的货品", Toast.LENGTH_SHORT).show();
                     }
                     break;
                 default:
@@ -311,7 +317,7 @@ public class SaleLoadActivity extends AppCompatActivity {
         });
     }
 
-    private void getGoodsManageDetail(){
+    private void getGoodsManageDetail() {
         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
         GetGoodsManageDetailService getGoodsManageDetailService = retrofit.create(GetGoodsManageDetailService.class);
         Call<ReceivedGoodsManageInfo> call = getGoodsManageDetailService.getGoodsManageDetail();
@@ -329,10 +335,10 @@ public class SaleLoadActivity extends AppCompatActivity {
     }
 
 
-    private void depotOver(){
-        GoodsManageUtil goodsManageUtil=new GoodsManageUtil(detailList,SaleLoadActivity.this);
-        boolean result=goodsManageUtil.getDepotRemoveResult(currentDepot,goodsManageDetailBeanList);
-        if(result) {
+    private void depotOver() {
+        GoodsManageUtil goodsManageUtil = new GoodsManageUtil(detailList, SaleLoadActivity.this);
+        boolean result = goodsManageUtil.getDepotRemoveResult(currentDepot, goodsManageDetailBeanList);
+        if (result) {
             AlertDialog.Builder outOrderDetailOverbuilder = new AlertDialog.Builder(SaleLoadActivity.this);
             outOrderDetailOverbuilder.setTitle("注意");
             outOrderDetailOverbuilder.setMessage("您确定该车辆在此库位所有货品装车完成");
@@ -362,15 +368,15 @@ public class SaleLoadActivity extends AppCompatActivity {
 
                 }
             }).show();
-        }else{
+        } else {
             showRemoveResult(goodsManageUtil.getResultCode());
         }
     }
 
-    public void orderOver(){
-        GoodsManageUtil goodsManageUtil=new GoodsManageUtil(detailList,SaleLoadActivity.this);
-        boolean result=goodsManageUtil.getOrderRemoveResult(goodsManageDetailBeanList);
-        if(result) {
+    public void orderOver() {
+        GoodsManageUtil goodsManageUtil = new GoodsManageUtil(detailList, SaleLoadActivity.this);
+        boolean result = goodsManageUtil.getOrderRemoveResult(goodsManageDetailBeanList);
+        if (result) {
             AlertDialog.Builder outOrderOverBuild = new AlertDialog.Builder(SaleLoadActivity.this);
             outOrderOverBuild.setTitle("注意")
                     .setMessage("您确定该发货单全部装车完成")
@@ -397,7 +403,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                         }
                     })
                     .show();
-        }else {
+        } else {
             showRemoveResult(goodsManageUtil.getResultCode());
         }
     }
@@ -410,15 +416,15 @@ public class SaleLoadActivity extends AppCompatActivity {
     }
 
     private void registerReceiver() {
-        if(myApp.getDeviceBrand().equals("SUPOIN")){
-            IntentFilter inFilter=new IntentFilter(SCN_CUST_ACTION_SCODE);
-            registerReceiver(mSamDataReceiver,inFilter);
+        if (myApp.getDeviceBrand().equals("SUPOIN")) {
+            IntentFilter inFilter = new IntentFilter(SCN_CUST_ACTION_SCODE);
+            registerReceiver(mSamDataReceiver, inFilter);
         }
     }
 
     private void unRegisterReceiver() {
         try {
-             if (myApp.getDeviceBrand().equals("SUPOIN")) {
+            if (myApp.getDeviceBrand().equals("SUPOIN")) {
                 unregisterReceiver(mSamDataReceiver);
             }
         } catch (Exception e) {
@@ -434,8 +440,8 @@ public class SaleLoadActivity extends AppCompatActivity {
                     message = intent.getStringExtra(SCN_CUST_EX_SCODE).toString().trim();
                     if (!fragmentManager.findFragmentById(R.id.customer_load_change_fragment).getTag().equals("OPERATION_SELECT")) {
                         getScanResult(message);
-                    }else{
-                        Toast.makeText(SaleLoadActivity.this,"请选择装车或扫码操作",Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(SaleLoadActivity.this, "请选择装车或扫码操作", Toast.LENGTH_SHORT).show();
                     }
 
                 } catch (Exception e) {
@@ -587,10 +593,10 @@ public class SaleLoadActivity extends AppCompatActivity {
     }
 
     private boolean checkGoodSpecialMode(GoodsBarcodeBean good) {
-        boolean result=false;
-        for(OutOrderDetailBean detail:detailList){
-            if(detail.getSpecificationModel().equals(good.getSpecificationModel())){
-                result=true;
+        boolean result = false;
+        for (OutOrderDetailBean detail : detailList) {
+            if (detail.getSpecificationModel().equals(good.getSpecificationModel())) {
+                result = true;
                 break;
             }
         }
@@ -598,19 +604,39 @@ public class SaleLoadActivity extends AppCompatActivity {
     }
 
     private void showRemoveResult(int resultCode) {
-        switch (resultCode){
+        switch (resultCode) {
             case GoodsManageUtil.DEPOT_LOAD_OVER_NO_PROMISE:
-                Toast.makeText(SaleLoadActivity.this,"该库区部分产品未按计划装车完成货",Toast.LENGTH_SHORT).show();
+                Toast.makeText(SaleLoadActivity.this, "该库区部分产品未按计划装车完成货", Toast.LENGTH_SHORT).show();
                 break;
             case GoodsManageUtil.ORDER_LOAD_OVER_NO_PROMISE:
-                Toast.makeText(SaleLoadActivity.this,"该发货单部分产品未按计划装车完成",Toast.LENGTH_SHORT).show();
+                Toast.makeText(SaleLoadActivity.this, "该发货单部分产品未按计划装车完成", Toast.LENGTH_SHORT).show();
                 break;
             case GoodsManageUtil.REMOVE_GOOD_NO_PROMISE:
-                Toast.makeText(SaleLoadActivity.this,"已设置不可减货",Toast.LENGTH_SHORT).show();
+                Toast.makeText(SaleLoadActivity.this, "已设置不可减货", Toast.LENGTH_SHORT).show();
                 break;
             default:
                 break;
         }
+    }
+
+    public void showContentSelection() {
+        PopupMenu popupMenu = new PopupMenu(this, this.findViewById(R.id.out_order_load_content));
+        popupMenu.getMenuInflater().inflate(R.menu.load_content_menu, popupMenu.getMenu());
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int id = item.getItemId();
+                Intent intent = new Intent(SaleLoadActivity.this, LoadContentActivity.class);
+                if (id == R.id.out_order_total_load_content) {
+                    intent.putExtra("tag", "ORDER_LOAD_CONTENT");
+                } else if (id == R.id.depot_load_content) {
+                    intent.putExtra("tag", "DEPOT_LOAD_CONTENT");
+                }
+                startActivity(intent);
+                return true;
+            }
+        });
+        popupMenu.show();
     }
 
 

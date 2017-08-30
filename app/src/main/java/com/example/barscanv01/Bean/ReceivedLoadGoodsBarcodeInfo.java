@@ -45,12 +45,22 @@ public class ReceivedLoadGoodsBarcodeInfo {
     public static class AttributesBean {
         private List<GoodsBarcodeBean> GoodsBarcodeEndtityList;
 
+        private List<String> customerList;
+
         public List<GoodsBarcodeBean> getGoodsBarcodeEndtityList() {
             return GoodsBarcodeEndtityList;
         }
 
         public void setGoodsBarcodeEndtityList(List<GoodsBarcodeBean> GoodsBarcodeEndtityList) {
             this.GoodsBarcodeEndtityList = GoodsBarcodeEndtityList;
+        }
+
+        public List<String> getCustomerList() {
+            return customerList;
+        }
+
+        public void setCustomerList(List<String> customerList) {
+            this.customerList = customerList;
         }
 
     }

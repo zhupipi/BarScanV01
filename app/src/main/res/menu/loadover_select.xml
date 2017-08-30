@@ -3,7 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".SaleLoad.SaleLoadActivity">
-
+    <item
+        android:id="@+id/out_order_load_content"
+        android:title="查看装车详情"
+        android:icon="@drawable/ic_receipt_white_24dp"
+        android:orderInCategory="1"
+        app:showAsAction="always"/>
     <item
         android:id="@+id/out_order_depot_over"
         android:title="该库位全部装车完成"
