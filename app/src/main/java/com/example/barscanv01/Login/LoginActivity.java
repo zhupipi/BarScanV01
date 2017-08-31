@@ -89,7 +89,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<ReceivedUserInfo> call, Response<ReceivedUserInfo> response) {
                 if (response.body().isSuccess()) {
-                    if (response.body().getAttributes().getUser().getStatus() != 1) {
+                    if (response.body().getAttributes().getUser().getStatus() != 3) {
                         loginCache.putName(response.body().getAttributes().getUser().getUserName());
                         myApp.setUserBean(response.body().getAttributes().getUser());
                         myApp.setDepotlist(response.body().getAttributes().getDepotlist());

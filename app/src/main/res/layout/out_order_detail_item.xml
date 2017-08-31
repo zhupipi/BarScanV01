@@ -14,10 +14,9 @@
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
         android:layout_weight="1"
-        android:gravity="center"
-        android:textSize="14sp"
         android:background="@drawable/recycler_item_bg1"
-        />
+        android:gravity="center"
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/out_order_detial_modle"

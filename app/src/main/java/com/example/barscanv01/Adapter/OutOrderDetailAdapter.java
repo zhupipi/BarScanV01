@@ -26,6 +26,7 @@ public class OutOrderDetailAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     public interface OnItemClickLitener {
         void onItemClick(View view, int position);
+
         void onItemLongClick(View view, int position);
     }
 
@@ -57,7 +58,9 @@ public class OutOrderDetailAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             ((MyViewHolder) holder).actcount.setText("0");
             datas.get(position).setActCount("0");
         } else {
-            ((MyViewHolder) holder).actcount.setText(datas.get(position).getActCount());
+            double act_count1 = Double.valueOf(datas.get(position).getActCount());
+            int act_count = (int) act_count1;
+            ((MyViewHolder) holder).actcount.setText(String.valueOf(act_count));
         }
 
         if (datas.get(position).getDepotNo().equals(depot.getDepotNo()) && datas.get(position).getFinishStatus().equals("0")) {

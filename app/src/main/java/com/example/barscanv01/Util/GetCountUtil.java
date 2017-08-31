@@ -13,14 +13,16 @@ import java.util.List;
 public class GetCountUtil {
     private List<OutOrderDetailBean> detailList;
     private GoodsBarcodeBean good;
-    public GetCountUtil(List<OutOrderDetailBean> detailList,GoodsBarcodeBean good){
-        this.detailList=detailList;
-        this.good=good;
+
+    public GetCountUtil(List<OutOrderDetailBean> detailList, GoodsBarcodeBean good) {
+        this.detailList = detailList;
+        this.good = good;
     }
-    public float getCount(){
-        float count=0;
-        for(OutOrderDetailBean detail:detailList){
-            if(detail.getSpecificationModel().equals(good.getSpecificationModel())) {
+
+    public float getCount() {
+        float count = 0;
+        for (OutOrderDetailBean detail : detailList) {
+            if (detail.getSpecificationModel().equals(good.getSpecificationModel()) && detail.getGoodsName().equals(good.getGoodsName())) {
                 if (detail.getFinishStatus().equals("0")) {
                     count = count + detail.getCount();
                 }
@@ -28,26 +30,28 @@ public class GetCountUtil {
         }
         return count;
     }
-    public float getActCount(){
-        float actCount=0;
-        for(OutOrderDetailBean detail:detailList){
-            if(detail.getSpecificationModel().equals(good.getSpecificationModel())){
-                if(detail.getFinishStatus().equals("0")){
-                    if(detail.getActCount()!=null){
-                        actCount=actCount+Float.valueOf(detail.getActCount());
-                    }else {
-                        actCount=actCount+0;
+
+    public float getActCount() {
+        float actCount = 0;
+        for (OutOrderDetailBean detail : detailList) {
+            if (detail.getSpecificationModel().equals(good.getSpecificationModel()) && detail.getGoodsName().equals(good.getGoodsName())) {
+                if (detail.getFinishStatus().equals("0")) {
+                    if (detail.getActCount() != null) {
+                        actCount = actCount + Float.valueOf(detail.getActCount());
+                    } else {
+                        actCount = actCount + 0;
                     }
                 }
             }
         }
         return actCount;
     }
-    public float getResultCount(List<GoodsBarcodeBean> resultList){
-        float resultCount=0;
-        for(GoodsBarcodeBean goodsBarcode:resultList){
-            if(goodsBarcode.getSpecificationModel().equals(good.getSpecificationModel())){
-                resultCount=resultCount+1;
+
+    public float getResultCount(List<GoodsBarcodeBean> resultList) {
+        float resultCount = 0;
+        for (GoodsBarcodeBean goodsBarcode : resultList) {
+            if (goodsBarcode.getSpecificationModel().equals(good.getSpecificationModel()) && goodsBarcode.getGoodsName().equals(good.getGoodsName())) {
+                resultCount = resultCount + 1;
             }
         }
         return resultCount;

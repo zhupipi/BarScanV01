@@ -5,25 +5,39 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.barscanv01.Adapter.DividerItemDecoration;
+import com.example.barscanv01.Adapter.ScanOrderDetailAdapter;
 import com.example.barscanv01.Bean.DepotBean;
 import com.example.barscanv01.Bean.GoodsBarcodeBean;
 import com.example.barscanv01.Bean.GoodsManageDetailBean;
@@ -95,7 +109,14 @@ public class SaleLoadActivity extends AppCompatActivity {
     private List<OutOrderDetailBean> detailList;
     private DepotBean currentDepot;
 
+    private List<GoodsBarcodeBean> scanGoodsList;
+    private RecyclerView scanDetailView;
+    private List<OutOrderDetailBean> depotDetailList;
+    private ScanOrderDetailAdapter scanOrderDetailAdapter;
+    private TextView scanGoodTextView;
+
     private List<GoodsManageDetailBean> goodsManageDetailBeanList;
+
 
     /*销邦初始化设置*/
     public static final String SCN_CUST_ACTION_SCODE = "com.android.server.scannerservice.broadcast";
@@ -120,6 +141,9 @@ public class SaleLoadActivity extends AppCompatActivity {
         loadOperationSelectFragment.setOnItemClickListener(new LoadOperationSelectFragment.OnItemClickListener() {
             @Override
             public void onItemClick(View view, String tag) {
+                if (tag == "OPERATION_LOAD_CAR") {
+                    showScanPopUpView();
+                }
                 FragmentTransaction transaction1 = fragmentManager.beginTransaction();
                 ScanResultFragment scanResultFragment = new ScanResultFragment();
                 transaction1.replace(R.id.customer_load_change_fragment, scanResultFragment, tag);
@@ -163,6 +187,13 @@ public class SaleLoadActivity extends AppCompatActivity {
         outOrder = DeliveryBillSingleton.getInstance().getOutOrderBean();
         detailList = DeliveryBillSingleton.getInstance().getOutOrderDetailBean();
         currentDepot = myApp.getCurrentDepot();
+        scanGoodsList = new ArrayList<>();
+        depotDetailList = new ArrayList<OutOrderDetailBean>();
+        for (OutOrderDetailBean detail : detailList) {
+            if (detail.getDepotNo().equals(myApp.getCurrentDepot().getDepotNo())) {
+                depotDetailList.add(detail);
+            }
+        }
     }
 
     private void showOutOrderWeight(List<OutOrderDetailBean> outOrderDetailBeanList) {
@@ -176,7 +207,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                 totalActWeight = totalActWeight + Float.valueOf(detail.getActWeight());
             }
             if (detail.getActCount() != null) {
-                act_count = (int)(act_count + Double.valueOf(detail.getActCount()));
+                act_count = (int) (act_count + Double.valueOf(detail.getActCount()));
             }
             counts = counts + detail.getCount();
         }
@@ -462,12 +493,16 @@ public class SaleLoadActivity extends AppCompatActivity {
             public void onResponse(Call<ReceivedGoodsBarcodeInfo> call, Response<ReceivedGoodsBarcodeInfo> response) {
                 final GoodsBarcodeBean good;
                 good = response.body().getAttributes().getGoodsBarcode();
+                if(scanGoodTextView!=null) {
+                    scanGoodTextView.setText(good.getBarcode() + " , " + good.getGoodsName() + " , " + good.getSpecificationModel() + " , " + good.getActWeight() + "kg");
+                }
                 if (good != null) {
                     Log.d("aaaa", good.getId());
                     final ScanResultFragment result = (ScanResultFragment) fragmentManager.findFragmentById(R.id.customer_load_change_fragment);
                     if (checkGood(good, result.getTag())) {
                         if (result.getTag().equals("OPERATION_LOAD_CAR")) {
                             result.addData(good);
+                            updatePopWindow(good);
                             float act_weight = Float.valueOf(actWeight.getText().toString().trim()) + Float.valueOf(good.getActWeight());
                             actWeight.setText(String.valueOf(act_weight));
                         } else {
@@ -554,7 +589,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                     break;
                 }
                 GetCountUtil getCountUtil = new GetCountUtil(detailList, good);
-                if (getCountUtil.getActCount() + getCountUtil.getResultCount(result) + 1 > getCountUtil.getCount()) {
+                if (getCountUtil.getActCount()+ 1 > getCountUtil.getCount()) {
                     Toast.makeText(this, "该规格货品扫码数目已经超过发货单规定装车数目", Toast.LENGTH_SHORT).show();
                     checkresult = false;
                     break;
@@ -639,6 +674,79 @@ public class SaleLoadActivity extends AppCompatActivity {
         popupMenu.show();
     }
 
+    private void showScanPopUpView() {
+        PopupWindow popupWindow = new PopupWindow(this);
+        View contentView = LayoutInflater.from(this).inflate(R.layout.scan_order_detail, null);
+        View rootView = LayoutInflater.from(this).inflate(R.layout.activity_sale_load, null);
+        popupWindow.setContentView(contentView);
+        popupWindow.setFocusable(true);
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(-1));
+        popupWindow.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
+        popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                backgroundAlpha(1f);
+            }
+        });
+        popupWindow.showAtLocation(rootView, Gravity.CENTER, 0, 0);
+        backgroundAlpha(0.5f);
+        scanDetailView = (RecyclerView) contentView.findViewById(R.id.scan_order_detail_view);
+        scanGoodTextView=(TextView)contentView.findViewById(R.id.scan_order_detail_good_show);
+        scanDetailView.setLayoutManager(new LinearLayoutManager(this));
+        scanDetailView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL_LIST));
+        scanDetailView.setItemAnimator(new DefaultItemAnimator());
+        showScanDetailView();
+    }
+
+    public void showScanDetailView() {
+        if (scanOrderDetailAdapter == null) {
+            scanOrderDetailAdapter = new ScanOrderDetailAdapter(this, depotDetailList);
+            scanDetailView.setAdapter(scanOrderDetailAdapter);
+        } else {
+            scanOrderDetailAdapter.notifyDataSetChanged();
+        }
+    }
+
+    public void updatePopWindow(GoodsBarcodeBean good) {
+        //scanGoodTextView.setText(good.getBarcode() + " , " + good.getGoodsName() + " , " + good.getSpecificationModel() + " , " + good.getActWeight() + "kg");
+        for (OutOrderDetailBean detailBean : depotDetailList) {
+            if (detailBean.getFinishStatus().equals("0")) {
+                if (detailBean.getGoodsName().equals(good.getGoodsName()) && detailBean.getSpecificationModel().equals(good.getSpecificationModel())) {
+                    int count = detailBean.getCount();
+                    double act_count = 0;
+                    double act_weight = 0;
+                    if (detailBean.getActCount() != null) {
+                        act_count = Double.valueOf(detailBean.getActCount());
+                    }
+                    if (detailBean.getActWeight() != null) {
+                        act_weight = Double.valueOf(detailBean.getActWeight());
+                    }
+                    if (count > act_count) {
+                        act_count = act_count + 1;
+                        act_weight = act_weight + Double.valueOf(good.getActWeight());
+                        detailBean.setActCount(String.valueOf(act_count));
+                        detailBean.setActWeight(String.valueOf(act_weight));
+                        if(Double.valueOf(detailBean.getActCount())+1>detailBean.getCount()){
+                            detailBean.setFinishStatus("1");
+                        }
+                        showScanDetailView();
+                        break;
+                    }
+                }
+            }
+        }
+
+    }
+
+
+    public void backgroundAlpha(float bgAlpha) {
+        WindowManager.LayoutParams lp = getWindow().getAttributes();
+        lp.alpha = bgAlpha; //0.0-1.0
+        getWindow().setAttributes(lp);
+    }
+
 
     @Override
     protected void onPause() {
@@ -657,4 +765,14 @@ public class SaleLoadActivity extends AppCompatActivity {
         setResult(1);
         super.onBackPressed();
     }
+
+    class poponDismissListener implements PopupWindow.OnDismissListener {
+        @Override
+        public void onDismiss() {
+            // TODO Auto-generated method stub
+            //Log.v("List_noteTypeActivity:", "我是关闭事件");
+            backgroundAlpha(1f);
+        }
+    }
+
 }
