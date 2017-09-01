@@ -39,6 +39,7 @@ import android.widget.Toast;
 import com.example.barscanv01.Adapter.DividerItemDecoration;
 import com.example.barscanv01.Adapter.ScanOrderDetailAdapter;
 import com.example.barscanv01.Bean.DepotBean;
+import com.example.barscanv01.Bean.DetailBarcodeBean;
 import com.example.barscanv01.Bean.GoodsBarcodeBean;
 import com.example.barscanv01.Bean.GoodsManageDetailBean;
 import com.example.barscanv01.Bean.OutOrderBean;
@@ -55,6 +56,7 @@ import com.example.barscanv01.ServiceAPI.GetGoodsManageDetailService;
 import com.example.barscanv01.ServiceAPI.GetPositionsByDepotService;
 import com.example.barscanv01.ServiceAPI.LoadOverByDepotService;
 import com.example.barscanv01.ServiceAPI.LoadOverService;
+import com.example.barscanv01.ServiceAPI.PutGoodLoadSolelyService;
 import com.example.barscanv01.ServiceAPI.PutGoodLoadedforPDAService;
 import com.example.barscanv01.ServiceAPI.ScanBarcodeResultService;
 import com.example.barscanv01.ServiceAPI.UpdatePositionService;
@@ -227,33 +229,10 @@ public class SaleLoadActivity extends AppCompatActivity {
             switch (tag) {
                 case "OPERATION_LOAD_CAR":
                     if (scanResult.size() > 0) {
-                        String Ids = "";
-                        for (GoodsBarcodeBean good : scanResult) {
-                            Ids = Ids + good.getId() + ",";
-                        }
-                        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
-                        PutGoodLoadedforPDAService goodLoadedforPDAService = retrofit.create(PutGoodLoadedforPDAService.class);
-                        Call<ResponseBody> call = goodLoadedforPDAService.putGoodsLoaded(outOrder.getId(), Ids, myApp.getCurrentAreaBean().getAreaNo(), myApp.getUserBean().getUserName());
-                        call.enqueue(new Callback<ResponseBody>() {
-                            @Override
-                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                CheckOutOrederDetailFinishedUtil checkFinishedUtil = new CheckOutOrederDetailFinishedUtil(outOrder, SaleLoadActivity.this);
-                                checkFinishedUtil.checkOutOrderFinished();
-                                Toast.makeText(SaleLoadActivity.this, "货品装车成功！", Toast.LENGTH_SHORT).show();
-                                ScanResultFragment fragment = (ScanResultFragment) fragmentManager.findFragmentById(R.id.customer_load_change_fragment);
-                                //fragment.cleanData();
-                                setResult(1);
-                                finish();
-                                /*需在服务器后台，修改AraeName和DepotName*/
-                            }
-
-                            @Override
-                            public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-                            }
-                        });
-
-
+                        //ScanResultFragment fragment = (ScanResultFragment) fragmentManager.findFragmentById(R.id.customer_load_change_fragment);
+                        //fragment.cleanData();
+                        setResult(1);
+                        finish();
                     } else {
                         Toast.makeText(this, "没有扫描货品条形码", Toast.LENGTH_SHORT).show();
                     }
@@ -493,7 +472,7 @@ public class SaleLoadActivity extends AppCompatActivity {
             public void onResponse(Call<ReceivedGoodsBarcodeInfo> call, Response<ReceivedGoodsBarcodeInfo> response) {
                 final GoodsBarcodeBean good;
                 good = response.body().getAttributes().getGoodsBarcode();
-                if(scanGoodTextView!=null) {
+                if (scanGoodTextView != null) {
                     scanGoodTextView.setText(good.getBarcode() + " , " + good.getGoodsName() + " , " + good.getSpecificationModel() + " , " + good.getActWeight() + "kg");
                 }
                 if (good != null) {
@@ -589,7 +568,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                     break;
                 }
                 GetCountUtil getCountUtil = new GetCountUtil(detailList, good);
-                if (getCountUtil.getActCount()+ 1 > getCountUtil.getCount()) {
+                if (getCountUtil.getActCount() + 1 > getCountUtil.getCount()) {
                     Toast.makeText(this, "该规格货品扫码数目已经超过发货单规定装车数目", Toast.LENGTH_SHORT).show();
                     checkresult = false;
                     break;
@@ -687,15 +666,17 @@ public class SaleLoadActivity extends AppCompatActivity {
         popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
+                CheckOutOrederDetailFinishedUtil checkFinishedUtil = new CheckOutOrederDetailFinishedUtil(outOrder, SaleLoadActivity.this);
+                checkFinishedUtil.checkOutOrderFinished();
                 backgroundAlpha(1f);
             }
         });
         popupWindow.showAtLocation(rootView, Gravity.CENTER, 0, 0);
         backgroundAlpha(0.5f);
         scanDetailView = (RecyclerView) contentView.findViewById(R.id.scan_order_detail_view);
-        scanGoodTextView=(TextView)contentView.findViewById(R.id.scan_order_detail_good_show);
+        scanGoodTextView = (TextView) contentView.findViewById(R.id.scan_order_detail_good_show);
         scanDetailView.setLayoutManager(new LinearLayoutManager(this));
-        scanDetailView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL_LIST));
+        scanDetailView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         scanDetailView.setItemAnimator(new DefaultItemAnimator());
         showScanDetailView();
     }
@@ -726,12 +707,36 @@ public class SaleLoadActivity extends AppCompatActivity {
                     if (count > act_count) {
                         act_count = act_count + 1;
                         act_weight = act_weight + Double.valueOf(good.getActWeight());
+                        for(OutOrderDetailBean detailBean0:depotDetailList){
+                            if(detailBean0!=detailBean){
+                                if(detailBean0.isFocus()){
+                                    detailBean0.setFocus(false);
+                                    break;
+                                }
+                            }
+                        }
+                        detailBean.setFocus(true);
                         detailBean.setActCount(String.valueOf(act_count));
                         detailBean.setActWeight(String.valueOf(act_weight));
-                        if(Double.valueOf(detailBean.getActCount())+1>detailBean.getCount()){
+                        if (Double.valueOf(detailBean.getActCount()) + 1 > detailBean.getCount()) {
                             detailBean.setFinishStatus("1");
                         }
-                        showScanDetailView();
+                        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+                        PutGoodLoadSolelyService putGoodLoadSolelyService = retrofit.create(PutGoodLoadSolelyService.class);
+                        Call<ResponseBody> call = putGoodLoadSolelyService.putGoodLoadSoley(detailBean.getOutOrderId(), good.getId(), detailBean.getId(), myApp.getUserBean().getUserName(), myApp.getCurrentAreaBean().getAreaName(), myApp.getCurrentDepot().getDepotName());
+                        call.enqueue(new Callback<ResponseBody>() {
+                            @Override
+                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                showScanDetailView();
+                                Toast.makeText(SaleLoadActivity.this, "货品装车成功", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                Toast.makeText(SaleLoadActivity.this, "货品装车失败", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
                         break;
                     }
                 }
@@ -769,8 +774,6 @@ public class SaleLoadActivity extends AppCompatActivity {
     class poponDismissListener implements PopupWindow.OnDismissListener {
         @Override
         public void onDismiss() {
-            // TODO Auto-generated method stub
-            //Log.v("List_noteTypeActivity:", "我是关闭事件");
             backgroundAlpha(1f);
         }
     }

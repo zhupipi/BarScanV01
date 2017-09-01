@@ -44,6 +44,7 @@ public class OutOrderDetailBean {
     private float weight;
     private String actWeight;
     private String finishStatus;
+    private boolean focus;
 
     public String getAddress() {
         return address;
@@ -164,5 +165,13 @@ public class OutOrderDetailBean {
 
     public void setFinishStatus(String finishStatus) {
         this.finishStatus = finishStatus;
+    }
+
+    public boolean isFocus() {
+        return focus;
+    }
+
+    public void setFocus(boolean focus) {
+        this.focus = focus;
     }
 }

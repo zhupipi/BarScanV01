@@ -259,7 +259,6 @@ public class DeliveryBillActivity extends AppCompatActivity {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
                                             Intent intent = new Intent(DeliveryBillActivity.this, GoodAddDetailActivity.class);
-                                            intent.putExtra("act_weight", Double.valueOf(ActWeight.getText().toString().trim()));
                                             startActivity(intent);
                                         }
                                     })
@@ -446,7 +445,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
             public void onResponse(Call<ReceivedDetailBarcodeInfo> call, Response<ReceivedDetailBarcodeInfo> response) {
                 List<DetailBarcodeBean> detailBarcodeList = new ArrayList<DetailBarcodeBean>();
                 detailBarcodeList = response.body().getAttributes().getDetailBarcodeEntityList();
-                if (detailBarcodeList.size() == 0) {
+                if (detailBarcodeList==null) {
                     ActWeight.setText("0.0" + "t");
                 } else {
                     double act_weight = 0;

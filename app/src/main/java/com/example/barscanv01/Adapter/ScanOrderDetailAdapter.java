@@ -2,6 +2,7 @@ package com.example.barscanv01.Adapter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.DrawableContainer;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,6 +67,22 @@ public class ScanOrderDetailAdapter extends RecyclerView.Adapter {
             ((ScanOrderDetailViewHolder) holder).count.setTextColor(Color.BLACK);
             ((ScanOrderDetailViewHolder) holder).customerName.setTextColor(Color.BLACK);
             ((ScanOrderDetailViewHolder) holder).actcount.setTextColor(Color.BLACK);
+        }
+
+        if (datas.get(position).isFocus()) {
+            ((ScanOrderDetailViewHolder) holder).good.setBackgroundColor(Color.parseColor("#FFC125"));
+            ((ScanOrderDetailViewHolder) holder).modle.setBackgroundColor(Color.parseColor("#FFC125"));
+            ((ScanOrderDetailViewHolder) holder).count.setBackgroundColor(Color.parseColor("#FFC125"));
+            ((ScanOrderDetailViewHolder) holder).customerName.setBackgroundColor(Color.parseColor("#FFC125"));
+            ((ScanOrderDetailViewHolder) holder).actcount.setBackgroundColor(Color.parseColor("#FFC125"));
+        }
+        if(!datas.get(position).isFocus()){
+            ((ScanOrderDetailViewHolder) holder).good.setBackgroundColor(Color.parseColor("#F4F4F4"));
+            ((ScanOrderDetailViewHolder) holder).modle.setBackgroundColor(Color.parseColor("#F0FFF0"));
+            ((ScanOrderDetailViewHolder) holder).count.setBackgroundColor(Color.parseColor("#F4F4F4"));
+            ((ScanOrderDetailViewHolder) holder).actcount.setBackgroundColor(Color.parseColor("#F0FFF0"));
+            ((ScanOrderDetailViewHolder) holder).customerName.setBackgroundColor(Color.parseColor("#F4F4F4"));
+
         }
 
 

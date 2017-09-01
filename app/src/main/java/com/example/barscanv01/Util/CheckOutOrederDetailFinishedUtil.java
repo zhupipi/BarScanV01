@@ -25,20 +25,21 @@ public class CheckOutOrederDetailFinishedUtil {
     private Activity activity;
     private MyApp myApp;
 
-    public CheckOutOrederDetailFinishedUtil(OutOrderBean outOrder,Activity activity){
-        this.outOrder=outOrder;
-        this.activity=activity;
-        myApp= (MyApp) activity.getApplication();
+    public CheckOutOrederDetailFinishedUtil(OutOrderBean outOrder, Activity activity) {
+        this.outOrder = outOrder;
+        this.activity = activity;
+        myApp = (MyApp) activity.getApplication();
     }
-    public void checkOutOrderFinished(){
-        Retrofit retrofit=new RetrofitBuildUtil().getRetrofit();
-        CheckOrderFinishedService checkOutOrderFinishedService=retrofit.create(CheckOrderFinishedService.class);
-        Call<ReceivedCheckOutOrderFinishedInfo> call2=checkOutOrderFinishedService.checkOutOrderFinished(outOrder.getId());
+
+    public void checkOutOrderFinished() {
+        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+        CheckOrderFinishedService checkOutOrderFinishedService = retrofit.create(CheckOrderFinishedService.class);
+        Call<ReceivedCheckOutOrderFinishedInfo> call2 = checkOutOrderFinishedService.checkOutOrderFinished(outOrder.getId());
         call2.enqueue(new Callback<ReceivedCheckOutOrderFinishedInfo>() {
             @Override
             public void onResponse(Call<ReceivedCheckOutOrderFinishedInfo> call, Response<ReceivedCheckOutOrderFinishedInfo> response) {
-                boolean result=response.body().getAttributes().isCheckResult();
-                if(result){
+                boolean result = response.body().getAttributes().isCheckResult();
+                if (result) {
                     outOrderFinised();
                 }
             }
@@ -61,7 +62,7 @@ public class CheckOutOrederDetailFinishedUtil {
         call3.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                AreaInOutUpdateUtil areaInOutUpdate = new AreaInOutUpdateUtil(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo(), "6",myApp.getCurrentDepot().getDepotNo(),myApp.getCurrentAreaBean().getAreaNo());
+                AreaInOutUpdateUtil areaInOutUpdate = new AreaInOutUpdateUtil(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo(), "6", myApp.getCurrentDepot().getDepotNo(), myApp.getCurrentAreaBean().getAreaNo());
             }
 
             @Override
@@ -70,7 +71,7 @@ public class CheckOutOrederDetailFinishedUtil {
             }
         });
         Toast.makeText(activity, "该发货单装车完成", Toast.LENGTH_SHORT).show();
-        WriteBizlogUtil writeBizlog=new WriteBizlogUtil(activity);
+        WriteBizlogUtil writeBizlog = new WriteBizlogUtil(activity);
         writeBizlog.writeOutOrderFinishedLog();
     }
 }
