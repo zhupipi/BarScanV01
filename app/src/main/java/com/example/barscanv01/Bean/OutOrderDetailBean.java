@@ -45,6 +45,7 @@ public class OutOrderDetailBean {
     private String actWeight;
     private String finishStatus;
     private boolean focus;
+    private boolean removePromise;
 
     public String getAddress() {
         return address;
@@ -173,5 +174,13 @@ public class OutOrderDetailBean {
 
     public void setFocus(boolean focus) {
         this.focus = focus;
+    }
+
+    public boolean isRemovePromise() {
+        return removePromise;
+    }
+
+    public void setRemovePromise(boolean removePromise) {
+        this.removePromise = removePromise;
     }
 }

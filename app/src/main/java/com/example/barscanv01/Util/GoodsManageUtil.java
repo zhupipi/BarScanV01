@@ -48,7 +48,7 @@ public class GoodsManageUtil {
 
     public int resultCode;
 
-    public GoodsManageUtil(){
+    public GoodsManageUtil() {
         goodsManageDetailBeanList = new ArrayList<GoodsManageDetailBean>();
     }
 
@@ -86,26 +86,29 @@ public class GoodsManageUtil {
         boolean result = true;
         if (SettingSingletone.getInstance(context).getRemoveResult()) {
             if (goodsManageDetailBeanList.size() > 0) {
+                for (GoodsManageDetailBean goodsManageDetail : goodsManageDetailBeanList) {
+                    for (OutOrderDetailBean outOrderDetail : outOrderDetailList) {
+                        if (outOrderDetail.getGoodsCode().equals(goodsManageDetail.getGoodsCode())) {
+                            outOrderDetail.setRemovePromise(true);
+                        }
+                    }
+                }
                 for (OutOrderDetailBean orderDetail : outOrderDetailList) {
                     if (orderDetail.getDepotNo().equals(currentDepot.getDepotNo())) {
-                        for (GoodsManageDetailBean goodsManageDetail : goodsManageDetailBeanList) {
-                            if (!orderDetail.getGoodsCode().equals(goodsManageDetail.getGoodsCode())) {
-                                float actCount = 0;
-                                if (orderDetail.getActCount() != null) {
-                                    actCount = Float.valueOf(orderDetail.getActCount());
-                                }
-                                if (actCount < orderDetail.getCount()) {
-                                    result = false;
-                                    resultCode = DEPOT_LOAD_OVER_NO_PROMISE;
-                                    break;
-                                }
+                        if (!orderDetail.isRemovePromise()) {
+                            float actCount = 0;
+                            if (orderDetail.getActCount() != null) {
+                                actCount = Float.valueOf(orderDetail.getActCount());
+                            }
+                            if (actCount < orderDetail.getCount()) {
+                                result = false;
+                                resultCode = DEPOT_LOAD_OVER_NO_PROMISE;
+                                break;
                             }
                         }
                     }
-                    if (result == false) {
-                        break;
-                    }
                 }
+
             } else {
                 for (OutOrderDetailBean orderDetail : outOrderDetailList) {
                     if (orderDetail.getDepotNo().equals(currentDepot.getDepotNo())) {
@@ -132,23 +135,24 @@ public class GoodsManageUtil {
         boolean result = true;
         if (SettingSingletone.getInstance(context).getRemoveResult()) {
             if (goodsManageDetailBeanList.size() > 0) {
-                for (OutOrderDetailBean orderDetail : outOrderDetailList) {
-                    for (GoodsManageDetailBean goodsManageDetail : goodsManageDetailBeanList) {
-                        if (!orderDetail.getGoodsCode().equals(goodsManageDetail.getGoodsCode())) {
-                            float actCount = 0;
-                            if (orderDetail.getActCount() != null) {
-                                actCount = Float.valueOf(orderDetail.getActCount());
-                            }
-                            if (actCount < orderDetail.getCount()) {
-                                result = false;
-                                resultCode = ORDER_LOAD_OVER_NO_PROMISE;
-                                break;
-                            }
+                for (GoodsManageDetailBean goodsManageDetail : goodsManageDetailBeanList) {
+                    for (OutOrderDetailBean outOrderDetail : outOrderDetailList) {
+                        if (outOrderDetail.getGoodsCode().equals(goodsManageDetail.getGoodsCode())) {
+                            outOrderDetail.setRemovePromise(true);
                         }
-
                     }
-                    if (!result) {
-                        break;
+                }
+                for (OutOrderDetailBean orderDetail : outOrderDetailList) {
+                    if (!orderDetail.isRemovePromise()) {
+                        float actCount = 0;
+                        if (orderDetail.getActCount() != null) {
+                            actCount = Float.valueOf(orderDetail.getActCount());
+                        }
+                        if (actCount < orderDetail.getCount()) {
+                            result = false;
+                            resultCode = DEPOT_LOAD_OVER_NO_PROMISE;
+                            break;
+                        }
                     }
                 }
             } else {
