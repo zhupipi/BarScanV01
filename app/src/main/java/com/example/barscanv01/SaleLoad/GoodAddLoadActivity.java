@@ -226,6 +226,8 @@ public class GoodAddLoadActivity extends AppCompatActivity {
                         if (result.getTag().equals("OPERATION_LOAD_CAR")) {
                             double act_weight = Double.valueOf(actWeight.getText().toString().trim());
                             act_weight = act_weight + Double.valueOf(good.getActWeight());
+                            act_weight = Math.round(act_weight * 100);
+                            act_weight = act_weight / 100;
                             actWeight.setText(String.valueOf(act_weight));
                         }
                     }

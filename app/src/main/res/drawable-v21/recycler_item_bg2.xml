@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-
+    <item android:drawable="@color/focusColer" android:state_focused="true" />
+    <item android:drawable="@color/focusColer" android:state_selected="true" />
     <!--点击时textView背景-->
-    <item android:state_focused="false" android:state_pressed="true"   android:drawable="@drawable/recycler_bg" />
+    <item android:drawable="@color/pressedColor" android:state_pressed="true" />
+    <!--默认时textView背景-->
+    <item android:drawable="@drawable/recycler_item_shape2" />
 
-    <item android:drawable="@drawable/recycler_item_shape2"/>
 </selector>

@@ -78,17 +78,36 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:text="车辆负重："
-                    android:textSize="18sp" />
+                    android:text="车辆负重(kg)："
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/good_add_detail_weight"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:textSize="18sp" />
+                    android:textSize="16sp" />
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0.75"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="装车件数:"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/good_add_detail_act_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp" />
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -114,19 +133,19 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:background="@drawable/recycler_item_bg1"
                 android:gravity="center"
                 android:text="产品名"
-                android:textSize="16sp"
-                android:background="@drawable/recycler_item_bg1"/>
+                android:textSize="16sp" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:background="@drawable/recycler_item_bg2"
                 android:gravity="center"
                 android:text="规格"
-                android:textSize="16sp"
-                android:background="@drawable/recycler_item_bg2"/>
+                android:textSize="16sp" />
         </LinearLayout>
 
     </LinearLayout>
@@ -139,7 +158,7 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/good_add_detail_result_view"
         android:layout_width="match_parent"
-        android:layout_height="210dp" />
+        android:layout_height="200dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -161,4 +180,6 @@
             android:layout_weight="1"
             android:text="取消" />
     </LinearLayout>
+
+
 </LinearLayout>

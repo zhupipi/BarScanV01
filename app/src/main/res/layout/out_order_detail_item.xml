@@ -5,7 +5,6 @@
     android:orientation="horizontal"
     android:clickable="true"
     android:focusable="true"
-
     >
 
     <TextView
@@ -16,7 +15,9 @@
         android:layout_weight="1"
         android:background="@drawable/recycler_item_bg1"
         android:gravity="center"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        android:duplicateParentState="true"
+      />
 
     <TextView
         android:id="@+id/out_order_detial_modle"
@@ -27,6 +28,8 @@
         android:gravity="center"
         android:textSize="14sp"
         android:background="@drawable/recycler_item_bg2"
+        android:duplicateParentState="true"
+
          />
 
     <TextView
@@ -37,7 +40,9 @@
         android:layout_weight="0.5"
         android:gravity="center"
         android:textSize="14sp"
-        android:background="@drawable/recycler_item_bg1"/>
+        android:background="@drawable/recycler_item_bg1"
+        android:duplicateParentState="true"
+      />
 
     <TextView
         android:id="@+id/out_order_detial_actcount"
@@ -47,7 +52,9 @@
         android:layout_weight="0.5"
         android:gravity="center"
         android:textSize="14sp"
-        android:background="@drawable/recycler_item_bg2"/>
+        android:background="@drawable/recycler_item_bg2"
+        android:duplicateParentState="true"
+       />
 
     <TextView
         android:id="@+id/out_order_detial_customerName"
@@ -57,6 +64,8 @@
         android:layout_weight="1.5"
         android:gravity="center"
         android:textSize="14sp"
-        android:background="@drawable/recycler_item_bg1"/>
+        android:background="@drawable/recycler_item_bg1"
+        android:duplicateParentState="true"
+       />
 
 </LinearLayout>

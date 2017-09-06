@@ -659,7 +659,7 @@ public class SaleLoadActivity extends AppCompatActivity {
         View rootView = LayoutInflater.from(this).inflate(R.layout.activity_sale_load, null);
         popupWindow.setContentView(contentView);
         popupWindow.setFocusable(true);
-        popupWindow.setOutsideTouchable(true);
+        //popupWindow.setOutsideTouchable(true);
         popupWindow.setBackgroundDrawable(new ColorDrawable(-1));
         popupWindow.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
         popupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -685,6 +685,12 @@ public class SaleLoadActivity extends AppCompatActivity {
         if (scanOrderDetailAdapter == null) {
             scanOrderDetailAdapter = new ScanOrderDetailAdapter(this, depotDetailList);
             scanDetailView.setAdapter(scanOrderDetailAdapter);
+            scanOrderDetailAdapter.setOnItemClickLitener(new ScanOrderDetailAdapter.OnItemClickLitener() {
+                @Override
+                public void onItemClick(View view, int position) {
+                    Toast.makeText(SaleLoadActivity.this, depotDetailList.get(position).getGoodsName(), Toast.LENGTH_SHORT).show();
+                }
+            });
         } else {
             scanOrderDetailAdapter.notifyDataSetChanged();
         }
@@ -707,15 +713,15 @@ public class SaleLoadActivity extends AppCompatActivity {
                     if (count > act_count) {
                         act_count = act_count + 1;
                         act_weight = act_weight + Double.valueOf(good.getActWeight());
-                        for(OutOrderDetailBean detailBean0:depotDetailList){
-                            if(detailBean0!=detailBean){
-                                if(detailBean0.isFocus()){
-                                    detailBean0.setFocus(false);
-                                    break;
-                                }
-                            }
+                        for (int i = 0; i < depotDetailList.size(); i++) {
+                            RecyclerView.LayoutManager layoutManage1r = scanDetailView.getLayoutManager();
+                            View v1 = layoutManage1r.findViewByPosition(depotDetailList.indexOf(detailBean));
+                            v1.setSelected(false);
                         }
-                        detailBean.setFocus(true);
+                        RecyclerView.LayoutManager layoutManager = scanDetailView.getLayoutManager();
+                        View v = layoutManager.findViewByPosition(depotDetailList.indexOf(detailBean));
+                        v.setSelected(true);
+
                         detailBean.setActCount(String.valueOf(act_count));
                         detailBean.setActWeight(String.valueOf(act_weight));
                         if (Double.valueOf(detailBean.getActCount()) + 1 > detailBean.getCount()) {

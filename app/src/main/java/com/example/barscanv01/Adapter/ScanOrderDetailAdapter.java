@@ -22,6 +22,7 @@ import java.util.List;
 public class ScanOrderDetailAdapter extends RecyclerView.Adapter {
     private List<OutOrderDetailBean> datas;
     private Context context;
+    private OnItemClickLitener mItemClickLitener;
 
 
     public ScanOrderDetailAdapter(Context context, List<OutOrderDetailBean> datas) {
@@ -40,7 +41,7 @@ public class ScanOrderDetailAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         int act_count = 0;
         ((ScanOrderDetailViewHolder) holder).good.setText(datas.get(position).getGoodsName());
         ((ScanOrderDetailViewHolder) holder).modle.setText(datas.get(position).getSpecificationModel());
@@ -69,22 +70,30 @@ public class ScanOrderDetailAdapter extends RecyclerView.Adapter {
             ((ScanOrderDetailViewHolder) holder).actcount.setTextColor(Color.BLACK);
         }
 
-        if (datas.get(position).isFocus()) {
+       /* if (datas.get(position).isFocus()) {
             ((ScanOrderDetailViewHolder) holder).good.setBackgroundColor(Color.parseColor("#FFC125"));
             ((ScanOrderDetailViewHolder) holder).modle.setBackgroundColor(Color.parseColor("#FFC125"));
             ((ScanOrderDetailViewHolder) holder).count.setBackgroundColor(Color.parseColor("#FFC125"));
             ((ScanOrderDetailViewHolder) holder).customerName.setBackgroundColor(Color.parseColor("#FFC125"));
             ((ScanOrderDetailViewHolder) holder).actcount.setBackgroundColor(Color.parseColor("#FFC125"));
         }
-        if(!datas.get(position).isFocus()){
+        if (!datas.get(position).isFocus()) {
             ((ScanOrderDetailViewHolder) holder).good.setBackgroundColor(Color.parseColor("#F4F4F4"));
             ((ScanOrderDetailViewHolder) holder).modle.setBackgroundColor(Color.parseColor("#F0FFF0"));
             ((ScanOrderDetailViewHolder) holder).count.setBackgroundColor(Color.parseColor("#F4F4F4"));
             ((ScanOrderDetailViewHolder) holder).actcount.setBackgroundColor(Color.parseColor("#F0FFF0"));
             ((ScanOrderDetailViewHolder) holder).customerName.setBackgroundColor(Color.parseColor("#F4F4F4"));
 
+        }*/
+        if (mItemClickLitener != null) {
+            ((ScanOrderDetailViewHolder) holder).itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = holder.getLayoutPosition();
+                    mItemClickLitener.onItemClick(holder.itemView, position);
+                }
+            });
         }
-
 
     }
 
@@ -109,5 +118,14 @@ public class ScanOrderDetailAdapter extends RecyclerView.Adapter {
             customerName = (TextView) view.findViewById(R.id.out_order_detial_customerName);
         }
     }
+
+    public void setOnItemClickLitener(OnItemClickLitener mOnItemClickListener) {
+        this.mItemClickLitener = mOnItemClickListener;
+    }
+
+    public interface OnItemClickLitener {
+        void onItemClick(View view, int position);
+    }
+
 
 }

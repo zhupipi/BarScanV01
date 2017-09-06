@@ -16,15 +16,24 @@ import android.widget.Toast;
 
 import com.example.barscanv01.Adapter.DividerItemDecoration;
 import com.example.barscanv01.Adapter.GoodAddDetailAdapter;
+import com.example.barscanv01.Bean.DetailBarcodeBean;
 import com.example.barscanv01.Bean.GoodsManageDetailBean;
+import com.example.barscanv01.Bean.ReceivedDetailBarcodeInfo;
 import com.example.barscanv01.R;
+import com.example.barscanv01.ServiceAPI.GetDetailBarcodeService;
 import com.example.barscanv01.Util.GoodsManageUtil;
+import com.example.barscanv01.Util.RetrofitBuildUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class GoodAddDetailActivity extends AppCompatActivity {
     @BindView(R.id.good_add_detail_outOrder_No)
@@ -41,6 +50,8 @@ public class GoodAddDetailActivity extends AppCompatActivity {
     Button cancelButton;
     @BindView(R.id.good_add_detail_result_view)
     RecyclerView resultView;
+    @BindView(R.id.good_add_detail_act_count)
+    TextView actCount;
 
     List<GoodsManageDetailBean> mGoodsManageDetailList;
 
@@ -65,12 +76,12 @@ public class GoodAddDetailActivity extends AppCompatActivity {
         confrimButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mGoodsManageDetailList.size()>0) {
+                if (mGoodsManageDetailList.size() > 0) {
                     Intent intent = new Intent(GoodAddDetailActivity.this, GoodAddLoadActivity.class);
                     intent.putExtra("act_weight", Double.valueOf(actWeight.getText().toString().trim()));
                     startActivity(intent);
-                }else {
-                    Toast.makeText(GoodAddDetailActivity.this,"现在无加货货品",Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(GoodAddDetailActivity.this, "现在无加货货品", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -84,10 +95,39 @@ public class GoodAddDetailActivity extends AppCompatActivity {
     }
 
     private void initalData() {
-        Intent intent = getIntent();
-        actWeight.setText(String.valueOf(intent.getExtras().getDouble("act_weight")));
+        showOrderWeight();
         orderNo.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getOutOrderNo());
         carPlate.setText(DeliveryBillSingleton.getInstance().getOutOrderBean().getPlateNo());
+    }
+
+    private void showOrderWeight() {
+        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+        GetDetailBarcodeService getDetailBarcodeService = retrofit.create(GetDetailBarcodeService.class);
+        Call<ReceivedDetailBarcodeInfo> call = getDetailBarcodeService.getDetailBarcodesById(DeliveryBillSingleton.getInstance().getOutOrderBean().getId());
+        call.enqueue(new Callback<ReceivedDetailBarcodeInfo>() {
+            @Override
+            public void onResponse(Call<ReceivedDetailBarcodeInfo> call, Response<ReceivedDetailBarcodeInfo> response) {
+                List<DetailBarcodeBean> detailBarcodes = new ArrayList<DetailBarcodeBean>();
+                detailBarcodes = response.body().getAttributes().getDetailBarcodeEntityList();
+                double act_weight = 0;
+                int act_count = 0;
+                if (detailBarcodes.size() > 0) {
+                    act_count = detailBarcodes.size();
+                    for (DetailBarcodeBean detaiBarcode : detailBarcodes) {
+                        act_weight = act_weight + detaiBarcode.getWeight();
+                    }
+                }
+                act_weight = Math.round(act_weight * 100);
+                act_weight = act_weight / 100;
+                actWeight.setText(String.valueOf(act_weight));
+                actCount.setText(String.valueOf(act_count));
+            }
+
+            @Override
+            public void onFailure(Call<ReceivedDetailBarcodeInfo> call, Throwable t) {
+
+            }
+        });
     }
 
     private void getGoodsManageList() {
