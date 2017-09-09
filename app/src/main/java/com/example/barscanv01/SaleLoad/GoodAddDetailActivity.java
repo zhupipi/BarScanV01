@@ -78,6 +78,9 @@ public class GoodAddDetailActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (mGoodsManageDetailList.size() > 0) {
                     Intent intent = new Intent(GoodAddDetailActivity.this, GoodAddLoadActivity.class);
+                    if (actWeight.getText().toString().trim().equals("")) {
+                        actWeight.setText("0");
+                    }
                     intent.putExtra("act_weight", Double.valueOf(actWeight.getText().toString().trim()));
                     startActivity(intent);
                 } else {
@@ -112,9 +115,11 @@ public class GoodAddDetailActivity extends AppCompatActivity {
                 double act_weight = 0;
                 int act_count = 0;
                 if (detailBarcodes.size() > 0) {
-                    act_count = detailBarcodes.size();
                     for (DetailBarcodeBean detaiBarcode : detailBarcodes) {
                         act_weight = act_weight + detaiBarcode.getWeight();
+                        if (detaiBarcode.getBarcode() != null) {
+                            act_count = act_count + 1;
+                        }
                     }
                 }
                 act_weight = Math.round(act_weight * 100);

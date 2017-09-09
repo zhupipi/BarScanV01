@@ -46,6 +46,8 @@ public class OutOrderDetailBean {
     private String finishStatus;
     private boolean focus;
     private boolean removePromise;
+    private int number;
+    private int actNumber;
 
     public String getAddress() {
         return address;
@@ -182,5 +184,21 @@ public class OutOrderDetailBean {
 
     public void setRemovePromise(boolean removePromise) {
         this.removePromise = removePromise;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
+
+    public int getActNumber() {
+        return actNumber;
+    }
+
+    public void setActNumber(int actNumber) {
+        this.actNumber = actNumber;
     }
 }

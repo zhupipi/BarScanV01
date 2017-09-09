@@ -40,7 +40,7 @@ public class WriteDetailBarcodeUtil {
         map=new HashMap<String, String>();
     }
     public void write(){
-        map.put("goodsId",good.getGoodsId());
+        //map.put("goodsId",good.getGoodsId());
         map.put("orderId",outOrder.getId());
         map.put("areaNo",myApp.getCurrentAreaBean().getAreaNo());
         map.put("depotNo",good.getDepotNo());

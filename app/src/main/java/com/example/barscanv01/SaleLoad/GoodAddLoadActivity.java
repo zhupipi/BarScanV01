@@ -197,6 +197,7 @@ public class GoodAddLoadActivity extends AppCompatActivity {
                             @Override
                             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                                 Toast.makeText(GoodAddLoadActivity.this, "加货货物装车提交成功", Toast.LENGTH_SHORT).show();
+                                finish();
                             }
 
                             @Override

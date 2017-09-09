@@ -48,7 +48,7 @@ public class LoadedResultAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         ((MyViewHolder) holder).barcode.setText(datas.get(position).getBarcode());
         ((MyViewHolder)holder).goodName.setText(datas.get(position).getGoodsName());
         ((MyViewHolder)holder).goodModle.setText(datas.get(position).getSpecificationModel());
-        ((MyViewHolder)holder).actWeight.setText(datas.get(position).getActWeight());
+        ((MyViewHolder)holder).actWeight.setText(String.valueOf(datas.get(position).getActWeight()));
     }
 
     @Override

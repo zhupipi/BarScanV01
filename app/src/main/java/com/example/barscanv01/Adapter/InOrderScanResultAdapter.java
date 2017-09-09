@@ -37,10 +37,12 @@ public class InOrderScanResultAdapter extends RecyclerView.Adapter {
         ((MyViewHolder)holder).barcode.setText(datas.get(position).getBarcode());
         ((MyViewHolder)holder).goodName.setText(datas.get(position).getGoodsName());
         ((MyViewHolder)holder).modle.setText(datas.get(position).getSpecificationModel());
-        ((MyViewHolder)holder).weight.setText(datas.get(position).getActWeight());
+        ((MyViewHolder)holder).weight.setText(String.valueOf(datas.get(position).getActWeight()));
         for(DetailBarcodeBean detail: InOrderSingleton.getInstance().getDetailBarcodeList()){
-            if(detail.getBarcode().equals(datas.get(position).getBarcode())){
-                ((MyViewHolder)holder).customerName.setText(detail.getCustomerName());
+            if(detail.getBarcode()!=null) {
+                if (detail.getBarcode().equals(datas.get(position).getBarcode())) {
+                    ((MyViewHolder) holder).customerName.setText(detail.getCustomerName());
+                }
             }
         }
     }

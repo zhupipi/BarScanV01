@@ -19,7 +19,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,8 +44,6 @@ import com.example.barscanv01.ServiceAPI.ScanBarcodeResultService;
 import com.example.barscanv01.ServiceAPI.UpdatePositionService;
 import com.example.barscanv01.Util.CheckOutOrederDetailFinishedUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
-import com.nlscan.android.scan.ScanManager;
-import com.nlscan.android.scan.ScanSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +76,6 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
 
     private FragmentManager fragmentManager;
     private MyApp myApp;
-    private ScanManager scanManager;
     private OutOrderBean outOrder;
     private DepotBean userDepot;
     private AreaBean userArea;

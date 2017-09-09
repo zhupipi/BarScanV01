@@ -62,7 +62,7 @@ public class ScanOrderDetailAdapter extends RecyclerView.Adapter {
             ((ScanOrderDetailViewHolder) holder).customerName.setTextColor(Color.RED);
             ((ScanOrderDetailViewHolder) holder).actcount.setTextColor(Color.RED);
         }
-        if (datas.get(position).getCount() == act_count || datas.get(position).getFinishStatus().equals("1")) {
+        if ( datas.get(position).getFinishStatus().equals("1")) {
             ((ScanOrderDetailViewHolder) holder).good.setTextColor(Color.BLACK);
             ((ScanOrderDetailViewHolder) holder).modle.setTextColor(Color.BLACK);
             ((ScanOrderDetailViewHolder) holder).count.setTextColor(Color.BLACK);

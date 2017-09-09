@@ -42,7 +42,7 @@ public class ScanResultAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         ((ScanResultViewHodler)holder).barcode.setText(datas.get(position).getBarcode());
-        ((ScanResultViewHodler)holder).actWeight.setText(datas.get(position).getActWeight());
+        ((ScanResultViewHodler)holder).actWeight.setText(String.valueOf(datas.get(position).getActWeight()));
         ((ScanResultViewHodler) holder).goodName.setText(datas.get(position).getGoodsName());
         ((ScanResultViewHodler)holder).modle.setText(datas.get(position).getSpecificationModel());
         if(mItemClickListener!=null){

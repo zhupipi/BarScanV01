@@ -5,135 +5,274 @@ package com.example.barscanv01.Bean;
  */
 
 public class GoodsBarcodeBean {
+    /**
+     * id : 8a888215df567d015e09ddb6953110
+     * flag : 0
+     * status : 2
+     * createName : null
+     * createBy : null
+     * createDate : null
+     * updateName : 地磅过磅员1
+     * updateBy : DB001
+     * updateDate : 1504705105000
+     * depotNo : A01
+     * goodsCode : 131020130
+     * barcode : 201708271044002
+     * goodsName : 结构圆镀管
+     * positionNo : P01
+     * actWeight : 191.11
+     * batchNo : 20170827002
+     * qcStatus : 0
+     * specificationModel : 6分*1.3
+     */
 
-        /**
-         * id : 4028849f5d062208015d062208bd0000
-         * flag : 0
-         * status : 0
-         * createBy : admin
-         * createName : 管理员
-         * createDate : 1499046480000
-         * updateName : null
-         * updateBy : null
-         * updateDate : null
-         * depotNo : A01
-         * specificationModel : 5.26*4.16*6
-         * goodsId : 402885f45ce351da015ce352cb6c0001
-         * barcode : 25641660020170703
-         * goodsName : 1
-         * batchNo : 201700703A0825
-         * actWeight : 2.5
-         * positionNo : P01
-         * qcStatus : 0
-         */
+    private String id;
+    private String flag;
+    private String status;
+    private String depotNo;
+    private String goodsCode;
+    private String barcode;
+    private String goodsName;
+    private String positionNo;
+    private float actWeight;
+    private String batchNo;
+    private String qcStatus;
+    private String specificationModel;
 
-        private String id;
-        private String flag;
-        private String status;
-        private String depotNo;
-        private String specificationModel;
-        private String goodsId;
-        private String barcode;
-        private String goodsName;
-        private String batchNo;
-        private String actWeight;
-        private String positionNo;
-        private String qcStatus;
+    public String getId() {
+        return id;
+    }
 
-        public String getId() {
-            return id;
-        }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-        public void setId(String id) {
-            this.id = id;
-        }
+    public String getFlag() {
+        return flag;
+    }
 
-        public String getFlag() {
-            return flag;
-        }
+    public void setFlag(String flag) {
+        this.flag = flag;
+    }
 
-        public void setFlag(String flag) {
-            this.flag = flag;
-        }
+    public String getStatus() {
+        return status;
+    }
 
-        public String getStatus() {
-            return status;
-        }
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-        public void setStatus(String status) {
-            this.status = status;
-        }
+    public String getDepotNo() {
+        return depotNo;
+    }
 
-        public String getDepotNo() {
-            return depotNo;
-        }
+    public void setDepotNo(String depotNo) {
+        this.depotNo = depotNo;
+    }
 
-        public void setDepotNo(String depotNo) {
-            this.depotNo = depotNo;
-        }
+    public String getGoodsCode() {
+        return goodsCode;
+    }
 
-        public String getSpecificationModel() {
-            return specificationModel;
-        }
+    public void setGoodsCode(String goodsCode) {
+        this.goodsCode = goodsCode;
+    }
 
-        public void setSpecificationModel(String specificationModel) {
-            this.specificationModel = specificationModel;
-        }
+    public String getBarcode() {
+        return barcode;
+    }
 
-        public String getGoodsId() {
-            return goodsId;
-        }
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
+    }
 
-        public void setGoodsId(String goodsId) {
-            this.goodsId = goodsId;
-        }
+    public String getGoodsName() {
+        return goodsName;
+    }
 
-        public String getBarcode() {
-            return barcode;
-        }
+    public void setGoodsName(String goodsName) {
+        this.goodsName = goodsName;
+    }
 
-        public void setBarcode(String barcode) {
-            this.barcode = barcode;
-        }
+    public String getPositionNo() {
+        return positionNo;
+    }
 
-        public String getGoodsName() {
-            return goodsName;
-        }
+    public void setPositionNo(String positionNo) {
+        this.positionNo = positionNo;
+    }
 
-        public void setGoodsName(String goodsName) {
-            this.goodsName = goodsName;
-        }
+    public float getActWeight() {
+        return actWeight;
+    }
 
-        public String getBatchNo() {
-            return batchNo;
-        }
+    public void setActWeight(float actWeight) {
+        this.actWeight = actWeight;
+    }
 
-        public void setBatchNo(String batchNo) {
-            this.batchNo = batchNo;
-        }
+    public String getBatchNo() {
+        return batchNo;
+    }
 
-        public String getActWeight() {
-            return actWeight;
-        }
+    public void setBatchNo(String batchNo) {
+        this.batchNo = batchNo;
+    }
 
-        public void setActWeight(String actWeight) {
-            this.actWeight = actWeight;
-        }
+    public String getQcStatus() {
+        return qcStatus;
+    }
 
-        public String getPositionNo() {
-            return positionNo;
-        }
+    public void setQcStatus(String qcStatus) {
+        this.qcStatus = qcStatus;
+    }
 
-        public void setPositionNo(String positionNo) {
-            this.positionNo = positionNo;
-        }
+    public String getSpecificationModel() {
+        return specificationModel;
+    }
 
-        public String getQcStatus() {
-            return qcStatus;
-        }
+    public void setSpecificationModel(String specificationModel) {
+        this.specificationModel = specificationModel;
+    }
 
-        public void setQcStatus(String qcStatus) {
-            this.qcStatus = qcStatus;
-        }
+    /**
+     * flag : 0
+     * status : 0
+     * depotNo : G0101
+     * positionNo : G010101
+     * actWeight : 1989
+     * specificationModel : 3寸*2.0
+     * goodsName : 结构圆镀管
+     * barcode : 201709051727003
+     * batchNo : 20170905006
+     * goodsId : 40285c815da67e6d015da6828f7304b5
+     * createDate : null
+     * updateDate : null
+     * createName : null
+     * createBy : null
+     * updateName : null
+     * updateBy : null
+     * qcStatus : 0
+     * id : 4039945h23115ab532d1252fa400102
+     */
+
+   /* private String flag;
+    private String status;
+    private String depotNo;
+    private String positionNo;
+    private float  actWeight;
+    private String specificationModel;
+    private String goodsName;
+    private String barcode;
+    private String batchNo;
+    private String goodsId;
+    private String qcStatus;
+    private String id;
+    private String goodsCode;
+
+    public String getFlag() {
+        return flag;
+    }
+
+    public void setFlag(String flag) {
+        this.flag = flag;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getDepotNo() {
+        return depotNo;
+    }
+
+    public void setDepotNo(String depotNo) {
+        this.depotNo = depotNo;
+    }
+
+    public String getPositionNo() {
+        return positionNo;
+    }
+
+    public void setPositionNo(String positionNo) {
+        this.positionNo = positionNo;
+    }
+
+    public float getActWeight() {
+        return actWeight;
+    }
+
+    public void setActWeight(float actWeight) {
+        this.actWeight = actWeight;
+    }
+
+    public String getSpecificationModel() {
+        return specificationModel;
+    }
+
+    public void setSpecificationModel(String specificationModel) {
+        this.specificationModel = specificationModel;
+    }
+
+    public String getGoodsName() {
+        return goodsName;
+    }
+
+    public void setGoodsName(String goodsName) {
+        this.goodsName = goodsName;
+    }
+
+    public String getBarcode() {
+        return barcode;
+    }
+
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
+    }
+
+    public String getBatchNo() {
+        return batchNo;
+    }
+
+    public void setBatchNo(String batchNo) {
+        this.batchNo = batchNo;
+    }
+
+    public String getGoodsId() {
+        return goodsId;
+    }
+
+    public void setGoodsId(String goodsId) {
+        this.goodsId = goodsId;
+    }
+
+    public String getQcStatus() {
+        return qcStatus;
+    }
+
+    public void setQcStatus(String qcStatus) {
+        this.qcStatus = qcStatus;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getGoodsCode() {
+        return goodsCode;
+    }
+
+    public void setGoodsCode(String goodsCode) {
+        this.goodsCode = goodsCode;
+    }*/
+
 }
 

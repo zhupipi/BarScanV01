@@ -343,9 +343,11 @@ public class UnLoadActivity extends AppCompatActivity {
         boolean result = true;
         String customerCode = "";
         for (DetailBarcodeBean detailBarcode : InOrderSingleton.getInstance().getDetailBarcodeList()) {
-            if (detailBarcode.getBarcode().equals(good.getBarcode())) {
-                customerCode = detailBarcode.getCustomerCode();
-                break;
+            if(detailBarcode.getBarcode()!=null) {
+                if (detailBarcode.getBarcode().equals(good.getBarcode())) {
+                    customerCode = detailBarcode.getCustomerCode();
+                    break;
+                }
             }
         }
         for (InOrderDetailBean detail : InOrderSingleton.getInstance().getInOrderDetailList()) {
@@ -368,9 +370,12 @@ public class UnLoadActivity extends AppCompatActivity {
         int totalNum = 0;
         if (resultList.size() > 0) {
             for (GoodsBarcodeBean goodBarcode : resultList) {
-                if (goodBarcode.getGoodsId().equals(good.getGoodsId())) {
+                if (goodBarcode.getGoodsName().equals(good.getGoodsName())&&goodBarcode.getSpecificationModel().equals(good.getSpecificationModel())) {
+                totalNum = totalNum + 1;
+               }
+               /* if(goodBarcode.getGoodsCode().equals(good.getGoodsCode())){
                     totalNum = totalNum + 1;
-                }
+                }*/
             }
         }
         return totalNum;
@@ -399,14 +404,16 @@ public class UnLoadActivity extends AppCompatActivity {
     private boolean checkDetailGood(GoodsBarcodeBean good) {
         boolean result = false;
         for (DetailBarcodeBean detailBarcode : InOrderSingleton.getInstance().getDetailBarcodeList()) {
-            if (detailBarcode.getBarcode().equals(good.getBarcode())) {
-                for (InOrderDetailBean detail : InOrderSingleton.getInstance().getInOrderDetailList()) {
-                    if (detail.getGoodsName().equals(good.getGoodsName()) && detail.getSpecificationModel().equals(good.getSpecificationModel()) && detail.getCustomerCode().equals(detail.getCustomerCode())) {
-                        result = true;
-                        break;
+            if (detailBarcode.getBarcode() != null) {
+                if (detailBarcode.getBarcode().equals(good.getBarcode())) {
+                    for (InOrderDetailBean detail : InOrderSingleton.getInstance().getInOrderDetailList()) {
+                        if (detail.getGoodsName().equals(good.getGoodsName()) && detail.getSpecificationModel().equals(good.getSpecificationModel()) && detail.getCustomerCode().equals(detail.getCustomerCode())) {
+                            result = true;
+                            break;
+                        }
                     }
+                    break;
                 }
-                break;
             }
         }
         return result;

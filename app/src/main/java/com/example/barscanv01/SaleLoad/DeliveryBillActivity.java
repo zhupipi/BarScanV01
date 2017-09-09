@@ -93,7 +93,6 @@ public class DeliveryBillActivity extends AppCompatActivity {
     TextView act_count;
 
     private CarPlateUtil carPlateUtil;
-    ScanManager scanManager;
     private OutOrderDetailAdapter myAdapter;
     private LoadedResultAdapter loadedResultAdapter;
     private MyApp myApp;
@@ -137,7 +136,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (s.length() == 10) {
+                if (s.length() == 12) {
                     String billNo = s.toString();
                     getOutOrderByNo(billNo);
                     ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(DeliveryBillActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
@@ -445,7 +444,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
             public void onResponse(Call<ReceivedDetailBarcodeInfo> call, Response<ReceivedDetailBarcodeInfo> response) {
                 List<DetailBarcodeBean> detailBarcodeList = new ArrayList<DetailBarcodeBean>();
                 detailBarcodeList = response.body().getAttributes().getDetailBarcodeEntityList();
-                if (detailBarcodeList==null) {
+                if (detailBarcodeList == null) {
                     ActWeight.setText("0.0" + "t");
                 } else {
                     double act_weight = 0;
@@ -548,7 +547,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
         float totalActWeight = 0;
         int totoalCount = 0;
         for (GoodsBarcodeBean good : loadGoodsResult) {
-            totalActWeight = totalActWeight + Float.valueOf(good.getActWeight());
+            totalActWeight = totalActWeight + good.getActWeight();
             totoalCount = totoalCount + 1;
         }
         totalActWeight = Math.round(totalActWeight);

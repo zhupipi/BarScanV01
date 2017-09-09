@@ -115,7 +115,7 @@ public class InOrderBillActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (s.length() == 10) {
+                if (s.length() == 12) {
                     String inOrderNo = s.toString().trim();
                     Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
                     GetInOrderByOrderNoService getInOrderByOrderNoService = retrofit.create(GetInOrderByOrderNoService.class);
@@ -304,6 +304,8 @@ public class InOrderBillActivity extends AppCompatActivity {
             totalWeight = totalWeight + detail.getWeight();
             detailActWeight = detailActWeight + detail.getActWeight();
         }
+        detailActWeight = Math.round(detailActWeight * 1000);
+        detailActWeight = detailActWeight / 1000;
         weight.setText(totalWeight + "");
         actWeight.setText(detailActWeight + "");
     }
