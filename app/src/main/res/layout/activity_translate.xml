@@ -5,27 +5,18 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/translate_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="@style/Theme.ToolBar.MyToolbar" />
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp"
         android:text="请扫描需要移库的产成品条形码："
         android:textSize="18sp" />
 
     <ImageView
-        android:layout_marginTop="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
         app:srcCompat="@drawable/divider" />
 
 
@@ -92,12 +83,10 @@
         app:srcCompat="@drawable/divider" />
 
 
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/translate_result_view"
-            android:layout_width="match_parent"
-            android:layout_height="220dp"
-            />
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/translate_result_view"
+        android:layout_width="match_parent"
+        android:layout_height="290dp" />
 
 
     <LinearLayout
@@ -110,14 +99,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="确定" />
+            android:text="移库" />
 
         <Button
             android:id="@+id/translate_cancel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="取消" />
+            android:text="拆包" />
     </LinearLayout>
 
 </LinearLayout>

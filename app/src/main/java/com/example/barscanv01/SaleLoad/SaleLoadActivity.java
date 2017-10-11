@@ -238,6 +238,8 @@ public class SaleLoadActivity extends AppCompatActivity {
             switch (tag) {
                 case "OPERATION_LOAD_CAR":
                     if (scanResult.size() > 0) {
+                        CheckOutOrederDetailFinishedUtil checkFinishedUtil = new CheckOutOrederDetailFinishedUtil(outOrder, SaleLoadActivity.this);
+                        checkFinishedUtil.checkOutOrderFinished();
                         setResult(1);
                         finish();
                     } else {
@@ -454,6 +456,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                 String message;
                 try {
                     message = intent.getStringExtra(SCN_CUST_EX_SCODE).toString().trim();
+                    message = message.substring(0, message.length() - 1);
                     if (!fragmentManager.findFragmentById(R.id.customer_load_change_fragment).getTag().equals("OPERATION_SELECT")) {
                         getScanResult(message);
                     } else {
@@ -678,6 +681,8 @@ public class SaleLoadActivity extends AppCompatActivity {
             public void onDismiss() {
                 CheckOutOrederDetailFinishedUtil checkFinishedUtil = new CheckOutOrederDetailFinishedUtil(outOrder, SaleLoadActivity.this);
                 checkFinishedUtil.checkOutOrderFinished();
+                setResult(1);
+                finish();
                 backgroundAlpha(1f);
             }
         });

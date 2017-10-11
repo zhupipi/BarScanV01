@@ -5,14 +5,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/no_detail_unload_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@color/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="@style/Theme.ToolBar.MyToolbar"></android.support.v7.widget.Toolbar>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -157,7 +149,7 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/no_detail_unload_recycle_view"
         android:layout_width="match_parent"
-        android:layout_height="220dp" />
+        android:layout_height="245dp" />
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -41,8 +41,10 @@ public class NoDetailUnloadAdapter extends RecyclerView.Adapter {
         ((NoDetailUnloadViewHolder) holder).actWeight.setText(String.valueOf(datas.get(position).getActWeight()));
         ((NoDetailUnloadViewHolder) holder).modle.setText(datas.get(position).getSpecificationModel());
         for (DetailBarcodeBean detailBarcode : detailBarcodeList) {
-            if (detailBarcode.getBarcode().equals(datas.get(position).getBarcode())) {
-                ((NoDetailUnloadViewHolder) holder).customerName.setText(datas.get(position).getGoodsName());
+            if (detailBarcode.getBarcode() != null) {
+                if (detailBarcode.getBarcode().equals(datas.get(position).getBarcode())) {
+                    ((NoDetailUnloadViewHolder) holder).customerName.setText(datas.get(position).getGoodsName());
+                }
             }
         }
 

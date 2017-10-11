@@ -51,7 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:text="产成品移库"
+            android:text="产成品移库/拆包"
             android:textSize="18sp" />
     </LinearLayout>
 

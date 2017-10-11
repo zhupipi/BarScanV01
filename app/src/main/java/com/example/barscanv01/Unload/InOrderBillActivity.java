@@ -69,12 +69,13 @@ public class InOrderBillActivity extends AppCompatActivity {
     Button cancelButton;
     @BindView(R.id.inorder_detial)
     RecyclerView detailView;
-    @BindView(R.id.inorder_weight)
-    TextView weight;
+    @BindView(R.id.inorder_act_count)
+    TextView actCount;
+    @BindView(R.id.inorder_count)
+    TextView count;
     @BindView(R.id.inorder_act_weight)
     TextView actWeight;
-    @BindView(R.id.inorder_bill_toolbar)
-    Toolbar toolbar;
+
 
     private MyApp myApp;
     private CarPlateUtil carPlateUtil;
@@ -89,8 +90,6 @@ public class InOrderBillActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_in_order_bill);
         ButterKnife.bind(this);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("卸车信息获取");
         myApp = (MyApp) getApplication();
         carPlateUtil = new CarPlateUtil();
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, carPlateUtil.getProvinces());
@@ -149,6 +148,9 @@ public class InOrderBillActivity extends AppCompatActivity {
                         }
                     });
                     ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(InOrderBillActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                } else if (s.length() == 8) {
+                    carPlate.setText(s.toString());
+                    billNo.setText("");
                 }
             }
         });
@@ -216,6 +218,9 @@ public class InOrderBillActivity extends AppCompatActivity {
                         });
                     }
                     ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(InOrderBillActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                } else {
+                    billNo.setText(s.toString());
+                    carPlate.setText("");
                 }
             }
         });
@@ -225,7 +230,6 @@ public class InOrderBillActivity extends AppCompatActivity {
                 if (InOrderSingleton.getInstance().getInOrder().getId() != null) {
                     if (!InOrderSingleton.getInstance().getInOrder().getProcess().equals("5")) {
                         Intent intent = new Intent(InOrderBillActivity.this, UnLoadActivity.class);
-                        intent.putExtra("weight", weight.getText().toString().trim());
                         intent.putExtra("actWeight", actWeight.getText().toString().trim());
                         startActivityForResult(intent, HAVE_INORDER_DETAIL);
 
@@ -298,15 +302,18 @@ public class InOrderBillActivity extends AppCompatActivity {
 
     private void showWeight() {
         getDetailBarcode();
-        double totalWeight = 0;
         double detailActWeight = 0;
+        int act_count = 0;
+        int detail_count = 0;
         for (InOrderDetailBean detail : InOrderSingleton.getInstance().getInOrderDetailList()) {
-            totalWeight = totalWeight + detail.getWeight();
             detailActWeight = detailActWeight + detail.getActWeight();
+            act_count = act_count + detail.getActCount();
+            detail_count = detail_count + detail.getCount();
         }
         detailActWeight = Math.round(detailActWeight * 1000);
         detailActWeight = detailActWeight / 1000;
-        weight.setText(totalWeight + "");
+        count.setText(String.valueOf(detail_count));
+        actCount.setText(String.valueOf(act_count));
         actWeight.setText(detailActWeight + "");
     }
 

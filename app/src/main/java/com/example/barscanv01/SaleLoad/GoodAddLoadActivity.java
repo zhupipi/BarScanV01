@@ -297,6 +297,7 @@ public class GoodAddLoadActivity extends AppCompatActivity {
                 String message;
                 try {
                     message = intent.getStringExtra(SCN_CUST_EX_SCODE).toString().trim();
+                    message=message.substring(0,message.length()-1);
                     if (!fragmentManager.findFragmentById(R.id.good_add_load_scan_result_frg).getTag().equals("OPERATION_SELECT")) {
                         getScanResult(message);
                     } else {

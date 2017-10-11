@@ -42,6 +42,7 @@ import com.example.barscanv01.R;
 import com.example.barscanv01.ServiceAPI.GetDepotInfoByAreaService;
 import com.example.barscanv01.ServiceAPI.GetPositionsByDepotService;
 import com.example.barscanv01.ServiceAPI.PutGoodChangeDepotService;
+import com.example.barscanv01.ServiceAPI.PutGoodsUnpackService;
 import com.example.barscanv01.ServiceAPI.ScanBarcodeResultService;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
 import com.nlscan.android.scan.ScanManager;
@@ -62,8 +63,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 public class TranslateActivity extends AppCompatActivity {
-    @BindView(R.id.translate_toolbar)
-    Toolbar myToolbar;
+
     @BindView(R.id.translate_confirm)
     Button comfirmButton;
     @BindView(R.id.translate_cancel)
@@ -91,8 +91,8 @@ public class TranslateActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_translate);
         ButterKnife.bind(this);
-        setSupportActionBar(myToolbar);
-        getSupportActionBar().setTitle("产成品移库");
+/*        setSupportActionBar(myToolbar);
+        getSupportActionBar().setTitle("产成品移库");*/
         myApp = (MyApp) getApplication();
         scanResult = new ArrayList<GoodsBarcodeBean>();
         scanResultView.setLayoutManager(new LinearLayoutManager(this));
@@ -100,7 +100,6 @@ public class TranslateActivity extends AppCompatActivity {
         scanResultView.setItemAnimator(new DefaultItemAnimator());
         depotList = new ArrayList<DepotBean>();
         map = new HashMap<>();
-        intitalScanSetting();
         getDepotInfo();
         setListener();
     }
@@ -109,7 +108,11 @@ public class TranslateActivity extends AppCompatActivity {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                if (scanResult.size() > 0) {
+                    showAlertDialog();
+                } else {
+                    Toast.makeText(TranslateActivity.this, "请扫描需要拆包的产品条形码", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         comfirmButton.setOnClickListener(new View.OnClickListener() {
@@ -238,65 +241,50 @@ public class TranslateActivity extends AppCompatActivity {
 
     }
 
-    private void intitalScanSetting() {
-        if (myApp.getDeviceBrand().equals("NEWLAND")) {
-            scanManager = ScanManager.getInstance();
-            scanManager.setOutpuMode(ScanSettings.Global.VALUE_OUT_PUT_MODE_BROADCAST);
-            scanManager.enableBeep();
-        } else if (myApp.getDeviceBrand().equals("SUPOIN")) {
-          /*  LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) resultViewModle.getLayoutParams();
-            params.height = 330;
-            resultViewModle.setLayoutParams(params);*/
+    private void showAlertDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("注意")
+                .setMessage("确定将扫描产品拆包？")
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        unpacked();
+                    }
+                }).show();
+    }
+
+    private void unpacked() {
+        String ids = "";
+        for (GoodsBarcodeBean goods : scanResult) {
+            ids = ids + goods.getId() + ",";
         }
+        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+        PutGoodsUnpackService putGoodsUnpackService = retrofit.create(PutGoodsUnpackService.class);
+        Call<ResponseBody> call = putGoodsUnpackService.putGoodsUnpacked("4", ids);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                Toast.makeText(TranslateActivity.this, scanResult.size() + "件货品拆包成功", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(TranslateActivity.this, "货品拆包提交失败", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void registerReceiver() {
-        if (myApp.getDeviceBrand().equals("NEWLAND")) {
-            IntentFilter intFilter = new IntentFilter(ScanManager.ACTION_SEND_SCAN_RESULT);
-            registerReceiver(mResultReceiver, intFilter);
-        } else if (myApp.getDeviceBrand().equals("SUPOIN")) {
-            IntentFilter inFilter = new IntentFilter(SCN_CUST_ACTION_SCODE);
-            registerReceiver(mSamDataReceiver, inFilter);
-        }
+        IntentFilter inFilter = new IntentFilter(SCN_CUST_ACTION_SCODE);
+        registerReceiver(mSamDataReceiver, inFilter);
     }
 
     private void unRegisterReceiver() {
         try {
-            if (myApp.getDeviceBrand().equals("NEWLAND")) {
-                unregisterReceiver(mResultReceiver);
-            } else if (myApp.getDeviceBrand().equals("SUPOIN")) {
-                unregisterReceiver(mSamDataReceiver);
-            }
+            unregisterReceiver(mSamDataReceiver);
         } catch (Exception e) {
         }
     }
-
-    private BroadcastReceiver mResultReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (ScanManager.ACTION_SEND_SCAN_RESULT.equals(action)) {
-                byte[] bvalue1 = intent.getByteArrayExtra(ScanManager.EXTRA_SCAN_RESULT_ONE_BYTES);
-                byte[] bvalue2 = intent.getByteArrayExtra(ScanManager.EXTRA_SCAN_RESULT_TWO_BYTES);
-                String svalue1 = null;
-                String svalue2 = null;
-                try {
-                    if (bvalue1 != null)
-                        svalue1 = new String(bvalue1, "GBK");
-                    if (bvalue2 != null)
-                        svalue2 = new String(bvalue1, "GBK");
-                    svalue1 = svalue1 == null ? "" : svalue1;
-                    svalue2 = svalue2 == null ? "" : svalue2;
-                    String result = svalue1 + svalue2;
-                    getGood(result);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(TranslateActivity.this, "扫码失败", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
-    };
 
     private BroadcastReceiver mSamDataReceiver = new BroadcastReceiver() {
         @Override
@@ -305,6 +293,7 @@ public class TranslateActivity extends AppCompatActivity {
                 String message;
                 try {
                     message = intent.getStringExtra(SCN_CUST_EX_SCODE).toString().trim();
+                    message = message.substring(0, message.length() - 1);
                     getGood(message);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -323,9 +312,8 @@ public class TranslateActivity extends AppCompatActivity {
         call.enqueue(new Callback<ReceivedGoodsBarcodeInfo>() {
             @Override
             public void onResponse(Call<ReceivedGoodsBarcodeInfo> call, Response<ReceivedGoodsBarcodeInfo> response) {
-                GoodsBarcodeBean good = response.body().getAttributes().getGoodsBarcode();
-                Log.d("eeeeee", good.getBarcode());
-                if (good != null) {
+                if (response.body().getAttributes().getGoodsBarcode() != null) {
+                    GoodsBarcodeBean good = response.body().getAttributes().getGoodsBarcode();
                     if (checkGoodScaned(good)) {
                         scanResult.add(good);
                         showResult();
@@ -367,6 +355,25 @@ public class TranslateActivity extends AppCompatActivity {
                     result = false;
                     break;
                 }
+            }
+        }
+        if (!good.getStatus().equals("0")) {
+            result = false;
+            String status = good.getStatus();
+            switch (status) {
+                case "1":
+                    Toast.makeText(TranslateActivity.this, "该货品已经装车", Toast.LENGTH_SHORT).show();
+                    break;
+                case "2":
+                    Toast.makeText(this, "该货品已经负重", Toast.LENGTH_SHORT).show();
+                    break;
+                case "3":
+                    Toast.makeText(this, "该货品已经结算", Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    Toast.makeText(this, "该货品不允许移库", Toast.LENGTH_SHORT).show();
+                    break;
+
             }
         }
         return result;

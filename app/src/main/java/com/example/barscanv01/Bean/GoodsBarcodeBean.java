@@ -156,7 +156,7 @@ public class GoodsBarcodeBean {
      * id : 4039945h23115ab532d1252fa400102
      */
 
-   /* private String flag;
+    /*private String flag;
     private String status;
     private String depotNo;
     private String positionNo;

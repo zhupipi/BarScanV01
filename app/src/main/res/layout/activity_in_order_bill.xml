@@ -1,18 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/inorder_bill_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@color/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="@style/Theme.ToolBar.MyToolbar"></android.support.v7.widget.Toolbar>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -25,9 +16,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp">
+            android:orientation="horizontal">
 
             <TextView
                 android:layout_width="0dp"
@@ -51,9 +40,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp">
+            android:orientation="horizontal">
 
             <TextView
                 android:layout_width="0dp"
@@ -84,8 +71,6 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
             android:orientation="horizontal">
 
             <TextView
@@ -93,15 +78,31 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:text="应卸重量："
-                android:textSize="15sp" />
+                android:text="应卸件数："
+                android:textSize="12sp" />
 
             <TextView
-                android:id="@+id/inorder_weight"
+                android:id="@+id/inorder_count"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0.75"
+                android:textSize="14sp" />
+
+            <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
+                android:text="实卸件数："
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/inorder_act_count"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0.75"
                 android:textSize="14sp" />
 
             <TextView
@@ -110,15 +111,16 @@
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:text="实卸重量："
-                android:textSize="15sp" />
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/inorder_act_weight"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_weight="1"
+                android:layout_weight="0.8"
                 android:textSize="14sp" />
+
         </LinearLayout>
     </LinearLayout>
 
@@ -191,7 +193,7 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/inorder_detial"
         android:layout_width="match_parent"
-        android:layout_height="180dp" />
+        android:layout_height="225dp" />
 
 
     <LinearLayout
@@ -215,6 +217,5 @@
             android:text="取消" />
 
     </LinearLayout>
-
 
 </LinearLayout>

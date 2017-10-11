@@ -60,8 +60,6 @@ public class UnLoadActivity extends AppCompatActivity {
     TextView billNo;
     @BindView(R.id.un_load_car_plate)
     TextView carPlate;
-    @BindView(R.id.un_load_weight)
-    TextView weight;
     @BindView(R.id.un_load_act_weight)
     TextView actWeight;
     @BindView(R.id.un_load_result_view)
@@ -72,8 +70,11 @@ public class UnLoadActivity extends AppCompatActivity {
     Button confirmButton;
     @BindView(R.id.un_load_cancel_button)
     Button cancelButton;
-    @BindView(R.id.un_load_result_show)
-    LinearLayout resultShow;
+    @BindView (R.id.un_load_act_count)
+    TextView actCount;
+    @BindView(R.id.un_load_count)
+    TextView count;
+
 
     private MyApp myApp;
     private ScanManager scanManager;
@@ -99,7 +100,6 @@ public class UnLoadActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("卸货扫码");
         myApp = (MyApp) getApplication();
         intialData();
-        initalScanSetting();
         getPositionList();
         resultView.setLayoutManager(new LinearLayoutManager(this));
         resultView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
@@ -109,9 +109,7 @@ public class UnLoadActivity extends AppCompatActivity {
 
     private void intialData() {
         Intent intent = getIntent();
-        String totalWeight = intent.getStringExtra("weight");
         String totalActWeight = intent.getStringExtra("actWeight");
-        weight.setText(totalWeight);
         actWeight.setText(totalActWeight);
         billNo.setText(InOrderSingleton.getInstance().getInOrder().getInOrderNo());
         carPlate.setText(InOrderSingleton.getInstance().getInOrder().getPlateNo());
@@ -122,17 +120,6 @@ public class UnLoadActivity extends AppCompatActivity {
         map = new HashMap<>();
         for (InOrderDetailBean detail : detailList) {
             map.put(detail.getId(), detail.getActCount());
-        }
-    }
-
-    private void initalScanSetting() {
-        if (myApp.getDeviceBrand().equals("NEWLAND")) {
-            scanManager = ScanManager.getInstance();
-            scanManager.setOutpuMode(ScanSettings.Global.VALUE_OUT_PUT_MODE_BROADCAST);
-        } else if (Build.BRAND.equals("SUPOIN")) {
-            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) resultShow.getLayoutParams();
-            params.height = 230;
-            resultShow.setLayoutParams(params);
         }
     }
 
@@ -270,6 +257,7 @@ public class UnLoadActivity extends AppCompatActivity {
                 String message;
                 try {
                     message = intent.getStringExtra(SCN_CUST_EX_SCODE).toString().trim();
+                    message=message.substring(0,message.length()-1);
                     getScanResult(message);
                 } catch (Exception e) {
                     e.printStackTrace();

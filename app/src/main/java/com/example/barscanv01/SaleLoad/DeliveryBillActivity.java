@@ -140,6 +140,9 @@ public class DeliveryBillActivity extends AppCompatActivity {
                     String billNo = s.toString();
                     getOutOrderByNo(billNo);
                     ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(DeliveryBillActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                } else if (s.length() == 8) {
+                    carPlate.setText(s.toString().trim());
+                    billNumber.setText("");
                 }
             }
         });
@@ -165,7 +168,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                             id = Integer.parseInt(province);
                         } catch (Exception e) {
                             Log.e("DeliveryBill", e.getMessage().toString());
-                            Toast.makeText(DeliveryBillActivity.this, "请输入正确车牌号", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(DeliveryBillActivity.this, "请扫描正确车牌号", Toast.LENGTH_SHORT).show();
                         }
                         if (id < 31) {
                             carPlateProvince.setSelection(id - 1);
@@ -176,7 +179,10 @@ public class DeliveryBillActivity extends AppCompatActivity {
                         getOutOrderbyPlate(finalPlate);
                     }
                     ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(DeliveryBillActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-
+                } else if (s.length() == 12) {
+                    String billNo = s.toString();
+                    billNumber.setText(billNo);
+                    carPlate.setText("");
                 }
             }
         });
@@ -235,7 +241,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                                 Intent intent = new Intent(DeliveryBillActivity.this, SaleLoadActivity.class);
                                 startActivityForResult(intent, 1);
                             } else {
-                                Toast.makeText(DeliveryBillActivity.this, "该库区货品已全部装车完成", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(DeliveryBillActivity.this, "该库区暂无可以装车货品", Toast.LENGTH_SHORT).show();
                             }
                         } else {
                             AlertDialog.Builder builder = new AlertDialog.Builder(DeliveryBillActivity.this);

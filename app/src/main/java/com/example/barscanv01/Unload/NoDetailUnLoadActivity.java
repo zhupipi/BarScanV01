@@ -50,8 +50,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 public class NoDetailUnLoadActivity extends AppCompatActivity {
-    @BindView(R.id.no_detail_unload_toolbar)
-    Toolbar toolbar;
+/*    @BindView(R.id.no_detail_unload_toolbar)
+    Toolbar toolbar;*/
     @BindView(R.id.no_detail_unload_plateNo)
     TextView plateNo;
     @BindView(R.id.no_detail_unload_act_weight)
@@ -82,8 +82,8 @@ public class NoDetailUnLoadActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_no_detail_un_load);
         ButterKnife.bind(this);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("发货单卸车");
+        //setSupportActionBar(toolbar);
+        //getSupportActionBar().setTitle("发货单卸车");
         myApp = (MyApp) getApplication();
         initalData();
         getDetailBarocde();
@@ -100,22 +100,26 @@ public class NoDetailUnLoadActivity extends AppCompatActivity {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ArrayAdapter adapter;
-                adapter = getPositionAdapter(positionList);
-                AlertDialog.Builder builder = new AlertDialog.Builder(NoDetailUnLoadActivity.this);
-                builder.setTitle("请选择退货库位")
-                        .setSingleChoiceItems(adapter, -1, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                position = positionList.get(which);
-                            }
-                        })
-                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                submitData(scanResult);
-                            }
-                        }).show();
+                if(scanResult.size()>0) {
+                    ArrayAdapter adapter;
+                    adapter = getPositionAdapter(positionList);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(NoDetailUnLoadActivity.this);
+                    builder.setTitle("请选择退货库位")
+                            .setSingleChoiceItems(adapter, -1, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    position = positionList.get(which);
+                                }
+                            })
+                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    submitData(scanResult);
+                                }
+                            }).show();
+                }else {
+                    Toast.makeText(NoDetailUnLoadActivity.this, "请扫描需要卸货产品的条形码", Toast.LENGTH_SHORT).show();
+                }
 
             }
         });
@@ -136,7 +140,7 @@ public class NoDetailUnLoadActivity extends AppCompatActivity {
             call.enqueue(new Callback<ReceivedDetailBarcodeInfo>() {
                 @Override
                 public void onResponse(Call<ReceivedDetailBarcodeInfo> call, Response<ReceivedDetailBarcodeInfo> response) {
-                    if (response.body().getAttributes().getDetailBarcodeEntityList().size() > 0) {
+                    if (response.body().getAttributes().getDetailBarcodeEntityList()!=null&&response.body().getAttributes().getDetailBarcodeEntityList().size() > 0) {
                         loadDetailBarcode = response.body().getAttributes().getDetailBarcodeEntityList();
                     } else {
                         Toast.makeText(NoDetailUnLoadActivity.this, "该装车单未装车", Toast.LENGTH_SHORT).show();
@@ -198,6 +202,7 @@ public class NoDetailUnLoadActivity extends AppCompatActivity {
                 String message;
                 try {
                     message = intent.getStringExtra(SCN_CUST_EX_SCODE).toString().trim();
+                    message = message.substring(0, message.length() - 1);
                     getScanResult(message);
 
                 } catch (Exception e) {
@@ -274,9 +279,11 @@ public class NoDetailUnLoadActivity extends AppCompatActivity {
         boolean result = true;
         if (loadDetailBarcode.size() > 0) {
             for (DetailBarcodeBean detail : loadDetailBarcode) {
-                if (detail.getBarcode().equals(good.getBarcode())) {
-                    result = false;
-                    break;
+                if (detail.getBarcode() != null) {
+                    if (detail.getBarcode().equals(good.getBarcode())) {
+                        result = false;
+                        break;
+                    }
                 }
             }
         }
@@ -294,26 +301,30 @@ public class NoDetailUnLoadActivity extends AppCompatActivity {
     }
 
     private void submitData(List<GoodsBarcodeBean> scanResult) {
-        String ids = "";
-        for (GoodsBarcodeBean goods : scanResult) {
-            if (goods != null) {
-                ids = ids + goods.getId() + ",";
+        if (scanResult.size() > 0) {
+            String ids = "";
+            for (GoodsBarcodeBean goods : scanResult) {
+                if (goods != null) {
+                    ids = ids + goods.getId() + ",";
+                }
             }
+            Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+            PutGoodsUnLoadService unloadService = retrofit.create(PutGoodsUnLoadService.class);
+            Call<ResponseBody> call = unloadService.putGoodsUnloadNoDetail(outOrder.getId(), ids, position.getPositionNo());
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    Toast.makeText(NoDetailUnLoadActivity.this, "货品已成功卸在" + myApp.getCurrentDepot().getDepotName() + "-" + position.getPositionName() + "中", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                }
+            });
+        } else {
+            Toast.makeText(this, "请扫描卸货货品条形码", Toast.LENGTH_SHORT).show();
         }
-        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
-        PutGoodsUnLoadService unloadService = retrofit.create(PutGoodsUnLoadService.class);
-        Call<ResponseBody> call = unloadService.putGoodsUnloadNoDetail(outOrder.getId(), ids, position.getPositionNo());
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                Toast.makeText(NoDetailUnLoadActivity.this, "货品已成功卸在" + myApp.getCurrentDepot().getDepotName() + "-" + position.getPositionName() + "中", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-            }
-        });
     }
 
     private void registerReceiver() {
