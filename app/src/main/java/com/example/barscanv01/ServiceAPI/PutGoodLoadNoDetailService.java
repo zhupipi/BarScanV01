@@ -13,5 +13,5 @@ import retrofit2.http.POST;
 public interface PutGoodLoadNoDetailService {
     @FormUrlEncoded
     @POST("outOrderController.do?putGoodLoadNoDetailforPDA")
-    Call<ResponseBody> putGoodLoadNoDetail(@Field("id") String id,@Field("goodIds") String Ids,@Field("areaNo") String areaNo,@Field("scanUserName") String userName);
+    Call<ResponseBody> putGoodLoadNoDetail(@Field("id") String id,@Field("goodIds") String Ids,@Field("areaNo") String areaNo,@Field("scanUserName") String userName,@Field("scanUserId") String userId);
 }

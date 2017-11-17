@@ -13,5 +13,5 @@ import retrofit2.http.POST;
 public interface PutGoodLoadSolelyService {
     @FormUrlEncoded
     @POST("outOrderController.do?putGoodLoadedSolelybyPDA")
-    Call<ResponseBody> putGoodLoadSoley(@Field("id") String id, @Field("goodId") String goodId, @Field("detailId") String detailId, @Field("scanUserName") String scanUserName, @Field("areaName") String areaName, @Field("depotName") String depotName);
+    Call<ResponseBody> putGoodLoadSoley(@Field("id") String id, @Field("goodId") String goodId, @Field("detailId") String detailId, @Field("scanUserName") String scanUserName, @Field("areaName") String areaName, @Field("depotName") String depotName,@Field("userId") String userId);
 }

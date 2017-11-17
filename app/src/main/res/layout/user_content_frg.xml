@@ -71,7 +71,7 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
 
-            android:text="工作库位："
+            android:text="工作库区："
             android:textSize="18sp" />
 
         <Spinner

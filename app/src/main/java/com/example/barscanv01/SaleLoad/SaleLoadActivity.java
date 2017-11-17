@@ -51,6 +51,7 @@ import com.example.barscanv01.Bean.ReceivedGoodsManageInfo;
 import com.example.barscanv01.Bean.ReceivedPositionInfo;
 import com.example.barscanv01.Fragment.LoadOperationSelectFragment;
 import com.example.barscanv01.Fragment.ScanResultFragment;
+import com.example.barscanv01.Login.LoginActivity;
 import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
 import com.example.barscanv01.ServiceAPI.GetGoodsManageDetailService;
@@ -265,14 +266,15 @@ public class SaleLoadActivity extends AppCompatActivity {
                             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                                 ScanResultFragment sresultfg = (ScanResultFragment) fragmentManager.findFragmentById(R.id.customer_load_change_fragment);
                                 ArrayList<GoodsBarcodeBean> sresult = sresultfg.getScanResultArryList();
-
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     if (position != null) {
                                         if (sresult.size() > 0) {
+                                            String ids="";
                                             for (GoodsBarcodeBean good1 : sresult) {
-                                                changeDepot(good1, position);
+                                                ids=ids+good1.getId()+",";
                                             }
+                                            changeDepot(ids,position);
                                         }
                                     }
                                     Toast.makeText(SaleLoadActivity.this, "货品倒垛提交成功", Toast.LENGTH_SHORT).show();
@@ -299,10 +301,10 @@ public class SaleLoadActivity extends AppCompatActivity {
         }
     }
 
-    private void changeDepot(GoodsBarcodeBean good1, PositionBean position) {
+    private void changeDepot(String ids, PositionBean position) {
         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
         UpdatePositionService updatePositionService = retrofit.create(UpdatePositionService.class);
-        Call<ResponseBody> call = updatePositionService.updatePosition(good1.getId(), position.getPositionNo());
+        Call<ResponseBody> call = updatePositionService.updatePosition(position.getPositionNo(),ids,myApp.getUserBean().getId(),myApp.getCurrentDepot().getDepotNo(),DeliveryBillSingleton.getInstance().getOutOrderBean().getOutOrderNo());
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -791,7 +793,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                         }
                         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
                         PutGoodLoadSolelyService putGoodLoadSolelyService = retrofit.create(PutGoodLoadSolelyService.class);
-                        Call<ResponseBody> call = putGoodLoadSolelyService.putGoodLoadSoley(detailBean.getOutOrderId(), good.getId(), detailBean.getId(), myApp.getUserBean().getUserName(), myApp.getCurrentAreaBean().getAreaName(), myApp.getCurrentDepot().getDepotName());
+                        Call<ResponseBody> call = putGoodLoadSolelyService.putGoodLoadSoley(detailBean.getOutOrderId(), good.getId(), detailBean.getId(), myApp.getUserBean().getUserName(), myApp.getCurrentAreaBean().getAreaName(), myApp.getCurrentDepot().getDepotName(),myApp.getUserBean().getId());
                         call.enqueue(new Callback<ResponseBody>() {
                             @Override
                             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {

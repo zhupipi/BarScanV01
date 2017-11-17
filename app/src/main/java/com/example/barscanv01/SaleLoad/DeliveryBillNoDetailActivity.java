@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
@@ -46,7 +48,9 @@ import com.example.barscanv01.Util.CheckOutOrederDetailFinishedUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -82,10 +86,15 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
     private UserBean user;
     private List<PositionBean> positionList;
     private PositionBean position;
+    private SoundPool soundPool;
+    private Map soundMap;
 
     /*销邦初始化设置*/
     public static final String SCN_CUST_ACTION_SCODE = "com.android.server.scannerservice.broadcast";
     public static final String SCN_CUST_EX_SCODE = "scannerdata";
+
+    private static final int SOUND_SUCCESS = 1;
+    private static final int SOUND_FAIL = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +105,10 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("扫码装车/倒垛");
         myApp = (MyApp) getApplication();
         initalData();
+        soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+        soundMap = new HashMap<>();
+        soundMap.put(SOUND_SUCCESS, soundPool.load(this, R.raw.sucess1, 1));
+        soundMap.put(SOUND_FAIL, soundPool.load(this, R.raw.fail1, 1));
         positionList = new ArrayList<PositionBean>();
         getPositionList();
         fragmentManager = getSupportFragmentManager();
@@ -195,7 +208,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
                     }
                     Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
                     PutGoodLoadNoDetailService putGoodLoadNoDetailService = retrofit.create(PutGoodLoadNoDetailService.class);
-                    Call<ResponseBody> call = putGoodLoadNoDetailService.putGoodLoadNoDetail(outOrder.getId(), ids, userArea.getAreaNo(), user.getUserName());
+                    Call<ResponseBody> call = putGoodLoadNoDetailService.putGoodLoadNoDetail(outOrder.getId(), ids, userArea.getAreaNo(), user.getUserName(), user.getId());
                     call.enqueue(new Callback<ResponseBody>() {
                         @Override
                         public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -238,9 +251,12 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int which) {
                             if (position != null) {
                                 if (result.size() > 0) {
+                                    String ids="";
                                     for (GoodsBarcodeBean goodsBarcode : result) {
-                                        changePosition(goodsBarcode, position);
+                                        ids=ids+goodsBarcode.getId()+",";
+                                        //changePosition(goodsBarcode, position);
                                     }
+                                    changePosition(ids,position);
                                 }
                             }
                             scanResult.cleanData();
@@ -254,10 +270,10 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
         }
     }
 
-    private void changePosition(GoodsBarcodeBean goodsBarcode, PositionBean position) {
+    private void changePosition(String ids, PositionBean position) {
         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
         UpdatePositionService updatePositionService = retrofit.create(UpdatePositionService.class);
-        Call<ResponseBody> call = updatePositionService.updatePosition(goodsBarcode.getId(), position.getPositionNo());
+        Call<ResponseBody> call = updatePositionService.updatePosition(position.getPositionNo(),ids,myApp.getUserBean().getId(),myApp.getCurrentDepot().getDepotNo(),outOrder.getOutOrderNo());
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -307,7 +323,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
                 String message;
                 try {
                     message = intent.getStringExtra(SCN_CUST_EX_SCODE).toString().trim();
-                    message=message.substring(0,message.length()-1);
+                    message = message.substring(0, message.length() - 1);
                     if (!fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change).getTag().equals("OPERATION_SELECT")) {
                         getScanResult(message);
                     } else {
@@ -334,6 +350,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
                 if (good != null) {
                     ScanResultFragment result = (ScanResultFragment) fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change);
                     if (checkResult(good)) {
+                        soundPool.play((int) (soundMap.get(SOUND_SUCCESS)), 1, 1, 1, 0, 1);
                         result.addData(good);
                         if (result.getTag().equals("OPERATION_LOAD_CAR")) {
                             float act_weight = Float.valueOf(actWeight.getText().toString().trim()) + Float.valueOf(good.getActWeight());
@@ -342,6 +359,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
                     }
                 } else {
                     Toast.makeText(DeliveryBillNoDetailActivity.this, "该条码不存在对应的货品", Toast.LENGTH_SHORT).show();
+                    soundPool.play((int) (soundMap.get(SOUND_FAIL)), 1, 1, 1, 0, 1);
                 }
             }
 
@@ -362,10 +380,13 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
             result = false;
         } else if (!good.getStatus().equals("0")) {
             if (good.getStatus().equals("1")) {
+                soundPool.play((int) (soundMap.get(SOUND_FAIL)), 1, 1, 1, 0, 1);
                 Toast.makeText(this, "该货品已装车", Toast.LENGTH_SHORT).show();
             } else if (good.getStatus().equals("2")) {
+                soundPool.play((int) (soundMap.get(SOUND_FAIL)), 1, 1, 1, 0, 1);
                 Toast.makeText(this, "该货品已复重", Toast.LENGTH_SHORT).show();
             } else if (good.getStatus().equals("3")) {
+                soundPool.play((int) (soundMap.get(SOUND_FAIL)), 1, 1, 1, 0, 1);
                 Toast.makeText(this, "该货品已结算", Toast.LENGTH_SHORT).show();
             }
             result = false;
@@ -373,6 +394,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
         } else {
             for (GoodsBarcodeBean re : scanResult) {
                 if (re.getId().equals(good.getId())) {
+                    soundPool.play((int) (soundMap.get(SOUND_FAIL)), 1, 1, 1, 0, 1);
                     Toast.makeText(this, "该货品已扫", Toast.LENGTH_LONG).show();
                     result = false;
                     break;
@@ -399,5 +421,13 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         unRegisterReceiver();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        soundPool.unload((int) (soundMap.get(SOUND_SUCCESS)));
+        soundPool.unload((int) (soundMap.get(SOUND_FAIL)));
+        soundPool.release();
     }
 }

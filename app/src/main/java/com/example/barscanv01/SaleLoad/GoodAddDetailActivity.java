@@ -122,8 +122,8 @@ public class GoodAddDetailActivity extends AppCompatActivity {
                         }
                     }
                 }
-                act_weight = Math.round(act_weight * 100);
-                act_weight = act_weight / 100;
+                /*act_weight = Math.round(act_weight * 100);
+                act_weight = act_weight / 100;*/
                 actWeight.setText(String.valueOf(act_weight));
                 actCount.setText(String.valueOf(act_count));
             }

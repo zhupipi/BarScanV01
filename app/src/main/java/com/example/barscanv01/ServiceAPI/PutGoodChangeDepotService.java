@@ -13,5 +13,5 @@ import retrofit2.http.POST;
 public interface PutGoodChangeDepotService {
     @FormUrlEncoded
     @POST("goodsBarcodeController.do?putGoodChangeDepotforPDA")
-    Call<ResponseBody> changeDepot(@Field("goodIds") String goodIds,@Field("depotNo") String depotNo, @Field("positionNo") String positionNo);
+    Call<ResponseBody> changeDepot(@Field("goodIds") String goodIds, @Field("depotNo") String depotNo, @Field("positionNo") String positionNo, @Field("userId") String userId, @Field("currentDepotNo") String currentDepotNo);
 }

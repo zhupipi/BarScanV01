@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -44,6 +46,7 @@ import com.example.barscanv01.ServiceAPI.GetPositionsByDepotService;
 import com.example.barscanv01.ServiceAPI.PutGoodChangeDepotService;
 import com.example.barscanv01.ServiceAPI.PutGoodsUnpackService;
 import com.example.barscanv01.ServiceAPI.ScanBarcodeResultService;
+import com.example.barscanv01.Util.BackgroundUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
 import com.nlscan.android.scan.ScanManager;
 import com.nlscan.android.scan.ScanSettings;
@@ -70,6 +73,8 @@ public class TranslateActivity extends AppCompatActivity {
     Button cancelButton;
     @BindView(R.id.translate_result_view)
     RecyclerView scanResultView;
+    @BindView(R.id.translate_num)
+    TextView translateNumber;
 
 
     private List<GoodsBarcodeBean> scanResult;
@@ -80,20 +85,30 @@ public class TranslateActivity extends AppCompatActivity {
     private Map<Integer, List<PositionBean>> map;
     private DepotBean selectedDepot;
     private PositionBean selectedPosition;
+    private PositionBean currentPosition;
+    private SoundPool soundPool;
+    private Map soundMap;
+    private static final int SOUND_SUCCESS = 1;
+    private static final int SOUND_FAIL = 2;
 
 
     /*销邦初始化设置*/
     public static final String SCN_CUST_ACTION_SCODE = "com.android.server.scannerservice.broadcast";
     public static final String SCN_CUST_EX_SCODE = "scannerdata";
 
+    BackgroundUtil backgroundUtil;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_translate);
         ButterKnife.bind(this);
-/*        setSupportActionBar(myToolbar);
-        getSupportActionBar().setTitle("产成品移库");*/
+        backgroundUtil = new BackgroundUtil(TranslateActivity.this);
         myApp = (MyApp) getApplication();
+        soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+        soundMap = new HashMap<>();
+        soundMap.put(SOUND_SUCCESS, soundPool.load(this, R.raw.sucess1, 1));
+        soundMap.put(SOUND_FAIL, soundPool.load(this, R.raw.fail1, 1));
         scanResult = new ArrayList<GoodsBarcodeBean>();
         scanResultView.setLayoutManager(new LinearLayoutManager(this));
         scanResultView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
@@ -119,7 +134,25 @@ public class TranslateActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (scanResult.size() > 0) {
-                    showPopWindow();
+                    String currentPositionName = currentPosition.getPositionName();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(TranslateActivity.this);
+                    builder.setTitle("选择货品移动库位：")
+
+                            .setMessage("是否移库到" + myApp.getCurrentDepot().getDepotName() + "库区" + currentPositionName + "库位?")
+                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    submitDataSelf(myApp.getCurrentDepot().getDepotNo(), currentPosition.getPositionNo());
+                                }
+                            })
+                            .setNegativeButton("移到它库", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    showPopWindow();
+                                }
+                            }).show();
+                    // showPopWindow();
+
                 } else {
                     Toast.makeText(TranslateActivity.this, "请扫描需要移库的产品条形码", Toast.LENGTH_SHORT).show();
                 }
@@ -147,6 +180,9 @@ public class TranslateActivity extends AppCompatActivity {
                                 List<PositionBean> positionList = new ArrayList<PositionBean>();
                                 positionList = response.body().getAttributes().getPositionList();
                                 map.put(depotList.indexOf(depot), positionList);
+                                if (depot.getDepotNo().equals(myApp.getCurrentDepot().getDepotNo())) {
+                                    currentPosition = positionList.get(0);
+                                }
 
                             }
 
@@ -222,11 +258,40 @@ public class TranslateActivity extends AppCompatActivity {
             }
             Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
             PutGoodChangeDepotService goodChangeDepotService = retrofit.create(PutGoodChangeDepotService.class);
-            Call<ResponseBody> call = goodChangeDepotService.changeDepot(id, selectedDepot.getDepotNo(), selectedPosition.getPositionNo());
+            Call<ResponseBody> call = goodChangeDepotService.changeDepot(id, selectedDepot.getDepotNo(), selectedPosition.getPositionNo(), myApp.getUserBean().getId(), myApp.getCurrentDepot().getDepotNo());
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    Toast.makeText(TranslateActivity.this, "产成品移库成功", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(TranslateActivity.this, "此次将" + scanResult.size() + "件产成品移库成功", Toast.LENGTH_SHORT).show();
+                    translateNumber.setText("");
+                    scanResult.clear();
+                    showResult();
+
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                }
+            });
+        }
+
+    }
+
+    private void submitDataSelf(String depotNo, String positionNo) {
+        if (scanResult.size() > 0) {
+            String id = "";
+            for (GoodsBarcodeBean good : scanResult) {
+                id = id + good.getId() + ",";
+            }
+            Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+            PutGoodChangeDepotService goodChangeDepotService = retrofit.create(PutGoodChangeDepotService.class);
+            Call<ResponseBody> call = goodChangeDepotService.changeDepot(id, depotNo, positionNo, myApp.getUserBean().getId(), myApp.getCurrentDepot().getDepotNo());
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    Toast.makeText(TranslateActivity.this, "此次将" + scanResult.size() + "件产成品移库成功", Toast.LENGTH_SHORT).show();
+                    translateNumber.setText("");
                     scanResult.clear();
                     showResult();
 
@@ -265,6 +330,9 @@ public class TranslateActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 Toast.makeText(TranslateActivity.this, scanResult.size() + "件货品拆包成功", Toast.LENGTH_SHORT).show();
+                translateNumber.setText("");
+                scanResult.clear();
+                showResult();
             }
 
             @Override
@@ -315,19 +383,28 @@ public class TranslateActivity extends AppCompatActivity {
                 if (response.body().getAttributes().getGoodsBarcode() != null) {
                     GoodsBarcodeBean good = response.body().getAttributes().getGoodsBarcode();
                     if (checkGoodScaned(good)) {
+                        soundPool.play((int) (soundMap.get(SOUND_SUCCESS)), 1, 1, 1, 0, 1);
+                        backgroundUtil.changeBackground(LayoutInflater.from(TranslateActivity.this).inflate(R.layout.activity_translate, null), BackgroundUtil.SCAN_SUCESS, good);
                         scanResult.add(good);
+                        translateNumber.setText(String.valueOf(scanResult.size()));
                         showResult();
                     } else {
                         Toast.makeText(TranslateActivity.this, "改条码已扫描", Toast.LENGTH_SHORT).show();
+                        backgroundUtil.changeBackground(LayoutInflater.from(TranslateActivity.this).inflate(R.layout.activity_translate, null), BackgroundUtil.SCAN_FAILED, null);
+                        soundPool.play((int) (soundMap.get(SOUND_FAIL)), 1, 1, 1, 0, 1);
                     }
                 } else {
-                    Toast.makeText(TranslateActivity.this, "改条码无对应的货品信息", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(TranslateActivity.this, "该条码无对应的货品信息", Toast.LENGTH_SHORT).show();
+                    soundPool.play((int) (soundMap.get(SOUND_FAIL)), 1, 1, 1, 0, 1);
+                    backgroundUtil.changeBackground(LayoutInflater.from(TranslateActivity.this).inflate(R.layout.activity_translate, null), BackgroundUtil.SCAN_FAILED, null);
                 }
             }
 
             @Override
             public void onFailure(Call<ReceivedGoodsBarcodeInfo> call, Throwable t) {
                 Toast.makeText(TranslateActivity.this, "获取条码信息失败", Toast.LENGTH_SHORT);
+                soundPool.play((int) (soundMap.get(SOUND_FAIL)), 1, 1, 1, 0, 1);
+                backgroundUtil.changeBackground(LayoutInflater.from(TranslateActivity.this).inflate(R.layout.activity_translate, null), BackgroundUtil.SCAN_FAILED, null);
             }
         });
     }
@@ -336,6 +413,7 @@ public class TranslateActivity extends AppCompatActivity {
         if (adpter == null) {
             adpter = new TranslateScanResultAdapter(TranslateActivity.this, scanResult);
             scanResultView.setAdapter(adpter);
+
             adpter.setOnItemClickListener(new ScanResultAdapter.OnItemClickListener() {
                 @Override
                 public void OnItemLongClick(View view, int postion) {
@@ -429,5 +507,13 @@ public class TranslateActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         unRegisterReceiver();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        soundPool.unload((int) (soundMap.get(SOUND_SUCCESS)));
+        soundPool.unload((int) (soundMap.get(SOUND_FAIL)));
+        soundPool.release();
     }
 }

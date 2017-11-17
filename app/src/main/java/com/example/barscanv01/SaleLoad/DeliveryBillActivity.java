@@ -40,6 +40,7 @@ import com.example.barscanv01.Bean.ReceivedDelivieryBillInfo;
 import com.example.barscanv01.Bean.ReceivedDetailBarcodeInfo;
 import com.example.barscanv01.Bean.ReceivedDetailTotalWeightBean;
 import com.example.barscanv01.Bean.ReceivedLoadGoodsBarcodeInfo;
+import com.example.barscanv01.Login.LoginActivity;
 import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
 import com.example.barscanv01.ServiceAPI.DeliveryBillByBillNoService;
@@ -120,6 +121,22 @@ public class DeliveryBillActivity extends AppCompatActivity {
         outOrderDetialView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         outOrderDetialView.setItemAnimator(new DefaultItemAnimator());
         setListener();
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (myApp.getUserBean().getId() == null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("注意")
+                    .setMessage("用户已退出系统请重新登录！")
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(DeliveryBillActivity.this, LoginActivity.class);
+                            startActivity(intent);
+                        }
+                    }).show();
+        }
     }
 
     private void setListener() {
@@ -457,8 +474,8 @@ public class DeliveryBillActivity extends AppCompatActivity {
                     for (DetailBarcodeBean detailBarcode : detailBarcodeList) {
                         act_weight = act_weight + detailBarcode.getWeight();
                     }
-                    act_weight = Math.round(act_weight);
-                    act_weight = act_weight / 1000;
+                    /*act_weight = Math.round(act_weight);
+                    act_weight = act_weight / 1000;*/
                     ActWeight.setText(String.valueOf(act_weight) + "t");
                 }
             }
@@ -556,8 +573,8 @@ public class DeliveryBillActivity extends AppCompatActivity {
             totalActWeight = totalActWeight + good.getActWeight();
             totoalCount = totoalCount + 1;
         }
-        totalActWeight = Math.round(totalActWeight);
-        totalActWeight = totalActWeight / 1000;
+        /*totalActWeight = Math.round(totalActWeight);
+        totalActWeight = totalActWeight / 1000;*/
         ActWeight.setText(String.valueOf(totalActWeight) + "t");
         act_count.setText(String.valueOf(totoalCount));
 

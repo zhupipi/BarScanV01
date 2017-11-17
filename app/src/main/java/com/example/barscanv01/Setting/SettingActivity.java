@@ -7,6 +7,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.barscanv01.R;
@@ -19,9 +20,14 @@ public class SettingActivity extends AppCompatActivity {
     CheckBox addCheckBox;
     @BindView(R.id.setting_not_remove_good)
     CheckBox removeCheckBox;
+    @BindView(R.id.setting_add_para)
+    TextView addParam;
+    @BindView(R.id.setting_add_para_promise)
+    CheckBox addParamPromise;
 
     private boolean addResult;
     private boolean removeResult;
+    private float param;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +37,7 @@ public class SettingActivity extends AppCompatActivity {
         intial();
         setListener(addCheckBox);
         setListener(removeCheckBox);
+        setListener(addParamPromise);
     }
 
     private void intial() {
@@ -40,6 +47,10 @@ public class SettingActivity extends AppCompatActivity {
         if (SettingSingletone.getInstance(this).getRemoveResult()) {
             removeCheckBox.setChecked(true);
         }
+        if(SettingSingletone.getInstance(this).getAddParamPromiseResult()){
+            addParamPromise.setChecked(true);
+        }
+        param=SettingSingletone.getInstance(this).getParam();
     }
 
 

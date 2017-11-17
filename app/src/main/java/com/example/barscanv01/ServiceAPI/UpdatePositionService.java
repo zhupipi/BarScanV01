@@ -13,5 +13,5 @@ import retrofit2.http.POST;
 public interface UpdatePositionService {
     @FormUrlEncoded
     @POST("goodsBarcodeController.do?updateGoodDepotforPDA")
-    Call<ResponseBody> updatePosition(@Field("id") String id,@Field("positionNo") String positionNo);
+    Call<ResponseBody> updatePosition(@Field("positionNo") String positionNo,@Field("ids") String ids,@Field("userId") String userId,@Field("currentDepotNo") String currentDepotNo,@Field("orderId") String orderId);
 }

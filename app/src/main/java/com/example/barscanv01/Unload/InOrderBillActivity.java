@@ -310,8 +310,8 @@ public class InOrderBillActivity extends AppCompatActivity {
             act_count = act_count + detail.getActCount();
             detail_count = detail_count + detail.getCount();
         }
-        detailActWeight = Math.round(detailActWeight * 1000);
-        detailActWeight = detailActWeight / 1000;
+        /*detailActWeight = Math.round(detailActWeight * 1000);
+        detailActWeight = detailActWeight / 1000;*/
         count.setText(String.valueOf(detail_count));
         actCount.setText(String.valueOf(act_count));
         actWeight.setText(detailActWeight + "");

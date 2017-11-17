@@ -13,9 +13,9 @@ public class RetrofitBuildUtil {
 
     public RetrofitBuildUtil() {
         retrofit = new Retrofit.Builder()
-                 // .baseUrl("http://192.168.1.112:8080/scan/")   //本机地址
-                 .baseUrl("http://192.168.0.164:8080/scan/")    //正元服务器地址(内网)
-                //.baseUrl("http://sc.yfgg.com/scan/")          //一公司服务器地址
+                  //.baseUrl("http://192.168.4.176:8080/scan/")   //本机地址
+                 //.baseUrl("http://192.168.0.164:8080/scan/")    //正元服务器地址(内网)
+                 .baseUrl("http://sc.yfgg.com/scan/")          //一公司服务器地址
                 //.baseUrl("http://60.2.118.174:8088/scan/")     //正元服务器地址(外网)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
