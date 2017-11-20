@@ -202,6 +202,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
         switch (tag) {
             case "OPERATION_LOAD_CAR":
                 if (scanResult.size() > 0) {
+                    confrim.setClickable(false);
                     String ids = "";
                     for (GoodsBarcodeBean good : scanResult) {
                         ids = ids + good.getId() + ",";
@@ -230,6 +231,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
                 break;
             case "OPERATION_CHANGE_DEPOT":
                 if (positionList.size() > 0) {
+                    confrim.setClickable(false);
                     ArrayList<String> positionNames = new ArrayList<String>();
                     for (PositionBean position : positionList) {
                         positionNames.add(position.getPositionName());
