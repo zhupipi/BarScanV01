@@ -229,7 +229,7 @@ public class NoDetailUnLoadActivity extends AppCompatActivity {
                         showScanResult(good);
                         String weight_temp = actWeight.getText().toString().trim();
                         weight_temp = weight_temp.substring(0, weight_temp.length() - 1);
-                        float act_weight = Float.valueOf(weight_temp) + good.getActWeight();
+                        float act_weight = Float.valueOf(weight_temp) + good.getAdjustWeight();
                         String act_number_temp = actNumber.getText().toString().trim();
                         int act_number = Integer.valueOf(act_number_temp) + 1;
                         actWeight.setText(act_weight + "t");
@@ -324,6 +324,7 @@ public class NoDetailUnLoadActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     Toast.makeText(NoDetailUnLoadActivity.this, "货品已成功卸在" + myApp.getCurrentDepot().getDepotName() + "-" + position.getPositionName() + "中", Toast.LENGTH_SHORT).show();
+                    finish();
                 }
 
                 @Override

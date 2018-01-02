@@ -49,7 +49,7 @@ public class TranslateScanResultAdapter extends RecyclerView.Adapter {
         ((TranslateViewHolder) holder).modle.setText(datas.get(position).getSpecificationModel());
         ((TranslateViewHolder) holder).barcode.setText(datas.get(position).getBarcode());
         ((TranslateViewHolder) holder).goodName.setText(datas.get(position).getGoodsName());
-        ((TranslateViewHolder) holder).weight.setText(String.valueOf(datas.get(position).getActWeight()));
+        ((TranslateViewHolder) holder).weight.setText(String.valueOf(datas.get(position).getAdjustWeight()));
         ((TranslateViewHolder) holder).batchNo.setText(datas.get(position).getBatchNo());
         if (mItemClickListener != null) {
             ((TranslateViewHolder) holder).itemView.setOnLongClickListener(new View.OnLongClickListener() {

@@ -413,7 +413,6 @@ public class TranslateActivity extends AppCompatActivity {
         if (adpter == null) {
             adpter = new TranslateScanResultAdapter(TranslateActivity.this, scanResult);
             scanResultView.setAdapter(adpter);
-
             adpter.setOnItemClickListener(new ScanResultAdapter.OnItemClickListener() {
                 @Override
                 public void OnItemLongClick(View view, int postion) {
