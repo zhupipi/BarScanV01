@@ -38,6 +38,7 @@ public class GoodsBarcodeBean {
     private String batchNo;
     private String qcStatus;
     private String specificationModel;
+    private float adjWeight;
 
     public String getId() {
         return id;
@@ -135,6 +136,13 @@ public class GoodsBarcodeBean {
         this.specificationModel = specificationModel;
     }
 
+    public float getAdjustWeight() {
+        return adjWeight;
+    }
+
+    public void setAdjustWeight(float adjustWeight) {
+        this.adjWeight = adjustWeight;
+    }
     /**
      * flag : 0
      * status : 0

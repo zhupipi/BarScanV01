@@ -50,8 +50,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 public class NoDetailUnLoadActivity extends AppCompatActivity {
-/*    @BindView(R.id.no_detail_unload_toolbar)
-    Toolbar toolbar;*/
+    /*    @BindView(R.id.no_detail_unload_toolbar)
+        Toolbar toolbar;*/
     @BindView(R.id.no_detail_unload_plateNo)
     TextView plateNo;
     @BindView(R.id.no_detail_unload_act_weight)
@@ -64,6 +64,8 @@ public class NoDetailUnLoadActivity extends AppCompatActivity {
     Button confirmButton;
     @BindView(R.id.no_detail_unload_cancel)
     Button cancelButton;
+    @BindView(R.id.no_detail_unload_act_number)
+    TextView actNumber;
 
     /*销邦初始化设置*/
     public static final String SCN_CUST_ACTION_SCODE = "com.android.server.scannerservice.broadcast";
@@ -92,7 +94,6 @@ public class NoDetailUnLoadActivity extends AppCompatActivity {
         resultView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         resultView.setItemAnimator(new DefaultItemAnimator());
         setListener();
-
     }
 
     /*扫完退货产品后，选择库位*/
@@ -100,7 +101,7 @@ public class NoDetailUnLoadActivity extends AppCompatActivity {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(scanResult.size()>0) {
+                if (scanResult.size() > 0) {
                     ArrayAdapter adapter;
                     adapter = getPositionAdapter(positionList);
                     AlertDialog.Builder builder = new AlertDialog.Builder(NoDetailUnLoadActivity.this);
@@ -117,7 +118,7 @@ public class NoDetailUnLoadActivity extends AppCompatActivity {
                                     submitData(scanResult);
                                 }
                             }).show();
-                }else {
+                } else {
                     Toast.makeText(NoDetailUnLoadActivity.this, "请扫描需要卸货产品的条形码", Toast.LENGTH_SHORT).show();
                 }
 
@@ -140,7 +141,7 @@ public class NoDetailUnLoadActivity extends AppCompatActivity {
             call.enqueue(new Callback<ReceivedDetailBarcodeInfo>() {
                 @Override
                 public void onResponse(Call<ReceivedDetailBarcodeInfo> call, Response<ReceivedDetailBarcodeInfo> response) {
-                    if (response.body().getAttributes().getDetailBarcodeEntityList()!=null&&response.body().getAttributes().getDetailBarcodeEntityList().size() > 0) {
+                    if (response.body().getAttributes().getDetailBarcodeEntityList() != null && response.body().getAttributes().getDetailBarcodeEntityList().size() > 0) {
                         loadDetailBarcode = response.body().getAttributes().getDetailBarcodeEntityList();
                     } else {
                         Toast.makeText(NoDetailUnLoadActivity.this, "该装车单未装车", Toast.LENGTH_SHORT).show();
@@ -187,7 +188,8 @@ public class NoDetailUnLoadActivity extends AppCompatActivity {
         if (InOrderSingleton.getInstance().getNoDetailOutOrder() != null) {
             plateNo.setText(InOrderSingleton.getInstance().getNoDetailOutOrder().getPlateNo());
             billNo.setText(InOrderSingleton.getInstance().getNoDetailOutOrder().getOutOrderNo());
-            actWeight.setText("0.0");
+            actWeight.setText("0t");
+            actNumber.setText("0");
         }
         scanResult = new ArrayList<GoodsBarcodeBean>();
         outOrder = InOrderSingleton.getInstance().getNoDetailOutOrder();
@@ -225,6 +227,13 @@ public class NoDetailUnLoadActivity extends AppCompatActivity {
                     GoodsBarcodeBean good = response.body().getAttributes().getGoodsBarcode();
                     if (checkGood(good)) {
                         showScanResult(good);
+                        String weight_temp = actWeight.getText().toString().trim();
+                        weight_temp = weight_temp.substring(0, weight_temp.length() - 1);
+                        float act_weight = Float.valueOf(weight_temp) + good.getActWeight();
+                        String act_number_temp = actNumber.getText().toString().trim();
+                        int act_number = Integer.valueOf(act_number_temp) + 1;
+                        actWeight.setText(act_weight + "t");
+                        actNumber.setText(act_number + "");
                     }
                 } else {
                     Toast.makeText(NoDetailUnLoadActivity.this, "改条码无对应的货品信息", Toast.LENGTH_SHORT).show();

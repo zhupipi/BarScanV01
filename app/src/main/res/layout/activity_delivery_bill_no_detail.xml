@@ -22,49 +22,45 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginLeft="5dp"
             android:layout_weight="1"
             android:text="发货单号："
-            android:textSize="16sp" />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/delivery_bill_nodetail_billNo"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_weight="2.5"
-            android:textSize="16sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:orientation="horizontal">
+            android:layout_weight="1.5"
+            android:textSize="14sp" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginLeft="5dp"
             android:layout_weight="1"
             android:text="车牌号："
-            android:textSize="16sp" />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/delivery_bill_nodetail_plateNo"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_weight="2.5"
-            android:textSize="16sp" />
+            android:layout_weight="1"
+            android:textSize="14sp" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
         android:layout_marginTop="5dp"
+        android:orientation="horizontal">
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <TextView
@@ -72,16 +68,34 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:text="实装重量:"
-            android:textSize="16sp" />
+            android:text="本吊实装重量:"
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/delivery_bill_nodetail_act_weight"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_weight="2.5"
+            android:layout_weight="0.75"
+            android:textColor="@android:color/holo_red_dark"
             android:textSize="16sp" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:text="本吊实装件数:"
+            android:textSize="14sp"
+             />
+        <TextView
+            android:id="@+id/delivery_bill_nodetail_act_number"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="0.5"
+            android:textSize="16sp"
+            android:textColor="@android:color/holo_red_dark"/>
+
     </LinearLayout>
 
     <ImageView
@@ -93,7 +107,7 @@
         <FrameLayout
             android:id="@+id/delivery_bill_nodetail_frag_change"
             android:layout_width="match_parent"
-            android:layout_height="230dp" />
+            android:layout_height="245dp" />
 
 
     <LinearLayout

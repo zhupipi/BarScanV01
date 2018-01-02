@@ -218,7 +218,7 @@ public class InOrderBillActivity extends AppCompatActivity {
                         });
                     }
                     ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(InOrderBillActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-                } else {
+                } else if(s.length()==12){
                     billNo.setText(s.toString());
                     carPlate.setText("");
                 }

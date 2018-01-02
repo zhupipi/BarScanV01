@@ -46,6 +46,8 @@ import com.example.barscanv01.ServiceAPI.ScanBarcodeResultService;
 import com.example.barscanv01.ServiceAPI.UpdatePositionService;
 import com.example.barscanv01.Util.CheckOutOrederDetailFinishedUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
+import com.example.barscanv01.Util.SpeechUtil;
+import com.example.barscanv01.Util.WeightUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -76,6 +78,8 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
     Button confrim;
     @BindView(R.id.delivery_bill_nodetail_cancel)
     Button cancel;
+    @BindView(R.id.delivery_bill_nodetail_act_number)
+    TextView actNumber;
 
 
     private FragmentManager fragmentManager;
@@ -88,6 +92,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
     private PositionBean position;
     private SoundPool soundPool;
     private Map soundMap;
+    private float actParam;
 
     /*销邦初始化设置*/
     public static final String SCN_CUST_ACTION_SCODE = "com.android.server.scannerservice.broadcast";
@@ -172,10 +177,19 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
         userDepot = myApp.getCurrentDepot();
         userArea = myApp.getCurrentAreaBean();
         user = myApp.getUserBean();
-        showWeight();
+        actParam = myApp.getParam() + 1;
+        //showWeight();
+        initalView();
+
+
     }
 
-    private void showWeight() {
+    private void initalView() {
+        actNumber.setText("0");
+        actWeight.setText("0t");
+    }
+
+/*    private void showWeight() {
         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
         GetOrderDetailWeightService getWeightService = retrofit.create(GetOrderDetailWeightService.class);
         Call<ReceivedDetailTotalWeightBean> call = getWeightService.getTotalWeight(outOrder.getId());
@@ -193,89 +207,99 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
             }
         });
 
-    }
+    }*/
 
     private void submitData() {
-        ScanResultFragment scanResultFragment = (ScanResultFragment) fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change);
-        ArrayList<GoodsBarcodeBean> scanResult = scanResultFragment.getScanResultArryList();
-        String tag = scanResultFragment.getTag();
-        switch (tag) {
-            case "OPERATION_LOAD_CAR":
-                if (scanResult.size() > 0) {
-                    confrim.setClickable(false);
-                    String ids = "";
-                    for (GoodsBarcodeBean good : scanResult) {
-                        ids = ids + good.getId() + ",";
-                    }
-                    Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
-                    PutGoodLoadNoDetailService putGoodLoadNoDetailService = retrofit.create(PutGoodLoadNoDetailService.class);
-                    Call<ResponseBody> call = putGoodLoadNoDetailService.putGoodLoadNoDetail(outOrder.getId(), ids, userArea.getAreaNo(), user.getUserName(), user.getId());
-                    call.enqueue(new Callback<ResponseBody>() {
-                        @Override
-                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                            Toast.makeText(DeliveryBillNoDetailActivity.this, "货品装车成功！", Toast.LENGTH_SHORT).show();
-                            ScanResultFragment fragment = (ScanResultFragment) fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change);
-                            fragment.cleanData();
-                            setResult(2);
-                            finish();
+        if (!fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change).getTag().equals("OPERATION_SELECT")) {
+            ScanResultFragment scanResultFragment = (ScanResultFragment) fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change);
+            ArrayList<GoodsBarcodeBean> scanResult = scanResultFragment.getScanResultArryList();
+            String tag = scanResultFragment.getTag();
+            switch (tag) {
+                case "OPERATION_LOAD_CAR":
+                    if (scanResult.size() > 0) {
+                        confrim.setClickable(false);
+                        String ids = "";
+                        float total1 = 0;
+                        for (GoodsBarcodeBean good : scanResult) {
+                            ids = ids + good.getId() + ",";
+                            total1 = total1 + good.getAdjustWeight();
                         }
-
-                        @Override
-                        public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-                        }
-                    });
-                } else {
-                    Toast.makeText(DeliveryBillNoDetailActivity.this, "未扫描产品条形码", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            case "OPERATION_CHANGE_DEPOT":
-                if (positionList.size() > 0) {
-                    confrim.setClickable(false);
-                    ArrayList<String> positionNames = new ArrayList<String>();
-                    for (PositionBean position : positionList) {
-                        positionNames.add(position.getPositionName());
-                    }
-                    ArrayAdapter<String> adpter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice, positionNames);
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle("请选择倒垛目标库位");
-                    builder.setSingleChoiceItems(adpter, -1, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            position = positionList.get(which);
-                        }
-                    });
-                    builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                        ScanResultFragment scanResult = (ScanResultFragment) fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change);
-                        ArrayList<GoodsBarcodeBean> result = scanResult.getScanResultArryList();
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (position != null) {
-                                if (result.size() > 0) {
-                                    String ids="";
-                                    for (GoodsBarcodeBean goodsBarcode : result) {
-                                        ids=ids+goodsBarcode.getId()+",";
-                                        //changePosition(goodsBarcode, position);
-                                    }
-                                    changePosition(ids,position);
-                                }
+                        SpeechUtil speech = new SpeechUtil(DeliveryBillNoDetailActivity.this);
+                        speech.speak("此次装车重量为" + String.valueOf(total1) + "吨");
+                        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+                        PutGoodLoadNoDetailService putGoodLoadNoDetailService = retrofit.create(PutGoodLoadNoDetailService.class);
+                        Call<ResponseBody> call = putGoodLoadNoDetailService.putGoodLoadNoDetail(outOrder.getId(), ids, userArea.getAreaNo(), user.getUserName(), user.getId());
+                        call.enqueue(new Callback<ResponseBody>() {
+                            @Override
+                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                Toast.makeText(DeliveryBillNoDetailActivity.this, "货品装车成功！", Toast.LENGTH_SHORT).show();
+                                ScanResultFragment fragment = (ScanResultFragment) fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change);
+                                fragment.cleanData();
+                                setResult(2);
+                                finish();
                             }
-                            scanResult.cleanData();
-                            finish();
-                        }
-                    }).show();
-                }
 
-            default:
-                break;
+                            @Override
+                            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                            }
+                        });
+                    } else {
+                        Toast.makeText(DeliveryBillNoDetailActivity.this, "未扫描产品条形码", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case "OPERATION_CHANGE_DEPOT":
+                    if (positionList.size() > 0) {
+                        if (scanResult.size() > 0) {
+                            confrim.setClickable(false);
+                            ArrayList<String> positionNames = new ArrayList<String>();
+                            for (PositionBean position : positionList) {
+                                positionNames.add(position.getPositionName());
+                            }
+                            ArrayAdapter<String> adpter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice, positionNames);
+                            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                            builder.setTitle("请选择倒垛目标库位");
+                            builder.setSingleChoiceItems(adpter, -1, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    position = positionList.get(which);
+                                }
+                            });
+                            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                ScanResultFragment scanResult = (ScanResultFragment) fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change);
+                                ArrayList<GoodsBarcodeBean> result = scanResult.getScanResultArryList();
+
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (position != null) {
+                                        if (result.size() > 0) {
+                                            String ids = "";
+                                            for (GoodsBarcodeBean goodsBarcode : result) {
+                                                ids = ids + goodsBarcode.getId() + ",";
+                                                //changePosition(goodsBarcode, position);
+                                            }
+                                            changePosition(ids, position);
+                                        }
+                                    }
+                                    scanResult.cleanData();
+                                    finish();
+                                }
+                            }).show();
+                        }
+                    }
+
+                default:
+                    break;
+            }
+        } else {
+            Toast.makeText(DeliveryBillNoDetailActivity.this, "请选择装车操作，后确认", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void changePosition(String ids, PositionBean position) {
         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
         UpdatePositionService updatePositionService = retrofit.create(UpdatePositionService.class);
-        Call<ResponseBody> call = updatePositionService.updatePosition(position.getPositionNo(),ids,myApp.getUserBean().getId(),myApp.getCurrentDepot().getDepotNo(),outOrder.getOutOrderNo());
+        Call<ResponseBody> call = updatePositionService.updatePosition(position.getPositionNo(), ids, myApp.getUserBean().getId(), myApp.getCurrentDepot().getDepotNo(), outOrder.getOutOrderNo());
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -353,11 +377,18 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
                     ScanResultFragment result = (ScanResultFragment) fragmentManager.findFragmentById(R.id.delivery_bill_nodetail_frag_change);
                     if (checkResult(good)) {
                         soundPool.play((int) (soundMap.get(SOUND_SUCCESS)), 1, 1, 1, 0, 1);
-                        result.addData(good);
-                        if (result.getTag().equals("OPERATION_LOAD_CAR")) {
-                            float act_weight = Float.valueOf(actWeight.getText().toString().trim()) + Float.valueOf(good.getActWeight());
-                            actWeight.setText(String.valueOf(act_weight));
-                        }
+
+                        //if (result.getTag().equals("OPERATION_LOAD_CAR")) {
+                            String temp_weight = actWeight.getText().toString().trim();
+                            temp_weight = temp_weight.substring(0, temp_weight.length() - 1);
+                            //float adjustWeight=WeightUtil.adjsutWeighting(good.getActWeight(),actParam);
+                            float act_weight = Float.valueOf(temp_weight) + good.getAdjustWeight();
+                            //good.setAdjustWeight(adjustWeight);
+                            actWeight.setText(String.valueOf(act_weight) + "t");
+                            int number = Integer.valueOf(actNumber.getText().toString().trim()) + 1;
+                            actNumber.setText(String.valueOf(number));
+                            result.addData(good);
+                        //}
                     }
                 } else {
                     Toast.makeText(DeliveryBillNoDetailActivity.this, "该条码不存在对应的货品", Toast.LENGTH_SHORT).show();
@@ -395,7 +426,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
 
         } else {
             for (GoodsBarcodeBean re : scanResult) {
-                if (re.getId().equals(good.getId())) {
+                if (re.getBarcode().equals(good.getBarcode())) {
                     soundPool.play((int) (soundMap.get(SOUND_FAIL)), 1, 1, 1, 0, 1);
                     Toast.makeText(this, "该货品已扫", Toast.LENGTH_LONG).show();
                     result = false;

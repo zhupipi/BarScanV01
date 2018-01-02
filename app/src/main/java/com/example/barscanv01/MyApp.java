@@ -23,6 +23,7 @@ public class MyApp extends Application {
     private AreaBean currentAreaBean;
     private List<Activity> activityList;
     private String deviceBrand;
+    private float param;
 
     @Override
     public void onCreate() {
@@ -98,5 +99,13 @@ public class MyApp extends Application {
     @Override
     public void onLowMemory() {
         super.onLowMemory();
+    }
+
+    public float getParam() {
+        return param;
+    }
+
+    public void setParam(float param) {
+        this.param = param;
     }
 }

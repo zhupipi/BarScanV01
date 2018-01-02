@@ -36,6 +36,7 @@ import com.example.barscanv01.Bean.DetailBarcodeBean;
 import com.example.barscanv01.Bean.GoodsBarcodeBean;
 import com.example.barscanv01.Bean.OutOrderBean;
 import com.example.barscanv01.Bean.OutOrderDetailBean;
+import com.example.barscanv01.Bean.ParamBean;
 import com.example.barscanv01.Bean.ReceivedDelivieryBillInfo;
 import com.example.barscanv01.Bean.ReceivedDetailBarcodeInfo;
 import com.example.barscanv01.Bean.ReceivedDetailTotalWeightBean;
@@ -49,6 +50,7 @@ import com.example.barscanv01.ServiceAPI.DeliveryBillByPlateService;
 import com.example.barscanv01.ServiceAPI.GetDetailBarcodeService;
 import com.example.barscanv01.ServiceAPI.GetLoadGoodsBarcodeService;
 import com.example.barscanv01.ServiceAPI.GetOrderDetailWeightService;
+import com.example.barscanv01.ServiceAPI.GetParamService;
 import com.example.barscanv01.Setting.SettingSingletone;
 import com.example.barscanv01.TitleChangeFragment.OrderDetailTitleFragment;
 import com.example.barscanv01.TitleChangeFragment.OrderNoDetailTitleFragment;
@@ -100,6 +102,8 @@ public class DeliveryBillActivity extends AppCompatActivity {
     private List<GoodsBarcodeBean> loadGoodsResult;
     private FragmentManager fragmentManager;
 
+    private float param;
+
     /*销邦设置*/
     public static final String SCN_CUST_ACTION_SCODE = "com.android.server.scannerservice.broadcast";
     public static final String SCN_CUST_EX_SCODE = "scannerdata";
@@ -121,7 +125,29 @@ public class DeliveryBillActivity extends AppCompatActivity {
         outOrderDetialView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         outOrderDetialView.setItemAnimator(new DefaultItemAnimator());
         setListener();
+        //getParam();
     }
+
+    private void getParam() {
+        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
+        GetParamService getParamService = retrofit.create(GetParamService.class);
+        Call<ParamBean> call = getParamService.getParam();
+        call.enqueue(new Callback<ParamBean>() {
+            @Override
+            public void onResponse(Call<ParamBean> call, Response<ParamBean> response) {
+                String param_temp = response.body().getAttributes().getParam();
+                if (param_temp != null) {
+                    myApp.setParam(Float.valueOf(param_temp.trim()));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ParamBean> call, Throwable t) {
+
+            }
+        });
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -138,6 +164,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                     }).show();
         }
     }
+
 
     private void setListener() {
         billNumber.addTextChangedListener(new TextWatcher() {

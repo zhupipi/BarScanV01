@@ -92,8 +92,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_weight="0.8"
-                android:textSize="14sp" />
+                android:layout_weight="0.5"
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/textView15"
@@ -109,8 +109,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_weight="0.7"
-                android:textSize="14sp" />
+                android:layout_weight="0.5"
+                android:textSize="12sp" />
 
             <TextView
 
@@ -126,8 +126,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_weight="0.8"
-                android:textSize="14sp" />
+                android:layout_weight="1"
+                android:textSize="12sp" />
         </LinearLayout>
 
     </LinearLayout>

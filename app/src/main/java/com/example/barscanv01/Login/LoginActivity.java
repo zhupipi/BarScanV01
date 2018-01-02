@@ -1,8 +1,13 @@
 package com.example.barscanv01.Login;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -19,8 +24,10 @@ import com.example.barscanv01.Operation.OperationSelectActivity;
 import com.example.barscanv01.R;
 import com.example.barscanv01.ServiceAPI.LoginService;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
+import com.example.barscanv01.Util.SpeechUtil;
 import com.example.barscanv01.Util.UpdateUserUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,11 +65,11 @@ public class LoginActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         myApp = (MyApp) getApplication();
         myApp.addActivity(this);
+        initalPrommision();
         loginCache = new LoginCache(LoginActivity.this);
         user_name.setText(loginCache.getIntalName());
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, loginCache.getNameList());
         user_name.setAdapter(adapter);
-
     }
 
     @OnClick(R.id.delete_button1)
@@ -79,6 +86,7 @@ public class LoginActivity extends AppCompatActivity {
     void login() {
         String account_name = user_name.getText().toString();
         String account_password = user_password.getText().toString();
+       // RetrofitBuildUtil.getCurrentURL(LoginActivity.this);    //正元切换网址钱，必须先getURL
         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
         LoginService loginService = retrofit.create(LoginService.class);
         Map<String, String> map = new HashMap<>();
@@ -110,11 +118,39 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<ReceivedUserInfo> call, Throwable t) {
                 Toast.makeText(LoginActivity.this, "服务器连接错误", Toast.LENGTH_SHORT).show();
+                //正元网址切换
+                /*SharedPreferences preferences = LoginActivity.this.getSharedPreferences("SelectUrl", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor=preferences.edit();
+                editor.putString("currentURL","http://27.191.227.80:8088/scan/");
+                editor.commit();
+                Toast.makeText(LoginActivity.this, "已切换备用网址请从新登陆", Toast.LENGTH_SHORT).show();*/
             }
-
         });
 
 
+    }
+
+    private void initalPrommision() {
+        String[] promissionList = {
+                Manifest.permission.INTERNET,
+                Manifest.permission.ACCESS_NETWORK_STATE,
+                Manifest.permission.MODIFY_AUDIO_SETTINGS,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_SETTINGS,
+                Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.ACCESS_WIFI_STATE,
+                Manifest.permission.CHANGE_WIFI_STATE
+        };
+        ArrayList<String> toApplyList=new ArrayList<>();
+        for(String promission:promissionList){
+            if(PackageManager.PERMISSION_GRANTED!= ContextCompat.checkSelfPermission(this,promission)){
+                toApplyList.add(promission);
+            };
+        }
+        String[] tempList=new String[toApplyList.size()];
+        if(!toApplyList.isEmpty()){
+            ActivityCompat.requestPermissions(this,toApplyList.toArray(tempList),123);
+        }
     }
 
 }
