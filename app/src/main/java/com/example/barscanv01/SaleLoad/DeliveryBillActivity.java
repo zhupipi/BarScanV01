@@ -55,6 +55,7 @@ import com.example.barscanv01.Setting.SettingSingletone;
 import com.example.barscanv01.TitleChangeFragment.OrderDetailTitleFragment;
 import com.example.barscanv01.TitleChangeFragment.OrderNoDetailTitleFragment;
 import com.example.barscanv01.Util.CarPlateUtil;
+import com.example.barscanv01.Util.NetOutUtil;
 import com.example.barscanv01.Util.OutOrderDetailSortUtil;
 import com.example.barscanv01.Util.OutOrderScanedUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
@@ -114,6 +115,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
         setContentView(R.layout.activity_delivery_bill);
         ButterKnife.bind(this);
         myApp = (MyApp) getApplication();
+        myApp.addActivity(this);
         loadGoodsResult = new ArrayList<GoodsBarcodeBean>();
         carPlateUtil = new CarPlateUtil();
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, carPlateUtil.getProvinces());
@@ -125,27 +127,6 @@ public class DeliveryBillActivity extends AppCompatActivity {
         outOrderDetialView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         outOrderDetialView.setItemAnimator(new DefaultItemAnimator());
         setListener();
-        //getParam();
-    }
-
-    private void getParam() {
-        Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
-        GetParamService getParamService = retrofit.create(GetParamService.class);
-        Call<ParamBean> call = getParamService.getParam();
-        call.enqueue(new Callback<ParamBean>() {
-            @Override
-            public void onResponse(Call<ParamBean> call, Response<ParamBean> response) {
-                String param_temp = response.body().getAttributes().getParam();
-                if (param_temp != null) {
-                    myApp.setParam(Float.valueOf(param_temp.trim()));
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ParamBean> call, Throwable t) {
-
-            }
-        });
     }
 
     @Override
@@ -240,7 +221,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
                     Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
                     DeliveryBillById deliveryBillByBillNoService = retrofit.create(DeliveryBillById.class);
                     Call<ReceivedDelivieryBillInfo> call = deliveryBillByBillNoService.getDeliveryBillById(id);
-                    call.enqueue(new Callback<ReceivedDelivieryBillInfo>() {
+                    call.enqueue(new Callback<ReceivedDelivieryBillInfo>(){
                         @Override
                         public void onResponse(Call<ReceivedDelivieryBillInfo> call, Response<ReceivedDelivieryBillInfo> response) {
                             manageOutOrder(response.body().getAttributes().getOutOrder(), response.body().getAttributes().getOutOrderDetailList());
@@ -250,7 +231,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
 
                         @Override
                         public void onFailure(Call<ReceivedDelivieryBillInfo> call, Throwable t) {
-
+                            NetOutUtil.netOut(DeliveryBillActivity.this,myApp);
                         }
                     });
                 } else {
@@ -268,7 +249,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
 
                         @Override
                         public void onFailure(Call<ReceivedLoadGoodsBarcodeInfo> call, Throwable t) {
-
+                            NetOutUtil.netOut(DeliveryBillActivity.this,myApp);
                         }
                     });
                 }
@@ -370,7 +351,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ReceivedDelivieryBillInfo> call, Throwable t) {
-
+                NetOutUtil.netOut(DeliveryBillActivity.this,myApp);
             }
         });
 
@@ -408,7 +389,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ReceivedDelivieryBillInfo> call, Throwable t) {
-
+                NetOutUtil.netOut(DeliveryBillActivity.this,myApp);
             }
         });
     }
@@ -509,7 +490,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ReceivedDetailBarcodeInfo> call, Throwable t) {
-
+                NetOutUtil.netOut(DeliveryBillActivity.this,myApp);
             }
         });
     }
@@ -545,7 +526,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ReceivedLoadGoodsBarcodeInfo> call, Throwable t) {
-
+                NetOutUtil.netOut(DeliveryBillActivity.this,myApp);
             }
         });
     }
@@ -567,6 +548,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<ReceivedDelivieryBillInfo> call, Throwable t) {
+                    NetOutUtil.netOut(DeliveryBillActivity.this,myApp);
                 }
             });
         } else if (requestCode == 2) {
@@ -586,7 +568,7 @@ public class DeliveryBillActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<ReceivedLoadGoodsBarcodeInfo> call, Throwable t) {
-
+                    NetOutUtil.netOut(DeliveryBillActivity.this,myApp);
                 }
             });
         }

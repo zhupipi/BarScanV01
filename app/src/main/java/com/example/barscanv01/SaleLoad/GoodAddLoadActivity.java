@@ -35,6 +35,7 @@ import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
 import com.example.barscanv01.ServiceAPI.PutAddGoodLoadService;
 import com.example.barscanv01.ServiceAPI.ScanBarcodeResultService;
+import com.example.barscanv01.Util.NetOutUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
 
 import java.util.ArrayList;
@@ -79,6 +80,7 @@ public class GoodAddLoadActivity extends AppCompatActivity {
         setContentView(R.layout.activity_good_add_load);
         ButterKnife.bind(this);
         myApp = (MyApp) getApplication();
+        myApp.addActivity(this);
         scanResult = new ArrayList<GoodsBarcodeBean>();
         goodsManageDetailList = new ArrayList<GoodsManageDetailBean>();
         customerList = new ArrayList<CustomerBean>();
@@ -203,6 +205,7 @@ public class GoodAddLoadActivity extends AppCompatActivity {
                             @Override
                             public void onFailure(Call<ResponseBody> call, Throwable t) {
                                 Toast.makeText(GoodAddLoadActivity.this, "加货货物装车提交失败", Toast.LENGTH_SHORT).show();
+                                NetOutUtil.netOut(GoodAddLoadActivity.this,myApp);
                             }
                         });
                     }
@@ -239,7 +242,7 @@ public class GoodAddLoadActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ReceivedGoodsBarcodeInfo> call, Throwable t) {
-
+                NetOutUtil.netOut(GoodAddLoadActivity.this,myApp);
             }
         });
     }

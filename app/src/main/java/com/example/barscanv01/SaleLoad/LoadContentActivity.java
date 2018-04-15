@@ -17,6 +17,7 @@ import com.example.barscanv01.Bean.ReceivedLoadGoodsBarcodeInfo;
 import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
 import com.example.barscanv01.ServiceAPI.GetLoadGoodsBarcodeService;
+import com.example.barscanv01.Util.NetOutUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
 
 import java.util.ArrayList;
@@ -55,6 +56,7 @@ public class LoadContentActivity extends AppCompatActivity {
         setContentView(R.layout.activity_load_content);
         ButterKnife.bind(this);
         myApp = (MyApp) getApplication();
+        myApp.addActivity(this);
         Intent intent = getIntent();
         tag = intent.getStringExtra("tag");
         loadedGoodsBarcodeList = new ArrayList<GoodsBarcodeBean>();
@@ -83,6 +85,7 @@ public class LoadContentActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<ReceivedLoadGoodsBarcodeInfo> call, Throwable t) {
                 Toast.makeText(LoadContentActivity.this, "获取装货信息失败", Toast.LENGTH_SHORT).show();
+                NetOutUtil.netOut(LoadContentActivity.this,myApp);
             }
         });
     }

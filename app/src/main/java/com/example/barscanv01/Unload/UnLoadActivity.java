@@ -38,6 +38,7 @@ import com.example.barscanv01.ServiceAPI.PutGoodLoadedforPDAService;
 import com.example.barscanv01.ServiceAPI.PutGoodsUnLoadService;
 import com.example.barscanv01.ServiceAPI.ScanBarcodeResultService;
 import com.example.barscanv01.Util.CheckInOrderDetailFinishedUtil;
+import com.example.barscanv01.Util.NetOutUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
 import com.nlscan.android.scan.ScanManager;
 import com.nlscan.android.scan.ScanSettings;
@@ -99,6 +100,7 @@ public class UnLoadActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("卸货扫码");
         myApp = (MyApp) getApplication();
+        myApp.addActivity(this);
         intialData();
         getPositionList();
         resultView.setLayoutManager(new LinearLayoutManager(this));
@@ -137,7 +139,7 @@ public class UnLoadActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ReceivedPositionInfo> call, Throwable t) {
-
+                NetOutUtil.netOut(UnLoadActivity.this,myApp);
             }
         });
     }
@@ -182,7 +184,7 @@ public class UnLoadActivity extends AppCompatActivity {
 
                                     @Override
                                     public void onFailure(Call<ResponseBody> call, Throwable t) {
-
+                                        NetOutUtil.netOut(UnLoadActivity.this,myApp);
                                     }
                                 });
                             } else {
@@ -290,7 +292,7 @@ public class UnLoadActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ReceivedGoodsBarcodeInfo> call, Throwable t) {
-
+                NetOutUtil.netOut(UnLoadActivity.this,myApp);
             }
         });
     }

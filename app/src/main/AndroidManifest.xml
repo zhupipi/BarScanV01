@@ -42,6 +42,7 @@
         <activity android:name=".SaleLoad.GoodAddDetailActivity" />
         <activity android:name=".SaleLoad.GoodAddLoadActivity" />
         <activity android:name=".SaleLoad.LoadContentActivity" />
+        <activity android:name=".Login.DepotChoiceActivity"></activity>
     </application>
 
 </manifest>

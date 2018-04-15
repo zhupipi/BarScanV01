@@ -42,6 +42,7 @@ import com.example.barscanv01.ServiceAPI.GetInOrderforPDAbyPlateService;
 import com.example.barscanv01.Util.CarPlateUtil;
 import com.example.barscanv01.Util.InOrderDetailSortUtil;
 import com.example.barscanv01.Util.InOrderScanedUtil;
+import com.example.barscanv01.Util.NetOutUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
 import com.nlscan.android.scan.ScanManager;
 import com.nlscan.android.scan.ScanSettings;
@@ -144,7 +145,7 @@ public class InOrderBillActivity extends AppCompatActivity {
 
                         @Override
                         public void onFailure(Call<ReceivedInOrderInfo> call, Throwable t) {
-
+                            NetOutUtil.netOut(InOrderBillActivity.this,myApp);
                         }
                     });
                     ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(InOrderBillActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
@@ -213,7 +214,7 @@ public class InOrderBillActivity extends AppCompatActivity {
 
                             @Override
                             public void onFailure(Call<ReceivedInOrderInfo> call, Throwable t) {
-
+                                NetOutUtil.netOut(InOrderBillActivity.this,myApp);
                             }
                         });
                     }
@@ -275,7 +276,7 @@ public class InOrderBillActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ReceivedDelivieryBillInfo> call, Throwable t) {
-
+                NetOutUtil.netOut(InOrderBillActivity.this,myApp);
             }
         });
 
@@ -331,7 +332,7 @@ public class InOrderBillActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ReceivedDetailBarcodeInfo> call, Throwable t) {
-
+                NetOutUtil.netOut(InOrderBillActivity.this,myApp);
             }
         });
     }
@@ -352,7 +353,7 @@ public class InOrderBillActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<ReceivedInOrderInfo> call, Throwable t) {
-
+                    NetOutUtil.netOut(InOrderBillActivity.this,myApp);
                 }
             });
         }

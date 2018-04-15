@@ -45,6 +45,7 @@ import com.example.barscanv01.ServiceAPI.PutGoodLoadedforPDAService;
 import com.example.barscanv01.ServiceAPI.ScanBarcodeResultService;
 import com.example.barscanv01.ServiceAPI.UpdatePositionService;
 import com.example.barscanv01.Util.CheckOutOrederDetailFinishedUtil;
+import com.example.barscanv01.Util.NetOutUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
 import com.example.barscanv01.Util.SpeechUtil;
 import com.example.barscanv01.Util.WeightUtil;
@@ -109,6 +110,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("扫码装车/倒垛");
         myApp = (MyApp) getApplication();
+        myApp.addActivity(this);
         initalData();
         soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
         soundMap = new HashMap<>();
@@ -153,7 +155,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
 
                                         @Override
                                         public void onFailure(Call<ResponseBody> call, Throwable t) {
-
+                                            NetOutUtil.netOut(DeliveryBillNoDetailActivity.this,myApp);
                                         }
                                     });
                                 }
@@ -241,7 +243,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
 
                             @Override
                             public void onFailure(Call<ResponseBody> call, Throwable t) {
-
+                                NetOutUtil.netOut(DeliveryBillNoDetailActivity.this,myApp);
                             }
                         });
                     } else {
@@ -308,7 +310,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-
+                NetOutUtil.netOut(DeliveryBillNoDetailActivity.this,myApp);
             }
         });
     }
@@ -325,7 +327,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ReceivedPositionInfo> call, Throwable t) {
-
+                NetOutUtil.netOut(DeliveryBillNoDetailActivity.this,myApp);
             }
         });
     }
@@ -398,7 +400,7 @@ public class DeliveryBillNoDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ReceivedGoodsBarcodeInfo> call, Throwable t) {
-
+                NetOutUtil.netOut(DeliveryBillNoDetailActivity.this,myApp);
             }
         });
 

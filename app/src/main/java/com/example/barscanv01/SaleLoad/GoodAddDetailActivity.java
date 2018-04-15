@@ -19,9 +19,11 @@ import com.example.barscanv01.Adapter.GoodAddDetailAdapter;
 import com.example.barscanv01.Bean.DetailBarcodeBean;
 import com.example.barscanv01.Bean.GoodsManageDetailBean;
 import com.example.barscanv01.Bean.ReceivedDetailBarcodeInfo;
+import com.example.barscanv01.MyApp;
 import com.example.barscanv01.R;
 import com.example.barscanv01.ServiceAPI.GetDetailBarcodeService;
 import com.example.barscanv01.Util.GoodsManageUtil;
+import com.example.barscanv01.Util.NetOutUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
 
 import java.util.ArrayList;
@@ -54,12 +56,15 @@ public class GoodAddDetailActivity extends AppCompatActivity {
     TextView actCount;
 
     List<GoodsManageDetailBean> mGoodsManageDetailList;
+    MyApp myApp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_good_add_detail);
         ButterKnife.bind(this);
+        myApp = (MyApp) getApplication();
+        myApp.addActivity(this);
         initalData();
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("加货信息确认");
@@ -130,7 +135,7 @@ public class GoodAddDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ReceivedDetailBarcodeInfo> call, Throwable t) {
-
+                NetOutUtil.netOut(GoodAddDetailActivity.this,myApp);
             }
         });
     }

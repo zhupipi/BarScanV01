@@ -86,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
     void login() {
         String account_name = user_name.getText().toString();
         String account_password = user_password.getText().toString();
-       // RetrofitBuildUtil.getCurrentURL(LoginActivity.this);    //正元切换网址钱，必须先getURL
+        RetrofitBuildUtil.getCurrentURL(LoginActivity.this);    //正元切换网址钱，必须先getURL
         Retrofit retrofit = new RetrofitBuildUtil().getRetrofit();
         LoginService loginService = retrofit.create(LoginService.class);
         Map<String, String> map = new HashMap<>();
@@ -119,11 +119,11 @@ public class LoginActivity extends AppCompatActivity {
             public void onFailure(Call<ReceivedUserInfo> call, Throwable t) {
                 Toast.makeText(LoginActivity.this, "服务器连接错误", Toast.LENGTH_SHORT).show();
                 //正元网址切换
-                /*SharedPreferences preferences = LoginActivity.this.getSharedPreferences("SelectUrl", Context.MODE_PRIVATE);
+                SharedPreferences preferences = LoginActivity.this.getSharedPreferences("SelectUrl", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor=preferences.edit();
-                editor.putString("currentURL","http://27.191.227.80:8088/scan/");
+                editor.putString("currentURL","http://111.33.16.58:8088/scan/");
                 editor.commit();
-                Toast.makeText(LoginActivity.this, "已切换备用网址请从新登陆", Toast.LENGTH_SHORT).show();*/
+                Toast.makeText(LoginActivity.this, "已切换备用网址请从新登陆", Toast.LENGTH_SHORT).show();
             }
         });
 

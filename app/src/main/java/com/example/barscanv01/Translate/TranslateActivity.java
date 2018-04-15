@@ -47,6 +47,7 @@ import com.example.barscanv01.ServiceAPI.PutGoodChangeDepotService;
 import com.example.barscanv01.ServiceAPI.PutGoodsUnpackService;
 import com.example.barscanv01.ServiceAPI.ScanBarcodeResultService;
 import com.example.barscanv01.Util.BackgroundUtil;
+import com.example.barscanv01.Util.NetOutUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
 import com.nlscan.android.scan.ScanManager;
 import com.nlscan.android.scan.ScanSettings;
@@ -105,6 +106,7 @@ public class TranslateActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         backgroundUtil = new BackgroundUtil(TranslateActivity.this);
         myApp = (MyApp) getApplication();
+        myApp.addActivity(this);
         soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
         soundMap = new HashMap<>();
         soundMap.put(SOUND_SUCCESS, soundPool.load(this, R.raw.sucess1, 1));
@@ -189,6 +191,7 @@ public class TranslateActivity extends AppCompatActivity {
                             @Override
                             public void onFailure(Call<ReceivedPositionInfo> call, Throwable t) {
                                 Toast.makeText(TranslateActivity.this, "获取库位信息失败", Toast.LENGTH_SHORT).show();
+                                NetOutUtil.netOut(TranslateActivity.this,myApp);
                             }
                         });
 
@@ -201,6 +204,7 @@ public class TranslateActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<ReceiveDepotByAreaInfo> call, Throwable t) {
                 Toast.makeText(TranslateActivity.this, "获取库房信息失败", Toast.LENGTH_SHORT).show();
+                NetOutUtil.netOut(TranslateActivity.this,myApp);
             }
         });
     }
@@ -271,7 +275,7 @@ public class TranslateActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
-
+                    NetOutUtil.netOut(TranslateActivity.this,myApp);
                 }
             });
         }
@@ -299,7 +303,7 @@ public class TranslateActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
-
+                    NetOutUtil.netOut(TranslateActivity.this,myApp);
                 }
             });
         }
@@ -338,6 +342,7 @@ public class TranslateActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Toast.makeText(TranslateActivity.this, "货品拆包提交失败", Toast.LENGTH_SHORT).show();
+                NetOutUtil.netOut(TranslateActivity.this,myApp);
             }
         });
     }
@@ -403,8 +408,7 @@ public class TranslateActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<ReceivedGoodsBarcodeInfo> call, Throwable t) {
                 Toast.makeText(TranslateActivity.this, "获取条码信息失败", Toast.LENGTH_SHORT);
-                soundPool.play((int) (soundMap.get(SOUND_FAIL)), 1, 1, 1, 0, 1);
-                backgroundUtil.changeBackground(LayoutInflater.from(TranslateActivity.this).inflate(R.layout.activity_translate, null), BackgroundUtil.SCAN_FAILED, null);
+                NetOutUtil.netOut(TranslateActivity.this,myApp);
             }
         });
     }

@@ -18,7 +18,8 @@ public class RetrofitBuildUtil {
     public Retrofit retrofit;
     //public static String currentUrl = "http://60.2.118.174:8088/scan/";         //正元基础IP地址
     //public static String currentUrl = "http://60.30.209.26:8088/scan/";      //一公司基础IP地址
-    public static String currentUrl="http://192.168.4.170:8080/scan/";
+    public static String currentUrl="http://61.181.143.170:8088/scan/";
+    //public static String currentUrl="http://192.168.4.170:8080/scan/";
     //public Context context;
 
     /*    public RetrofitBuildUtil() {
@@ -35,7 +36,7 @@ public class RetrofitBuildUtil {
         }*/
     public static void getCurrentURL(Context context) {
         SharedPreferences preferences = context.getSharedPreferences("SelectUrl", Context.MODE_PRIVATE);
-        String url = preferences.getString("currentURL", "http://60.2.118.174:8088/scan/");
+        String url = preferences.getString("currentURL", "http://61.181.143.170:8088/scan/");
         currentUrl = url;
         SharedPreferences.Editor editor=preferences.edit();
         editor.clear();

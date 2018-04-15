@@ -66,6 +66,7 @@ import com.example.barscanv01.ServiceAPI.UpdatePositionService;
 import com.example.barscanv01.Util.CheckOutOrederDetailFinishedUtil;
 import com.example.barscanv01.Util.GetCountUtil;
 import com.example.barscanv01.Util.GoodsManageUtil;
+import com.example.barscanv01.Util.NetOutUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
 import com.example.barscanv01.Util.WriteBizlogUtil;
 import com.example.barscanv01.Util.WriteDetailBarcodeUtil;
@@ -135,6 +136,7 @@ public class SaleLoadActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("扫码装车/倒垛");
         myApp = (MyApp) getApplication();
+        myApp.addActivity(this);
         intitalData();
         positionList = new ArrayList<PositionBean>();
         getPositionList();
@@ -313,7 +315,7 @@ public class SaleLoadActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-
+                NetOutUtil.netOut(SaleLoadActivity.this,myApp);
             }
         });
 
@@ -332,7 +334,7 @@ public class SaleLoadActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ReceivedPositionInfo> call, Throwable t) {
-
+                NetOutUtil.netOut(SaleLoadActivity.this,myApp);
             }
         });
     }
@@ -350,6 +352,7 @@ public class SaleLoadActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<ReceivedGoodsManageInfo> call, Throwable t) {
                 Toast.makeText(SaleLoadActivity.this, "获取加减货信息失败", Toast.LENGTH_SHORT).show();
+                NetOutUtil.netOut(SaleLoadActivity.this,myApp);
             }
         });
     }
@@ -380,7 +383,7 @@ public class SaleLoadActivity extends AppCompatActivity {
 
                         @Override
                         public void onFailure(Call<ResponseBody> call, Throwable t) {
-
+                            NetOutUtil.netOut(SaleLoadActivity.this,myApp);
                         }
                     });
                     WriteBizlogUtil wirteBizlog = new WriteBizlogUtil(SaleLoadActivity.this);
@@ -416,7 +419,7 @@ public class SaleLoadActivity extends AppCompatActivity {
 
                                 @Override
                                 public void onFailure(Call<ResponseBody> call, Throwable t) {
-
+                                    NetOutUtil.netOut(SaleLoadActivity.this,myApp);
                                 }
                             });
                             //GoodsManageUtil goodsManageUtil = new GoodsManageUtil(SaleLoadActivity.this);
@@ -539,7 +542,7 @@ public class SaleLoadActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ReceivedGoodsBarcodeInfo> call, Throwable t) {
-
+                NetOutUtil.netOut(SaleLoadActivity.this,myApp);
             }
         });
     }
@@ -739,6 +742,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                                             @Override
                                             public void onFailure(Call<ResponseBody> call, Throwable t) {
                                                 Toast.makeText(SaleLoadActivity.this, "货品散支装车提交失败", Toast.LENGTH_SHORT).show();
+                                                NetOutUtil.netOut(SaleLoadActivity.this,myApp);
                                             }
                                         });
 
@@ -804,6 +808,7 @@ public class SaleLoadActivity extends AppCompatActivity {
                             @Override
                             public void onFailure(Call<ResponseBody> call, Throwable t) {
                                 Toast.makeText(SaleLoadActivity.this, "货品装车失败", Toast.LENGTH_SHORT).show();
+                                NetOutUtil.netOut(SaleLoadActivity.this,myApp);
                             }
                         });
 

@@ -35,6 +35,7 @@ import com.example.barscanv01.ServiceAPI.GetDetailBarcodeService;
 import com.example.barscanv01.ServiceAPI.GetPositionsByDepotService;
 import com.example.barscanv01.ServiceAPI.PutGoodsUnLoadService;
 import com.example.barscanv01.ServiceAPI.ScanBarcodeResultService;
+import com.example.barscanv01.Util.NetOutUtil;
 import com.example.barscanv01.Util.RetrofitBuildUtil;
 import com.nlscan.android.scan.ScanManager;
 
@@ -87,6 +88,7 @@ public class NoDetailUnLoadActivity extends AppCompatActivity {
         //setSupportActionBar(toolbar);
         //getSupportActionBar().setTitle("发货单卸车");
         myApp = (MyApp) getApplication();
+        myApp.addActivity(this);
         initalData();
         getDetailBarocde();
         getPositionList();
@@ -151,6 +153,7 @@ public class NoDetailUnLoadActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(Call<ReceivedDetailBarcodeInfo> call, Throwable t) {
                     Toast.makeText(NoDetailUnLoadActivity.this, "获取该装车单的装车信息失败", Toast.LENGTH_SHORT).show();
+                    NetOutUtil.netOut(NoDetailUnLoadActivity.this,myApp);
                 }
             });
         }
@@ -170,7 +173,7 @@ public class NoDetailUnLoadActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ReceivedPositionInfo> call, Throwable t) {
-
+                NetOutUtil.netOut(NoDetailUnLoadActivity.this,myApp);
             }
         });
     }
@@ -242,7 +245,7 @@ public class NoDetailUnLoadActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ReceivedGoodsBarcodeInfo> call, Throwable t) {
-
+                NetOutUtil.netOut(NoDetailUnLoadActivity.this,myApp);
             }
         });
     }
@@ -329,7 +332,7 @@ public class NoDetailUnLoadActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
-
+                    NetOutUtil.netOut(NoDetailUnLoadActivity.this,myApp);
                 }
             });
         } else {
